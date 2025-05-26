@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Document</title>
+</head>
+
+<p style="background: url(../assets/imagenes/nol.avif);"></p>
+<body class="bg-[url('../assets/imagenes/nol.avif')] bg-cover bg-center min-h-screen bg-gray-100 flex items-center justify-center">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+    <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">Iniciar sesión</h2>
+
+    <form id="formulario" action="#" method="POST" class="space-y-5">
+      <div>
+        <label for="email" class="block text-md font-medium text-gray-700">Email</label>
+        <input type="email" id="email" name="email" required placeholder="miusuaio@dominio.com"
+          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div>
+        <label for="contrasena" class="block text-md font-medium text-gray-700">Contraseña</label>
+        <input type="password" id="contrasena" name="contrasena" required placeholder="**********"
+          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div class="flex items-center justify-between text-sm">
+        <a href="#" class="text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <p id="errorMensaje" class="hidden text-red-600 text-sm">Email o contrasena errónea</p>
+      <button type="submit"
+        class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+        Ingresar
+      </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-600">
+      ¿No tienes una cuenta?
+      <a href="./crear-cuenta.jsp" class="text-blue-600 font-medium hover:underline">Crear cuenta</a>
+    </p>
+  </div>
+  <script src="../js/login.js"></script>
+</body>
+</html>

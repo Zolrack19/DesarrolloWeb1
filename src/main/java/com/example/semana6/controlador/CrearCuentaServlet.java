@@ -1,0 +1,79 @@
+package com.example.semana6.controlador;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.example.semana6.dto.cliente.ClienteCrear;
+import com.example.semana6.dto.cliente.ClienteVista;
+import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
+import com.example.semana6.dto.cliente.PersonaConNegocioVista;
+import com.example.semana6.facade.AutenticacionFacade;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet(name = "CrearCuentaServ", urlPatterns = {"/CrearCuentaServ"})
+public class CrearCuentaServlet extends HttpServlet {
+  private AutenticacionFacade autenticacionFacade;
+
+  @Override
+  public void init() throws ServletException {
+    autenticacionFacade = new AutenticacionFacade();
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    System.out.println("hola desde servlet de crear cuenta");
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    req.setCharacterEncoding("UTF-8");
+    short tipoDocumentoId = Short.valueOf(req.getParameter("tipoDocumentoId"));
+    String numeroDocumento = req.getParameter("documento");
+    short tipoClienteId = Short.valueOf(req.getParameter("tipoClienteId"));
+    short tipoSectorEconomicoId = Short.valueOf(req.getParameter("tipoSectorEconomicoId"));
+    String razon = req.getParameter("razon");
+    String email = req.getParameter("email");
+    String contrasena = req.getParameter("contrasena");
+    String telefono = req.getParameter("telefono");
+
+    boolean ok = false;
+    boolean esPersonaConNegocio = false;
+
+    ClienteCrear clienteCrear;
+    if (tipoClienteId == 1) { //empresa
+      clienteCrear = new ClienteCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento, email, contrasena, telefono);
+    } else {
+      String nombre = req.getParameter("nombre");
+      String apellidoP = req.getParameter("apellidoP");
+      String apellidoM = req.getParameter("apellidoM");
+      clienteCrear = new PersonaConNegocioCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento, email, contrasena, telefono,
+      nombre, apellidoP, apellidoM);
+      esPersonaConNegocio = true;
+    }
+
+    ClienteVista clienteVista = autenticacionFacade.crearCliente(clienteCrear);
+
+    if (clienteVista != null) {
+      HttpSession session = req.getSession();
+      session.setAttribute("usuario", esPersonaConNegocio ? ((PersonaConNegocioVista) clienteVista) : clienteVista);
+      session.setAttribute("rol", "cliente");
+      ok = true;
+    }
+
+    
+    Map<String, Object> json = new HashMap<>();
+    json.put("ok", ok);
+    json.put("redirect", "menu-inicio.jsp");
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    new ObjectMapper().writeValue(resp.getWriter(), json);
+  }
+}
