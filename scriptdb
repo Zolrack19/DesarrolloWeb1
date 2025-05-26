@@ -1,0 +1,201 @@
+
+-- catalogos
+CREATE TABLE rol_colaborador (
+  id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  nombre varchar(120) NOT NULL UNIQUE,
+  codigo_prefijo varchar(10) CHECK (char_length(codigo_prefijo) >= 4) NOT NULL,
+  nombre_secuencia varchar(130) NOT NULL UNIQUE
+);
+
+CREATE TABLE tipo_documento (
+  id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  nombre varchar(120) NOT NULL
+);
+
+CREATE TABLE tipo_cliente (
+  id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  nombre varchar(100) NOT NULL
+);
+
+CREATE TABLE sector_economico (
+  id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  nombre varchar(100) NOT NULL
+);
+
+CREATE TABLE tipo_solicitud (
+  id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  nombre varchar(200) NOT NULL
+);
+
+CREATE TABLE estado_solicitud (
+  id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  nombre varchar(100) NOT NULL
+);
+--------------------------------------------------------------
+
+
+-- tablas
+CREATE TABLE colaborador (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  rol_colaborador_id SMALLINT NOT NULL,
+  tipo_documento_id SMALLINT NOT NULL,
+  numero_documento varchar(20) CHECK (char_length(numero_documento) BETWEEN 4 AND 15) UNIQUE NOT NULL,
+  codigo varchar(50) CHECK (char_length(codigo) >= 8) NOT NULL,
+  email varchar(100) NOT NULL UNIQUE,
+  contrasena varchar(50) CHECK (char_length(contrasena) >= 8) NOT NULL,
+  nombre varchar(100) NOT NULL,
+  apellido_paterno varchar(50) NOT NULL,
+  apellido_materno varchar(50) NOT NULL,
+  numero_solicitud_activa SMALLINT CHECK (numero_solicitud_activa BETWEEN 0 AND 5) DEFAULT 0,
+  CONSTRAINT fk_rol_colaborador FOREIGN KEY (rol_colaborador_id) REFERENCES rol_colaborador(id),
+  CONSTRAINT fk_tipo_documento FOREIGN KEY (tipo_documento_id) REFERENCES tipo_documento(id)
+);
+
+CREATE TABLE cliente (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  tipo_documento_id SMALLINT NOT NULL,
+  tipo_cliente_id SMALLINT NOT NULL,
+  sector_economico_id SMALLINT NOT NULL,
+  numero_documento varchar(20) CHECK (char_length(numero_documento) BETWEEN 4 AND 15) UNIQUE NOT NULL,
+  email varchar(150) NOT NULL,
+  contrasena varchar(50) CHECK (char_length(contrasena) >= 8) NOT NULL,
+  telefono varchar(9) NOT NULL,
+  CONSTRAINT fk_tipo_documento FOREIGN KEY (tipo_documento_id) REFERENCES tipo_documento(id),
+  CONSTRAINT fk_cliente_tipo FOREIGN KEY (tipo_cliente_id) REFERENCES cliente(id),
+  CONSTRAINT fk_sector_economico FOREIGN KEY (sector_economico_id) REFERENCES sector_economico(id),
+  CONSTRAINT chk_cliente_tel check(telefono similar to '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
+);
+
+CREATE TABLE empresa (
+  id INTEGER PRIMARY KEY,
+  razon_social varchar(400) NOT NULL,
+  CONSTRAINT fk_empresa_cliente FOREIGN KEY (id) REFERENCES cliente(id)
+);
+
+CREATE TABLE persona_con_negocio (
+  id INTEGER PRIMARY KEY,
+  nombre varchar(100) NOT NULL,
+  apellido_paterno varchar(50) NOT NULL,
+  apellido_materno varchar(50) NOT NULL,
+  CONSTRAINT fk_persona_cliente FOREIGN KEY (id) REFERENCES cliente(id)
+);
+
+CREATE TABLE solicitud (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  tipo_solicitud_id SMALLINT NOT NULL,
+  titulo varchar(200) NOT NULL,
+  descripcion text NOT NULL,
+  id_cordinador INTEGER NOT NULL,
+  cliente_id INTEGER NOT NULL,
+  fecha_registro TIMESTAMP DEFAULT current_timestamp NOT NULL,
+  fecha_finalizacion TIMESTAMP,
+  estado_id SMALLINT NOT NULL,
+  CONSTRAINT fk_tipo_solicitud FOREIGN KEY (tipo_solicitud_id) REFERENCES tipo_solicitud(id),
+  CONSTRAINT fk_cordinador FOREIGN KEY (id_cordinador) REFERENCES colaborador(id),
+  CONSTRAINT fk_cliente FOREIGN KEY (cliente_id) REFERENCES cliente(id),
+  CONSTRAINT fk_estado_solicitud FOREIGN KEY (estado_id) REFERENCES estado_solicitud(id)
+);
+
+CREATE TABLE actividad_realizada (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  solicitud_id INTEGER NOT NULL,
+  colaborador_id INTEGER NOT NULL,
+  descripcion text NOT NULL,
+  hora_inicio TIME NOT NULL,
+  hora_fin TIME NOT NULL,
+  fecha_emision TIMESTAMP DEFAULT current_timestamp NOT NULL,
+  CONSTRAINT fk_solicitud FOREIGN KEY (solicitud_id) REFERENCES solicitud(id),
+  CONSTRAINT fk_colaborador FOREIGN KEY (colaborador_id) REFERENCES colaborador(id)
+);
+
+CREATE TABLE asignacion (
+  colaborador_id INTEGER NOT NULL,
+  solicitud_id INTEGER NOT NULL,
+  inicio_atencion TIMESTAMP,
+  fin_atencion TIMESTAMP,
+  CONSTRAINT PK_compuesto PRIMARY KEY (colaborador_id, solicitud_id)
+);
+----------------------------------------------------------------------------------------------------------------------------
+
+--secuencias
+CREATE SEQUENCE administrador_seq
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+CACHE 1;
+
+CREATE SEQUENCE programador_seq
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+CACHE 1;
+
+CREATE SEQUENCE analista_seq
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+CACHE 1;
+
+CREATE SEQUENCE disenador_seq
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+CACHE 1;
+
+--trigger
+CREATE OR REPLACE FUNCTION generar_codigo_por_rol()
+RETURNS TRIGGER AS $$
+DECLARE
+  prefijo_actual VARCHAR(10);
+  nombre_seq VARCHAR(50);
+  secuencia_sql TEXT;
+  siguiente_valor INT;
+  nuevo_codigo TEXT;
+BEGIN
+
+  SELECT r.codigo_prefijo, r.nombre_secuencia
+  INTO prefijo_actual, nombre_seq
+  FROM rol_colaborador r
+  WHERE r.id = NEW.rol_colaborador_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'rol_colaborador con id % no registrada', NEW.categoria_id;
+  END IF;
+
+  secuencia_sql := 'SELECT nextval(''' || nombre_seq || ''')';
+  EXECUTE secuencia_sql INTO siguiente_valor;
+
+  nuevo_codigo := prefijo_actual || LPAD(siguiente_valor::TEXT, 4, '0');
+  NEW.codigo := nuevo_codigo;
+  NEW.email := concat(nuevo_codigo, '@123digital.com');
+  NEW.contrasena := LPAD(FLOOR(RANDOM() * 900000 + 100000)::TEXT, 8, '0');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trigger_codigo_por_rol
+BEFORE INSERT ON colaborador
+FOR EACH ROW
+EXECUTE FUNCTION generar_codigo_por_rol();
+
+
+
+--índices
+CREATE INDEX idx_colaborador_nombre_apellido
+ON colaborador (nombre, apellido_paterno, apellido_materno);
+
+CREATE INDEX idx_apellido
+ON colaborador (apellido_paterno, apellido_materno);
+
+
+CREATE INDEX idx_persona_con_negocio_nombre_apellido
+ON persona_con_negocio (nombre, apellido_paterno, apellido_materno);
+
+CREATE INDEX idx_persona_con_negocio_apellido
+ON persona_con_negocio (apellido_paterno, apellido_materno);
+
+
+
+
+
