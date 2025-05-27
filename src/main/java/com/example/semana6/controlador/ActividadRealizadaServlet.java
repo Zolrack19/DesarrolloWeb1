@@ -8,12 +8,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "MenuServlet", urlPatterns = { "/html/menu/*", "/control/MenuServlet" })
-public class MenuServlet extends HttpServlet {
-  
+@WebServlet(name = "ActividadRealizadaServlet", urlPatterns = {"/control/ActividadRealizadaServlet"})
+public class ActividadRealizadaServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    System.out.println("Hola");
-    req.getRequestDispatcher("/html/menu.jsp").forward(req, resp);
+    
   }
+  
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    
+  } 
 }

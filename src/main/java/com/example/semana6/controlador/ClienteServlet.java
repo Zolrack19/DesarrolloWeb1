@@ -8,7 +8,7 @@ import com.example.semana6.dto.cliente.ClienteCrear;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
-import com.example.semana6.facade.AutenticacionFacade;
+import com.example.semana6.facade.ClienteFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;
@@ -18,13 +18,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet(name = "CrearCuentaServ", urlPatterns = {"/CrearCuentaServ"})
-public class CrearCuentaServlet extends HttpServlet {
-  private AutenticacionFacade autenticacionFacade;
+@WebServlet(name = "ClienteServlet", urlPatterns = {"/control/ClienteServlet"})
+public class ClienteServlet extends HttpServlet {
+  private ClienteFacade clienteFacade;
 
   @Override
   public void init() throws ServletException {
-    autenticacionFacade = new AutenticacionFacade();
+    clienteFacade = new ClienteFacade();
   }
 
   @Override
@@ -59,7 +59,7 @@ public class CrearCuentaServlet extends HttpServlet {
       esPersonaConNegocio = true;
     }
 
-    ClienteVista clienteVista = autenticacionFacade.crearCliente(clienteCrear);
+    ClienteVista clienteVista = clienteFacade.crearCliente(clienteCrear);
 
     if (clienteVista != null) {
       HttpSession session = req.getSession();
@@ -71,7 +71,6 @@ public class CrearCuentaServlet extends HttpServlet {
     
     Map<String, Object> json = new HashMap<>();
     json.put("ok", ok);
-    json.put("redirect", "menu-inicio.jsp");
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
     new ObjectMapper().writeValue(resp.getWriter(), json);

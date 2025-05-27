@@ -9,7 +9,7 @@ document.getElementById("formulario").addEventListener("submit", async function 
   const contrasena = txtContrasena.value
   const contextPath = window.location.pathname.split("/")[1];
 
-  const respuesta = await fetch("/" + contextPath + "/LoginServlet", {
+  await fetch("/" + contextPath + "/LoginServlet", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

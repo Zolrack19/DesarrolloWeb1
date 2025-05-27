@@ -1,12 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Perfil de Cuenta</title>
-</head>
 <body class="container bg-gray-50 p-8 text-gray-800 font-sans">
 
   <div class="container mx-auto :hover">
@@ -252,4 +246,3 @@
   </c:if>
 
 </body>
-</html>

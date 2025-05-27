@@ -1,12 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Ventas</title>
-</head>
 <body class="bg-white font-sans text-sm text-gray-800">
 
   <header class="flex justify-between items-center px-6 py-4 border-b">
@@ -68,62 +62,99 @@
     <div id="contenidoCliente" class="bg-white rounded-2xl p-6 shadow-xl transform scale-95 opacity-0 transition-all duration-300 max-w-xl w-full">
       <h2 class="text-2xl font-bold text-blue-700 mb-4">Crear Cliente</h2>
       
-      <form id="formCliente" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <div class="md:col-span-2">
-          <label for="razonSocial" class="block text-sm font-medium text-gray-700">Razón Social</label>
-          <input type="text" id="razonSocial" name="razonSocial" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required />
+      <form id="formulario" class="space-y-5">
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="text-sm font-medium text-gray-700" for="cbxDoc">Tipo de documento</label>
+            <select name="cbxDoc" id="cbxDoc" required
+              class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option selected value="">Selecciona una opción</option>
+              <option value="1">DNI</option>
+              <option value="2">RUC</option>
+              <option value="3">Carnet de extranjería</option>
+              <option value="4">Pasaporte</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700" for="documento" class="block text-sm font-medium text-gray-700">N° de documento</label>
+            <input type="text" id="documento" name="documento" required
+              class="mt-1 w-full px-4 py-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <p id="ocultoDoc" class="hidden text-red-600 text-sm">DNI debe tener 8 dígitos</p>
+          </div>
+  
+          <div>
+            <label class="text-sm font-medium text-gray-700" for="cbxCliente">Tipo de cliente</label>
+            <select name="cbxCliente" id="cbxCliente" required
+              class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option selected value="">Selecciona una opción</option>
+              <option value="1">Empresa</option>
+              <option value="2">Persona con negocio</option>
+            </select>
+          </div>
+  
+          <div>
+            <label class="text-sm font-medium text-gray-700" for="cbxSectorEco">Sector económico</label>
+            <select name="cbxSectorEco" id="cbxSectorEco" required
+              class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option selected value="">Selecciona una opción</option>
+              <option value="1">Primario</option>
+              <option value="2">Secundario</option>
+              <option value="3">Terciario</option>
+            </select>
+          </div>
+  
         </div>
-      
+  
         <div>
-          <label for="numeroDocumento" class="block text-sm font-medium text-gray-700">N° Documento</label>
-          <input type="text" id="numeroDocumento" name="numeroDocumento" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required />
+          <label for="razon" class="block text-sm font-medium text-gray-700">Razón social</label>
+          <input type="text" id="razon" name="razon" required
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
-      
+  
+        <div class="grid grid-cols-2 gap-5">
+  
+          <div id="divNombre" class="hidden">
+            <label for="nombre" class="block text-sm font-medium text-gray-700">Nombres</label>
+            <input type="text" id="nombre" name="nombre"
+              class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+  
+          <div id="divApellidoP" class="hidden">
+            <label for="apellidoPaterno" class="block text-sm font-medium text-gray-700">Apellido paterno</label>
+            <input type="text" id="apellidoPaterno" name="apellidoPaterno"
+              class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+  
+          <div id="divApellidoM" class="hidden">
+            <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">Apellido materno</label>
+            <input type="text" id="apellidoMaterno" name="apellidoMaterno"
+              class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+  
+          <div>
+            <label for="telefono" class="block text-sm font-medium text-gray-700">Número celular +51</label>
+            <input type="tel" id="telefono" name="telefono" required
+              class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <p id="ocultoTel" class="hidden text-red-600 text-sm">número no válido</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-5">
         <div>
-          <label for="tipoDocumentoId" class="block text-sm font-medium text-gray-700">Tipo Documento</label>
-          <select id="tipoDocumentoId" name="tipoDocumentoId" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required>
-            <option value="">Seleccione...</option>
-            <option value="1">DNI</option>
-            <option value="2">Pasaporte</option>
-          </select>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" name="email" required
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
-      
+  
         <div>
-          <label for="tipoClienteId" class="block text-sm font-medium text-gray-700">Tipo Cliente</label>
-          <select id="tipoClienteId" name="tipoClienteId" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required>
-            <option value="">Seleccione...</option>
-            <option value="1">Persona Natural</option>
-            <option value="2">Empresa</option>
-          </select>
+          <label for="contrasena" class="block text-sm font-medium text-gray-700">Contraseña</label>
+          <input type="password" id="contrasena" name="contrasena" required
+            class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <p id="ocultoContra" class="hidden text-red-600 text-sm">Contraseña debe ser mayor a 8 dígitos</p>  
         </div>
-      
-        <div>
-          <label for="sectorEconomicoId" class="block text-sm font-medium text-gray-700">Sector Económico</label>
-          <select id="sectorEconomicoId" name="sectorEconomicoId" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required>
-            <option value="">Seleccione...</option>
-            <option value="1">Tecnología</option>
-            <option value="2">Comercio</option>
-            <option value="3">Agroindustria</option>
-          </select>
         </div>
-      
-        <div>
-          <label for="txtTelefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
-          <input type="text" id="txtTelefono" name="txtTelefono" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required />
-        </div>
-        <p></p>
-      
-        <div>
-          <label for="txtEmail" class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="txtEmail" name="txtEmail" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required />
-        </div>
-      
-        <div>
-          <label for="txtContrasena" class="block text-sm font-medium text-gray-700">Contraseña</label>
-          <input type="password" id="txtContrasena" name="txtContrasena" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required />
-        </div>
-      
+  
         <div class="md:col-span-2 flex justify-end gap-3 pt-2">
           <button type="button" id="btnCancelarCliente" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium">
             Cancelar
@@ -132,10 +163,12 @@
             Guardar
           </button>
         </div>
+
       </form>
+
+
 
     </div>
   </div>
 
 </body>
-</html>

@@ -1,17 +1,20 @@
+const contextPath = window.location.pathname.split("/")[1];
 const vistasCache = {};
 let paginaActual = ""
 
 async function init() {
-  paginaActual = "inicio"
-  const respuesta = await fetch(`inicio.jsp`);
+  const respuesta = await fetch(`/${contextPath}/html/inicio.jsp`);
   if (!respuesta.ok) throw new Error("No se pudo cargar la vista.");
   
   const html = await respuesta.text();
+  
   document.getElementById("contenido").innerHTML = html;
   const divContenedor = document.createElement("div")
   divContenedor.innerHTML = html
 
-  const modulo = await import(`../js/inicio.js`);
+  history.replaceState({ nombre: "inicio" }, '', '/semana6-1.0-SNAPSHOT/html/menu/inicio');
+
+  const modulo = await import(`/${contextPath}/js/inicio.js`);
   modulo?.init?.();
   vistasCache["inicio"] = {
     nodo: divContenedor,
@@ -19,14 +22,16 @@ async function init() {
   };
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  init()
-})
 
-async function cargarContenido(nombre) {
+async function cargarContenido(nombre, acutalizarURL = true) {
   const contenedor = document.getElementById("contenido");
   if (paginaActual === nombre) return
+  
   paginaActual = nombre;
+  if (acutalizarURL) {
+    history.pushState({nombre}, '', `/${contextPath}/html/menu/${nombre}`);
+  }
+  
   if (vistasCache[nombre]) {
     vistasCache[nombre].modulo?.actualizar?.(vistasCache[nombre].nodo); 
     contenedor.innerHTML = vistasCache[nombre].nodo.innerHTML;
@@ -35,9 +40,8 @@ async function cargarContenido(nombre) {
   }
 
   try {
-    const rutaJS = `../js/${nombre}.js`;
-    const contextPath = window.location.pathname.split("/")[1];
-    const respuesta = await fetch("/" + contextPath + `/control/EvaluarJSP?vista=${nombre}.jsp`);
+    const rutaJS = `/${contextPath}/js/${nombre}.js`;
+    const respuesta = await fetch(`/${contextPath}/control/EvaluarJSP?vista=${nombre}.jsp`);
     if (!respuesta.ok) throw new Error("No se pudo cargar la vista.");
 
     const html = await respuesta.text();
@@ -48,6 +52,7 @@ async function cargarContenido(nombre) {
 
     const modulo = await import(rutaJS);
     modulo?.init?.();
+    // modulo?.init?.(divContenedor);
 
     vistasCache[nombre] = {
       nodo: divContenedor,
@@ -68,3 +73,12 @@ function cerrarSesion() {
   });
   vistasCache = {}
 }
+
+window.addEventListener("popstate", (e) => {
+  const nombre = e.state?.nombre || location.pathname.split("/").pop() || "inicio";
+  cargarContenido(nombre, false)
+})
+
+document.addEventListener("DOMContentLoaded", () => {
+  init()
+})

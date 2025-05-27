@@ -3,12 +3,7 @@ package com.example.semana6.facade;
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.ColaboradorDAO;
 import com.example.semana6.dao.PersonaConNegocioDAO;
-import com.example.semana6.dao.SectorEconomicoDAO;
-import com.example.semana6.dao.TipoClienteDAO;
-import com.example.semana6.dao.TipoDocumentoDAO;
-import com.example.semana6.dto.cliente.ClienteCrear;
 import com.example.semana6.dto.cliente.ClienteVista;
-import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.modelo.Cliente;
@@ -19,56 +14,19 @@ public class AutenticacionFacade {
   private final ClienteDAO clienteDAO;
   private final PersonaConNegocioDAO personaConNegocioDAO;
   private final ColaboradorDAO colaboradorDAO;
-  private final TipoClienteDAO tipoClienteDAO;
-  private final TipoDocumentoDAO tipoDocumentoDAO;
-  private final SectorEconomicoDAO sectorEconomicoDAO;
 
-  public AutenticacionFacade(ClienteDAO clienteDAO, PersonaConNegocioDAO personaConNegocioDAO, ColaboradorDAO colaboradorDAO, TipoClienteDAO tipoClienteDAO, TipoDocumentoDAO tipoDocumentoDAO, SectorEconomicoDAO sectorEconomicoDAO) {
+  public AutenticacionFacade(ClienteDAO clienteDAO, PersonaConNegocioDAO personaConNegocioDAO, ColaboradorDAO colaboradorDAO) {
     this.clienteDAO = clienteDAO;
     this.personaConNegocioDAO = personaConNegocioDAO;
     this.colaboradorDAO = colaboradorDAO;
-    this.tipoClienteDAO = tipoClienteDAO;
-    this.tipoDocumentoDAO = tipoDocumentoDAO;
-    this.sectorEconomicoDAO = sectorEconomicoDAO;
   }
   
   public AutenticacionFacade() {
     this.clienteDAO = new ClienteDAO();
     this.personaConNegocioDAO = new PersonaConNegocioDAO();
     this.colaboradorDAO = new ColaboradorDAO();
-    this.tipoClienteDAO = new TipoClienteDAO();
-    this.tipoDocumentoDAO = new TipoDocumentoDAO();
-    this.sectorEconomicoDAO = new SectorEconomicoDAO();
   }
 
-  public ClienteVista crearCliente(ClienteCrear clienteCrear) {
-    try {
-      Cliente cliente = clienteCrear.toCliente();
-      cliente.setTipoCliente(tipoClienteDAO.getById(clienteCrear.getTipoClienteId()));
-      cliente.setTipoDocumento(tipoDocumentoDAO.getById(clienteCrear.getTipoDocumentoId()));
-      cliente.setSectorEconomico(sectorEconomicoDAO.getById(clienteCrear.getSectorEconomicoId()));
-      if (clienteCrear instanceof PersonaConNegocioCrear) {
-        personaConNegocioDAO.crearPersonaConNegocio((PersonaConNegocio) cliente);
-      } else {
-        clienteDAO.crearCliente(cliente);
-      }
-      ClienteVista clienteVista = new PersonaConNegocioVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
-      cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
-      cliente.getSectorEconomico().getNombre());
-
-      if (clienteCrear instanceof PersonaConNegocioCrear) {
-        clienteVista = (PersonaConNegocioVista) clienteVista;
-        ((PersonaConNegocioVista) clienteVista).setNombre(((PersonaConNegocioCrear) clienteCrear).getNombre());
-        ((PersonaConNegocioVista) clienteVista).setApellidoPaterno(((PersonaConNegocioCrear) clienteCrear).getApellidoPaterno());
-        ((PersonaConNegocioVista) clienteVista).setApellidoMaterno(((PersonaConNegocioCrear) clienteCrear).getApellidoMaterno());
-      }
-      System.out.println("todo biennnnnn!!");
-      return clienteVista;  
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
 
   public Object iniciarSesion(String email, String contrasena) {
     try {

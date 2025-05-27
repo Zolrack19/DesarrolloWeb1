@@ -17,7 +17,9 @@ export function init() {
   btnContraCerrarModal.addEventListener("click", () => {cerrarModal("modalContrasena", "mContrasenaContenido")})
 
   try {
-    lblTelefono = !lblTelefono && document.getElementById("lblTelefono")
+    lblTelefono = document.getElementById("lblTelefono")
+    // lblTelefono = !lblTelefono && nodo.querySelector("p[id='lblTelefono']")
+
     const editTelefono = document.getElementById("editTelefono")
     const btnCancelarTelefono = document.getElementById("btnCancelarTelefono")
 
@@ -49,7 +51,9 @@ export function init() {
       cerrarModal('modalTelefono', 'contenidoTelefono');
     });
 
-    lblRazon = !lblRazon && document.getElementById("lblRazon")
+    lblRazon = document.getElementById("lblRazon")
+    // lblRazon = !lblRazon && nodo.querySelector("p[id='lblRazon']")
+
     const editRazon = document.getElementById("editRazon")
     const btnCancelarRazon = document.getElementById("btnCancelarRazon")
     
@@ -83,7 +87,8 @@ export function init() {
   }
 
   try {
-    lblNombre = !lblNombre && document.getElementById("lblNombre")
+    lblNombre = document.getElementById("lblNombre")
+
     const editNombre = document.getElementById("editNombre")
     const btnCancelarNombre = document.getElementById("btnCancelarNombre")
     
@@ -207,5 +212,5 @@ export function actualizar(nodo) {
   if (lblRazon) {
     nodo.querySelector("p[id='lblRazon']").innerHTML = lblRazon.innerHTML
     lblRazon = null
-  }
+  }  
 }
