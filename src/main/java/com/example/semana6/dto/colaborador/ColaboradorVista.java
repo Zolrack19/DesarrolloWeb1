@@ -23,7 +23,17 @@ public class ColaboradorVista extends ColaboradorDTO implements Serializable {
   private String email;
   
   private short solicitudesActivas;
-  private String contrasena;
+  // private String contrasena;
+
+  public ColaboradorVista(Colaborador colaborador) {
+    super(colaborador.getNumeroDocumento(), colaborador.getNombre(), colaborador.getApellidoPaterno(), colaborador.getApellidoMaterno());
+    this.id = colaborador.getId();
+    this.codigo = colaborador.getCodigo();
+    this.email = colaborador.getEmail();
+    this.rolColaborador = colaborador.getRolColaborador().getNombre();
+    this.tipoDocumento = colaborador.getTipoDocumento().getNombre();
+    this.solicitudesActivas = colaborador.getSolicitudesActivas();
+  }
 
   public ColaboradorVista(String numeroDocumento, String nombre, String apellidoPaterno, String apellidoMaterno) {
     super(numeroDocumento, nombre, apellidoPaterno, apellidoMaterno);
@@ -37,7 +47,7 @@ public class ColaboradorVista extends ColaboradorDTO implements Serializable {
   }
 
   public ColaboradorVista(int id, String rolColaborador, String tipoDocumento, String numeroDocumento, String codigo,
-  String email, short solicitudesActivas, String contrasena, String nombre, String apellidoPaterno,
+  String email, short solicitudesActivas, String nombre, String apellidoPaterno,
   String apellidoMaterno) {
     super(numeroDocumento, nombre, apellidoPaterno, apellidoMaterno);
     this.id = id;
@@ -46,16 +56,15 @@ public class ColaboradorVista extends ColaboradorDTO implements Serializable {
     this.codigo = codigo;
     this.email = email;
     this.solicitudesActivas = solicitudesActivas;
-    this.contrasena = contrasena;
   }
 
   @Override
   public Colaborador toColaborador() {
     Colaborador colaborador = super.toColaborador();
+    colaborador.setId(id);
     colaborador.setCodigo(codigo);
     colaborador.setEmail(email);
     colaborador.setSolicitudesActivas(solicitudesActivas);
-    colaborador.setContrasena(contrasena);
     return colaborador;
   }
 

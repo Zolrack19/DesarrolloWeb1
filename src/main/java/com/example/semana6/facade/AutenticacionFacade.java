@@ -33,9 +33,10 @@ public class AutenticacionFacade {
       Colaborador colaborador = colaboradorDAO.getByEmail(email);
       if (colaborador != null) {
         if (!colaborador.getContrasena().equals(contrasena)) return null;
-        ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador.getId(), colaborador.getRolColaborador().getNombre(), colaborador.getTipoDocumento().getNombre(), colaborador.getNumeroDocumento(),
-        colaborador.getCodigo(), colaborador.getEmail(), colaborador.getSolicitudesActivas(), colaborador.getContrasena(), colaborador.getNombre(), colaborador.getApellidoPaterno(),
-        colaborador.getApellidoMaterno());
+        ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador);
+        // ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador.getId(), colaborador.getRolColaborador().getNombre(), colaborador.getTipoDocumento().getNombre(), colaborador.getNumeroDocumento(),
+        // colaborador.getCodigo(), colaborador.getEmail(), colaborador.getSolicitudesActivas(), colaborador.getNombre(), colaborador.getApellidoPaterno(),
+        // colaborador.getApellidoMaterno());
         return colaboradorVista;
       }
   

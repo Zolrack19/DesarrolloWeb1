@@ -2,12 +2,16 @@ package com.example.semana6.controlador;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.example.semana6.dto.cliente.ClienteCrear;
+import com.example.semana6.dto.cliente.ClienteDTO;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
+import com.example.semana6.dto.colaborador.ColaboradorDTO;
+import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.facade.ClienteFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,7 +33,15 @@ public class ClienteServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    System.out.println("hola desde servlet de crear cuenta");
+    // HttpSession session = req.getSession(false);
+    // Object usuario = (session != null) ? session.getAttribute("usuario") : null;
+    List<ClienteVista> clientesVista = clienteFacade.getClientes(0, 10);
+
+    ObjectMapper mapper = new ObjectMapper();
+    String json = mapper.writeValueAsString(clientesVista);
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    resp.getWriter().write(json);
   }
 
   @Override

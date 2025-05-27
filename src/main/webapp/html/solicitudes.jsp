@@ -39,26 +39,7 @@
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
-      <tbody id="tablaSolicitudesBody">
-        <tr class="break-normal border-b hover:bg-gray-50">
-          <td class="p-2 ">01296</td>
-          <td class="p-2 ">
-            <div class="break-words line-clamp-3">
-              Esto es un super título
-            </div>
-          </td>
-          <td class="p-2">
-            <div class="break-words line-clamp-3">
-              Enrique Segoviano.
-            </div>
-          </td>
-          <td class="p-2 whitespace-nowrap">
-            <span>21 may. 2025 23:09</span>
-          </td>
-          <td class="p-2 whitespace-nowrap">21 may. 2025 23:09</td>
-          <td class="p-2 whitespace-nowrap">espera</td>
-          <td class="p-2 text-right">⋮</td>
-        </tr>
+      <tbody id="tbodySolicitudes">
       </tbody>
     </table>
   </div>

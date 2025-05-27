@@ -1,3 +1,17 @@
+const carga = `
+  <div class="flex items-center justify-center h-full p-10">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mx-auto mb-4"></div>
+      <p class="text-gray-600 text-lg font-medium">Cargando, por favor espere...</p>
+    </div>
+  </div>
+`
+const servlets = {
+  "solicitudes": "SolicitudServlet",
+  "clientes": "ClienteServlet",
+  "colaboradores": "ColaboradorServlet",
+}
+
 const contextPath = window.location.pathname.split("/")[1];
 const vistasCache = {};
 let paginaActual = ""
@@ -48,11 +62,17 @@ async function cargarContenido(nombre, acutalizarURL = true) {
     
     const divContenedor = document.createElement("div")
     divContenedor.innerHTML = html
-    contenedor.innerHTML = html;
+
+    let datos = null
+    if (servlets[nombre]) {
+      contenedor.innerHTML = carga;
+      const res = await fetch(`/${contextPath}/control/${servlets[nombre]}`)
+      datos = await res.json()
+    }
 
     const modulo = await import(rutaJS);
-    modulo?.init?.();
-    // modulo?.init?.(divContenedor);
+    contenedor.innerHTML = html;
+    modulo?.init?.(datos);
 
     vistasCache[nombre] = {
       nodo: divContenedor,

@@ -2,6 +2,7 @@ package com.example.semana6.controlador;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.example.semana6.dto.cliente.ClienteDTO;
@@ -32,7 +33,22 @@ public class SolicitudServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    Object usuario = (session != null) ? session.getAttribute("usuario") : null;
+    List<SolicitudVista> solicitudVistas = solicitudesFacade.getSolicitudes(0, 10);
     
+    if (usuario instanceof ClienteDTO) { 
+      solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(),0, 10);
+    } else if (usuario instanceof ColaboradorDTO) {
+      solicitudVistas = solicitudesFacade.getSolicitudes(0, 10);
+    }
+
+
+    ObjectMapper mapper = new ObjectMapper();
+    String json = mapper.writeValueAsString(solicitudVistas);
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    resp.getWriter().write(json);
   }
 
   @Override

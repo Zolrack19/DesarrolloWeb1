@@ -1,5 +1,24 @@
-export function init() {
-  
+let tbody
+
+export function init(datos) {
+  console.log(datos);
+  if (datos) {
+    tbody = document.getElementById("tbodyColaboradores")
+    datos.forEach((colaborador) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="p-2">${colaborador.codigo}</td>
+        <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
+        <td class="p-2"><strong>${colaborador.tipoDocumento}</strong> ${colaborador.numeroDocumento}</td>
+        <td class="p-2">${colaborador.rolColaborador}</td>
+        <td class="p-2">${colaborador.email}</td>
+        <td class="p-2">${colaborador.solicitudesActivas}</td>
+        <td class="p-2 text-right">⋮</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
   const btnNuevoColaborador = document.getElementById("btnNuevoColaborador")
   const btnCancelarColaborador = document.getElementById("btnCancelarColaborador")
 

@@ -25,29 +25,7 @@
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
-      <tbody>
-        <tr class="break-normal border-b hover:bg-gray-50">
-          <td class="p-2 ">casfd01296</td>
-          
-          <td class="p-2 ">
-            <div class="break-words line-clamp-3">
-              Benito Juares Lara
-            </div>
-          </td>
-          <td class="p-2 ">
-            <span><strong>RUC:</strong> 1239924332</span>
-          </td>
-          <td class="p-2">
-            <span>Programador</span>
-          </td>
-          <td class="p-2">
-            <span>supermario@gmail.com</span>
-          </td>
-          <td class="p-2 whitespace-nowrap">
-            <span>5</span>
-          </td>
-          <td class="p-2 text-right">⋮</td>
-        </tr>
+      <tbody id="tbodyColaboradores">
       </tbody>
     </table>
   </div>

@@ -1,5 +1,8 @@
 package com.example.semana6.facade;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.ColaboradorDAO;
 import com.example.semana6.dao.EstadoSolicitudDAO;
@@ -8,7 +11,6 @@ import com.example.semana6.dao.TipoSolicitudDAO;
 import com.example.semana6.dto.solicitud.SolicitudCrear;
 import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Solicitud;
-import com.example.semana6.singleton.FormatoFecha;
 
 public class SolicitudesFacade {
   private final SolicitudDAO solicitudDAO = new SolicitudDAO();
@@ -18,7 +20,6 @@ public class SolicitudesFacade {
   private final ColaboradorDAO colaboradorDAO = new ColaboradorDAO();
 
   public SolicitudVista crearSolicitud(SolicitudCrear solicitudCrear) {
-    System.out.println("entrando al facade solicitud");
     try {
       Solicitud solicitud = solicitudCrear.toSolicitud();
       solicitud.setTipoSolicitud(tipoSolicitudDAO.getById(solicitudCrear.getTipoSolicitudId()));
@@ -30,16 +31,31 @@ public class SolicitudesFacade {
         solicitud.setCordinador(colaboradorDAO.getById(solicitudCrear.getCoordinadorId()));
       }
       solicitudDAO.crearSolicitud(solicitud);
-      SolicitudVista solicitudVista = new SolicitudVista(solicitud.getId(), solicitud.getTipoSolicitud().getNombre(), solicitud.getTitulo(), solicitud.getDescripcion(), null,
-      solicitud.getCliente().getRazonSocial(), FormatoFecha.getFormatoFecha().fechaConHora(solicitud.getFechaRegistro()), null, solicitud.getEstadoSolicitud().getNombre());
-      if (solicitud.getFechaFinalizacion() != null) {
-        solicitudVista.setFechaFinalizacion(FormatoFecha.getFormatoFecha().fechaConHora(solicitud.getFechaFinalizacion()));
-        solicitudVista.setCoordinador(String.format("%s %s %s", solicitud.getCordinador().getNombre(), solicitud.getCordinador().getApellidoPaterno(), solicitud.getCordinador().getApellidoMaterno()));
-      }
+      SolicitudVista solicitudVista = new SolicitudVista(solicitud);
       return solicitudVista;
     } catch (Exception e) {
       e.printStackTrace();
     }
     return null;
+  }
+
+  public List<SolicitudVista> getSolicitudes(int idCliente, int inicio, int fin) {
+    List<Solicitud> solicitudes = solicitudDAO.getByClienteId(idCliente, inicio, fin);
+    if (solicitudes.size() == 0) return null;
+    List<SolicitudVista> solicitudVistas = new ArrayList<>();
+    solicitudes.forEach((solicitud) -> {
+      solicitudVistas.add(new SolicitudVista(solicitud));
+    });
+    return solicitudVistas;
+  }
+
+  public List<SolicitudVista> getSolicitudes(int inicio, int fin) {
+    List<Solicitud> solicitudes = solicitudDAO.getRango(inicio, fin);
+    if (solicitudes.size() == 0) return null;
+    List<SolicitudVista> solicitudVistas = new ArrayList<>();
+    solicitudes.forEach((solicitud) -> {
+      solicitudVistas.add(new SolicitudVista(solicitud));
+    });
+    return solicitudVistas;
   }
 }

@@ -31,27 +31,7 @@
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
-      <tbody>
-        <tr class="break-normal border-b hover:bg-gray-50">
-          <td class="p-2 ">
-            <div class="break-words line-clamp-3">
-              Administrador de hoteles
-            </div>
-          </td>
-          <td class="p-2 ">
-            <span><strong>RUC:</strong> 1239924332</span>
-          </td>
-          <td class="p-2">
-            <span>Empresa</span>
-          </td>
-          <td class="p-2">
-            <span>Primario</span>
-          </td>
-          <td class="p-2 whitespace-nowrap">
-            <span>931414911</span>
-          </td>
-          <td class="p-2 text-right">⋮</td>
-        </tr>
+      <tbody id="tbodyClientes">
       </tbody>
     </table>
   </div>

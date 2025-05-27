@@ -39,7 +39,7 @@ public class SolicitudDAO {
     return solicitud;
   }
 
-  public List<Solicitud> getRango(int id, int inicio, int fin) {
+  public List<Solicitud> getRango(int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
 

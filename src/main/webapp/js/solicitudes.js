@@ -1,6 +1,24 @@
-export function init() {
-  
-  const tbody = document.getElementById("tablaSolicitudesBody")
+let tbody
+
+export function init(datos) {
+  if (datos) {
+    tbody = document.getElementById("tbodySolicitudes")
+    datos.forEach((solicitud) => {
+      const tr = document.createElement("tr");
+      tr.className = "border-b hover:bg-gray-50";
+    
+      tr.innerHTML = `
+        <td class="p-2">${solicitud.id}</td>
+        <td class="p-2">${solicitud.titulo}</td>
+        <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
+        <td class="p-2">${solicitud.fechaRegistro}</td>
+        <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
+        <td class="p-2">${solicitud.estadoSolicitud}</td>
+        <td class="p-2 text-right">⋮</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
   const btnNuevaSolicitud = document.getElementById("btnNuevaSolicitud")
   const btnCancelarSolicitud = document.getElementById("btnCancelarSolicitud")
@@ -63,3 +81,9 @@ export function init() {
   });
   
 } 
+
+export function actualizar(nodo) {
+  if (tbody) {
+    nodo.querySelector("tbody[id='tbodySolicitudes']").innerHTML = tbody.innerHTML
+  }
+}

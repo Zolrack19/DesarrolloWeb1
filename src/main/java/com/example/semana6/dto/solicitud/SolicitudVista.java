@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.semana6.modelo.Solicitud;
+import com.example.semana6.singleton.FormatoFecha;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,6 +31,24 @@ public class SolicitudVista implements Serializable {
 
   public SolicitudVista() {}
 
+  public SolicitudVista(Solicitud solicitud) {
+    this.id = solicitud.getId();
+    this.tipoSolicitud = solicitud.getTipoSolicitud().getNombre();
+    this.titulo = solicitud.getTitulo();
+    this.descripcion = solicitud.getDescripcion();
+    if (solicitud.getCordinador() != null) {
+      this.coordinador = String.format("%s %s %s", solicitud.getCordinador().getNombre(), solicitud.getCordinador().getApellidoPaterno(), solicitud.getCordinador().getApellidoMaterno());
+    }
+    if (solicitud.getCliente() != null) {
+      this.cliente = solicitud.getCliente().getRazonSocial();
+    }
+    this.fechaRegistro = FormatoFecha.getFormatoFecha().fechaConHora(solicitud.getFechaRegistro());
+    if (fechaFinalizacion != null) {
+      this.fechaFinalizacion = FormatoFecha.getFormatoFecha().fechaConHora(solicitud.getFechaFinalizacion());
+    }
+    this.estadoSolicitud = solicitud.getEstadoSolicitud().getNombre();
+  }
+
   public SolicitudVista(int id, String tipoSolicitud, String titulo, String descripcion, String coordinador, String cliente,
   String fechaRegistro, String fechaFinalizacion, String estadoSolicitud) {
     this.id = id;
@@ -42,6 +61,7 @@ public class SolicitudVista implements Serializable {
     this.fechaFinalizacion = fechaFinalizacion;
     this.estadoSolicitud = estadoSolicitud;
   }
+
 
   public Solicitud toSolicitud() {
     Solicitud solicitud = new Solicitud();

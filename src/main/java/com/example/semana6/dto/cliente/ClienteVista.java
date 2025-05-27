@@ -18,6 +18,15 @@ public class ClienteVista extends ClienteDTO {
   @Setter(AccessLevel.NONE)
   private String email;
   
+  public ClienteVista(Cliente cliente) {
+    super(cliente.getRazonSocial(), cliente.getNumeroDocumento(), cliente.getTelefono());
+    this.id = cliente.getId();
+    this.email = cliente.getEmail();
+    this.tipoDocumento = cliente.getTipoDocumento().getNombre();
+    this.tipoCliente = cliente.getTipoCliente().getNombre();
+    this.tipoSectorEconomico = cliente.getSectorEconomico().getNombre();
+  }
+  
   public ClienteVista(String razonSocial, String numeroDocumento, String telefono) {
     super(razonSocial, numeroDocumento, telefono);
   }
