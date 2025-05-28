@@ -8,6 +8,7 @@ import jakarta.persistence.Query;
 
 import com.example.semana6.modelo.Cliente;
 import com.example.semana6.singleton.HibernateUtil;
+import com.example.semana6.singleton.ValorDefecto;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -63,14 +64,28 @@ public class ClienteDAO {
     return cliente;
   }
   
-  public List<Cliente> getRango(int inicio, int fin) {
-    Session s =  HibernateUtil.getSession().openSession();
+  public List<Cliente> getPaginaDescendiente(int idLimite, int maxResultados, boolean paginaSiguiente) {
+    Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
+    List<Cliente> clientes = null;
 
-    List<Cliente> clientes = s.createQuery("from Cliente c order by c.id", Cliente.class)
-    .setFirstResult(inicio)
-    .setMaxResults(fin)
-    .list();
+    if (idLimite == ValorDefecto.VALOR_NULO.getValue()) {
+      clientes = s.createQuery("from Cliente c order by c.id desc", Cliente.class)
+      .setMaxResults(maxResultados)
+      .list();
+  
+    } else if (paginaSiguiente) {
+      clientes = s.createQuery("from Cliente c where c.id < :idLimite order by c.id desc", Cliente.class)
+      .setParameter("idLimite", idLimite)
+      .setMaxResults(maxResultados)
+      .list();
+  
+    } else {
+      clientes = s.createQuery("from Cliente c where c.id > :idLimite order by c.id desc", Cliente.class)
+      .setParameter("idLimite", idLimite)
+      .setMaxResults(maxResultados)
+      .list();
+    }
 
     s.getTransaction().commit();
     s.close();

@@ -3,7 +3,7 @@
 
 <body class="bg-white font-sans text-sm text-gray-800">
 
-  <header class="flex justify-between items-center px-6 py-4 border-b">
+  <header class="flex justify-between items-center px-6 py-4 border-b border-gray-500">
     <nav class="flex gap-6">
       <a href="#" class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">Clientes</a>
     </nav>
@@ -12,17 +12,12 @@
     </div>
   </header>
 
-  <!-- Filtros -->
-  <!-- <div class="flex justify-end gap-4 px-6 py-4">
-    <input type="date" class="border rounded px-3 py-2">
-    <input type="date" class="border rounded px-3 py-2">
-  </div> -->
 
   <!-- Tabla -->
   <div class="mt-20 px-6 w-full overflow-x-auto">
-    <table class="table-auto w-full text-left border-collapse">
+    <table class="table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
       <thead>
-        <tr class="text-gray-500 border-b">
+        <tr class="bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-300">
           <th class="p-2 max-w-[400px] min-w-[268px]">Razón social</th>
           <th class="p-2 max-w-[100px] min-w-[87px]">Documento</th>
           <th class="p-2 max-w-[100px] min-w-[87px]">Tipo</th>
@@ -31,7 +26,7 @@
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
-      <tbody id="tbodyClientes">
+      <tbody id="tbodyClientes" class="divide-y divide-gray-200 text-gray-800">
       </tbody>
     </table>
   </div>

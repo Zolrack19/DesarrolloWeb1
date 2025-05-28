@@ -13,19 +13,19 @@
   </header>
 
   <div class="mt-20 px-6 w-full overflow-x-auto">
-    <table class="table-auto w-full text-left border-collapse">
+    <table class="table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
       <thead>
-        <tr class="text-gray-500 border-b">
+        <tr class="bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-300">
           <th class="p-2 max-w-[100px] min-w-[87px]">Código</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Nombre</th>
           <th class="p-2 max-w-[100px] min-w-[87px]">Documento</th>
           <th class="p-2 max-w-[100px] min-w-[87px]">Rol</th>
-          <th class="p-2 max-w-[400px] min-w-[230px]">Email</th>
-          <th class="p-2 max-w-[100px] min-w-[87px]">Solicitudes activas</th>
+          <th class="p-2 max-w-[300px] min-w-[200px]">Email</th>
+          <th class="p-2 max-w-[130px] min-w-[130px]">Solicitudes activas</th>
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
-      <tbody id="tbodyColaboradores">
+      <tbody id="tbodyColaboradores" class="divide-y divide-gray-200 text-gray-800">
       </tbody>
     </table>
   </div>

@@ -18,7 +18,6 @@ export function init() {
 
   try {
     lblTelefono = document.getElementById("lblTelefono")
-    // lblTelefono = !lblTelefono && nodo.querySelector("p[id='lblTelefono']")
 
     const editTelefono = document.getElementById("editTelefono")
     const btnCancelarTelefono = document.getElementById("btnCancelarTelefono")
@@ -52,7 +51,6 @@ export function init() {
     });
 
     lblRazon = document.getElementById("lblRazon")
-    // lblRazon = !lblRazon && nodo.querySelector("p[id='lblRazon']")
 
     const editRazon = document.getElementById("editRazon")
     const btnCancelarRazon = document.getElementById("btnCancelarRazon")

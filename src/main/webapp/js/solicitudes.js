@@ -1,23 +1,71 @@
+const contextPath = window.location.pathname.split("/")[1];
+
+const maxResultados = 20
+let idLimiteInferior = 0
+let idLimiteSuperior = 0
+
 let tbody
 
+function llenarTabla(solicitudes, limpiar = false) {
+  if (limpiar) {
+    tbody.innerHTML = ""
+  }
+  solicitudes.forEach((solicitud) => {
+    const tr = document.createElement("tr");
+    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
+
+    tr.innerHTML = `
+      <td class="p-2">${solicitud.id}</td>
+      <td class="p-2">${solicitud.titulo}</td>
+      <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
+      <td class="p-2">${solicitud.fechaRegistro}</td>
+      <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
+      <td class="p-2">${solicitud.estadoSolicitud}</td>
+      <td class="p-2 text-right">⋮</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 export function init(datos) {
+
+  document.getElementById("atras").addEventListener("click", async function() {
+    const res = await fetch(`/${contextPath}/control/SolicitudServlet?idLimite=${idLimiteSuperior}&maxResultados=${maxResultados}&paginaSiguiente=false`)
+    datos = await res.json()
+    if (datos) {
+      idLimiteSuperior = datos[0].id
+      idLimiteInferior = datos[datos.length - 1].id
+      
+      if (!tbody) {
+        tbody = document.getElementById("tbodySolicitudes")
+      }
+
+      llenarTabla(datos, true)
+    }
+  })
+
+  document.getElementById("adelante").addEventListener("click", async function() {
+    const res = await fetch(`/${contextPath}/control/SolicitudServlet?idLimite=${idLimiteInferior}&maxResultados=${maxResultados}&paginaSiguiente=true`)
+    datos = await res.json()
+    if (datos) {
+      idLimiteSuperior = datos[0].id
+      idLimiteInferior = datos[datos.length - 1].id
+
+      if (!tbody) {
+        tbody = document.getElementById("tbodySolicitudes")
+      }
+
+      llenarTabla(datos, true)
+    }   
+  })
+
+
   if (datos) {
+    idLimiteSuperior = datos[0].id
+    idLimiteInferior = datos[datos.length - 1].id
     tbody = document.getElementById("tbodySolicitudes")
-    datos.forEach((solicitud) => {
-      const tr = document.createElement("tr");
-      tr.className = "border-b hover:bg-gray-50";
-    
-      tr.innerHTML = `
-        <td class="p-2">${solicitud.id}</td>
-        <td class="p-2">${solicitud.titulo}</td>
-        <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
-        <td class="p-2">${solicitud.fechaRegistro}</td>
-        <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
-        <td class="p-2">${solicitud.estadoSolicitud}</td>
-        <td class="p-2 text-right">⋮</td>
-      `;
-      tbody.appendChild(tr);
-    });
+
+    llenarTabla(datos)
   }
 
   const btnNuevaSolicitud = document.getElementById("btnNuevaSolicitud")
@@ -85,5 +133,6 @@ export function init(datos) {
 export function actualizar(nodo) {
   if (tbody) {
     nodo.querySelector("tbody[id='tbodySolicitudes']").innerHTML = tbody.innerHTML
+    tbody = null
   }
 }

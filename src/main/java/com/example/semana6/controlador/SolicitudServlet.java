@@ -33,14 +33,19 @@ public class SolicitudServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    int idLimite = Integer.parseInt(req.getParameter("idLimite"));
+    int maxResultados = Integer.parseInt(req.getParameter("maxResultados"));
+    boolean paginaSiguiente = Boolean.parseBoolean(req.getParameter("paginaSiguiente"));
+
     HttpSession session = req.getSession(false);
     Object usuario = (session != null) ? session.getAttribute("usuario") : null;
-    List<SolicitudVista> solicitudVistas = solicitudesFacade.getSolicitudes(0, 10);
-    
+
+    List<SolicitudVista> solicitudVistas = null;
+
     if (usuario instanceof ClienteDTO) { 
       solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(),0, 10);
     } else if (usuario instanceof ColaboradorDTO) {
-      solicitudVistas = solicitudesFacade.getSolicitudes(0, 10);
+      solicitudVistas = solicitudesFacade.getSolicitudes(idLimite, maxResultados, paginaSiguiente);
     }
 
 
@@ -62,7 +67,7 @@ public class SolicitudServlet extends HttpServlet {
     SolicitudCrear solicitudCrear = null;
     if (usuario instanceof ClienteDTO) {
       ClienteVista clienteVista = (ClienteVista) usuario;
-      solicitudCrear = new SolicitudCrear(tipoSolicitudId, ValorDefecto.ESTADO_SOLICITUD.getValue(), titulo, descripcion, ValorDefecto.VALOR_NULO.getValue(), clienteVista.getId());
+      solicitudCrear = new SolicitudCrear(tipoSolicitudId, (short) ValorDefecto.ESTADO_SOLICITUD.getValue(), titulo, descripcion, ValorDefecto.VALOR_NULO.getValue(), clienteVista.getId());
     } else if (usuario instanceof ColaboradorDTO) {
       ColaboradorVista colaboradorVista = (ColaboradorVista) usuario;
       if (colaboradorVista.getRolColaborador().equals("Administrador")) {

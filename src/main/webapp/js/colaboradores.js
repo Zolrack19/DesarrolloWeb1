@@ -1,22 +1,32 @@
 let tbody
 
+function llenarTabla(colaboradores, limpiar = false) {
+  if (limpiar) {
+    tbody.innerHTML = ""
+  }
+  colaboradores.forEach((colaborador) => {
+    const tr = document.createElement("tr")
+    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
+
+    tr.innerHTML = `
+      <td class="p-2">${colaborador.codigo}</td>
+      <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
+      <td class="p-2"><strong>${colaborador.tipoDocumento}</strong> ${colaborador.numeroDocumento}</td>
+      <td class="p-2">${colaborador.rolColaborador}</td>
+      <td class="p-2">${colaborador.email}</td>
+      <td class="p-2">${colaborador.solicitudesActivas}</td>
+      <td class="p-2 text-right">⋮</td>
+    `;
+    tbody.appendChild(tr)
+  });
+}
+
+
 export function init(datos) {
-  console.log(datos);
+  
   if (datos) {
     tbody = document.getElementById("tbodyColaboradores")
-    datos.forEach((colaborador) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="p-2">${colaborador.codigo}</td>
-        <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
-        <td class="p-2"><strong>${colaborador.tipoDocumento}</strong> ${colaborador.numeroDocumento}</td>
-        <td class="p-2">${colaborador.rolColaborador}</td>
-        <td class="p-2">${colaborador.email}</td>
-        <td class="p-2">${colaborador.solicitudesActivas}</td>
-        <td class="p-2 text-right">⋮</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    llenarTabla(datos)
   }
 
   const btnNuevoColaborador = document.getElementById("btnNuevoColaborador")
@@ -50,4 +60,11 @@ export function init(datos) {
     e.preventDefault();
     cerrarModal("modalColaborador", "contenidoColaborador");
   });
+}
+
+export function actualizar(nodo) {
+  if (tbody) {
+    nodo.querySelector("tbody[id='tbodyColaboradores']").innerHTML = tbody.innerHTML
+    tbody = null
+  }
 }

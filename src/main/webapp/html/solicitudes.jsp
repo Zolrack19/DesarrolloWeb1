@@ -3,7 +3,7 @@
 
 <body>
 
-  <header class="flex justify-between items-center px-6 py-4 border-b">
+  <header class="flex justify-between items-center px-6 py-4 border-b border-gray-500">
     <nav class="flex gap-6">
       <p class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">
         <c:choose>
@@ -17,19 +17,32 @@
       </p>
     </nav>
     <div class="flex items-center gap-4">
-      <button id="btnNuevaSolicitud" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Nueva solicitud</button>
+      <button id="btnNuevaSolicitud" class="bg-red-600 text-white px-4 py-2 rounded-full shadow hover:bg-red-700 transition-colors">
+        Nueva solicitud
+      </button>
     </div>
   </header>
-
-  <div class="flex justify-end gap-4 px-6 py-4">
-    <input type="date" class="border max-w-[250px] w-[230px] min-w-[150px] rounded px-3 py-2">
-    <input type="date" class="border max-w-[250px] w-[230px] min-w-[150px] rounded px-3 py-2">
+  
+  <!-- Filtros por fecha -->
+  <div class="flex justify-end gap-4 px-6 py-4 border-b border-gray-100">
+    <input type="date" class="border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 w-[230px] max-w-[250px] min-w-[150px]">
+    <input type="date" class="border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 w-[230px] max-w-[250px] min-w-[150px]">
+  </div>
+  
+  <!-- Navegación -->
+  <div class="flex justify-start gap-4 px-6 py-4">
+    <button id="atras" class="px-4 py-2 rounded-md border border-gray-300 shadow-sm text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
+      ◀ Atrás
+    </button>
+    <button id="adelante" class="px-4 py-2 rounded-md border border-gray-300 shadow-sm text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
+      Adelante ▶
+    </button>
   </div>
 
   <div class="px-6 w-full overflow-x-auto">
-    <table class="table-auto w-full text-left border-collapse">
+    <table class="table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
       <thead>
-        <tr class="text-gray-500 border-b">
+        <tr class="bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-300">
           <th class="p-2 max-w-[100px] min-w-[87px]">Id</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Título</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Cordinador</th>
@@ -39,7 +52,7 @@
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
-      <tbody id="tbodySolicitudes">
+      <tbody id="tbodySolicitudes" class="divide-y divide-gray-200 text-gray-800">
       </tbody>
     </table>
   </div>

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.semana6.dao.ClienteDAO;
-import com.example.semana6.dao.PersonaConNegocioDAO;
 import com.example.semana6.dao.SectorEconomicoDAO;
 import com.example.semana6.dao.TipoClienteDAO;
 import com.example.semana6.dao.TipoDocumentoDAO;
@@ -48,8 +47,8 @@ public class ClienteFacade {
     return null;
   }
 
-  public List<ClienteVista> getClientes(int inicio, int fin) {
-    List<Cliente> clientes = clienteDAO.getRango(inicio, fin);
+  public List<ClienteVista> getClientes(int idLimite, int maxResultados, boolean paginaSiguiente) {
+    List<Cliente> clientes = clienteDAO.getPaginaDescendiente(idLimite, maxResultados, paginaSiguiente);
     if (clientes.size() == 0) return null;
     List<ClienteVista> clientesVista = new ArrayList<>();
     clientes.forEach((cliente) -> {

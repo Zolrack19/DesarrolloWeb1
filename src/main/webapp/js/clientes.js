@@ -1,27 +1,34 @@
 let tbody
 const contextPath = window.location.pathname.split("/")[1];
 
-export function init(datos) {
-
-  console.log(datos);
-  if (datos) {
-    tbody = document.getElementById("tbodyClientes")
-    datos.forEach((cliente) => {
-      const tr = document.createElement("tr");
-      tr.className = "border-b hover:bg-gray-50";
-    
-      tr.innerHTML = `
-        <td class="p-2">${cliente.razonSocial}</td>
-        <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
-        <td class="p-2">${cliente.tipoCliente}</td>
-        <td class="p-2">${cliente.tipoSectorEconomico}</td>
-        <td class="p-2">${cliente.telefono}</td>
-        <td class="p-2 text-right">⋮</td>
-      `;
-      tbody.appendChild(tr);
-    });
+function llenarTabla(clientes, limpiar = false) {
+  if (limpiar) {
+    tbody.innerHTML = ""
   }
 
+  clientes.forEach((cliente) => {
+    const tr = document.createElement("tr");
+    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
+  
+    tr.innerHTML = `
+      <td class="p-2">${cliente.razonSocial}</td>
+      <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
+      <td class="p-2">${cliente.tipoCliente}</td>
+      <td class="p-2">${cliente.tipoSectorEconomico}</td>
+      <td class="p-2">${cliente.telefono}</td>
+      <td class="p-2 text-right">⋮</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+export function init(datos) {
+
+  if (datos) {
+    tbody = document.getElementById("tbodyClientes")
+    llenarTabla(datos)
+  }
 
   const divNombre = document.getElementById("divNombre")
   const divApellidoP = document.getElementById("divApellidoP")
@@ -248,5 +255,6 @@ export function init(datos) {
 export function actualizar(nodo) {
   if (tbody) {
     nodo.querySelector("tbody[id='tbodyClientes']").innerHTML = tbody.innerHTML
+    tbody = null
   }
 }

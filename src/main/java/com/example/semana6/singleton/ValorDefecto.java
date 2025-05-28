@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum ValorDefecto {
-  VALOR_NULO((short) -1),
-  ESTADO_SOLICITUD((short) 1);
+  VALOR_NULO(-1),
+  ESTADO_SOLICITUD( 1);
 
-  private short value;
-  private ValorDefecto(short value) {
+  private int value;
+  private ValorDefecto(int value) {
     this.value = value;
   }
 }
