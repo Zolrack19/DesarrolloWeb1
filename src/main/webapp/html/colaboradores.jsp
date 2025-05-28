@@ -41,10 +41,11 @@
 
         <!-- Número de documento -->
         <div>
-          <label for="numeroDocumento" class="block text-sm font-medium text-gray-700">N° Documento</label>
-          <input type="text" id="numeroDocumento" name="numeroDocumento"
+          <label for="documento" class="block text-sm font-medium text-gray-700">N° Documento</label>
+          <input type="text" id="documento" name="documento"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
+          <p id="ocultoDoc" class="hidden text-red-600 text-sm">h</p>
         </div>
 
         <!-- Tipo de documento -->
@@ -53,9 +54,11 @@
           <select id="tipoDocumentoId" name="tipoDocumentoId"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required>
-            <option value="">Seleccione...</option>
+            <option value="">Seleccione una alternativa</option>
             <option value="1">DNI</option>
-            <option value="2">Pasaporte</option>
+            <option value="2">RUC</option>
+            <option value="3">Carnet de extranjeria</option>
+            <option value="4">Pasaporte</option>
           </select>
         </div>
 
@@ -69,16 +72,16 @@
 
         <!-- Apellido Paterno -->
         <div>
-          <label for="apellidoPaterno" class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
-          <input type="text" id="apellidoPaterno" name="apellidoPaterno"
+          <label for="apellidoP" class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
+          <input type="text" id="apellidoP" name="apellidoP"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
         </div>
 
         <!-- Apellido Materno -->
         <div>
-          <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
-          <input type="text" id="apellidoMaterno" name="apellidoMaterno"
+          <label for="apellidoM" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
+          <input type="text" id="apellidoM" name="apellidoM"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
         </div>
@@ -89,10 +92,11 @@
           <select id="rolColaboradorId" name="rolColaboradorId"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required>
-            <option value="">Seleccione...</option>
+            <option value="">Seleccione un rol</option>
             <option value="1">Administrador</option>
-            <option value="2">Asistente</option>
-            <option value="3">Supervisor</option>
+            <option value="2">Programador</option>
+            <option value="3">Analista</option>
+            <option value="4">Diseñador</option>
           </select>
         </div>
 

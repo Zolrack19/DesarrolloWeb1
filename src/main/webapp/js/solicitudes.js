@@ -18,9 +18,24 @@ function llenarTabla(solicitudes, limpiar = false) {
       <td class="p-2">${solicitud.id}</td>
       <td class="p-2">${solicitud.titulo}</td>
       <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
+      ${window.usuario?.rolColaborador == 'Administrador' ?
+        `<td class="p-2">${solicitud.cliente ?? "--- --- ---"}</td>`
+        : 
+        ""
+      }
       <td class="p-2">${solicitud.fechaRegistro}</td>
       <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
-      <td class="p-2">${solicitud.estadoSolicitud}</td>
+      <td class="p-2">
+        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+          solicitud.estadoSolicitud === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' :
+          solicitud.estadoSolicitud === 'En proceso' ? 'bg-blue-100 text-blue-700' :
+          solicitud.estadoSolicitud === 'Asignada' ? 'bg-indigo-100 text-indigo-700' :
+          solicitud.estadoSolicitud === 'Atendida' ? 'bg-green-100 text-green-700' :
+          'bg-gray-100 text-gray-700'
+        }">
+          ${solicitud.estadoSolicitud}
+        </span>
+      </td>
       <td class="p-2 text-right">⋮</td>
     `;
     tbody.appendChild(tr);
@@ -54,7 +69,6 @@ export function init(datos) {
       if (!tbody) {
         tbody = document.getElementById("tbodySolicitudes")
       }
-
       llenarTabla(datos, true)
     }   
   })
@@ -107,21 +121,38 @@ export function init(datos) {
     .then(resp => resp.json()
     .then(data => {
       if (data.ok) {
-        console.log(data.solicitud);
         const solicitud = data.solicitud
+        if (!tbody) {
+          tbody = document.getElementById("tbodySolicitudes")
+        }
         const tr = document.createElement("tr");
-        tr.className = "border-b hover:bg-gray-50";
+        tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
       
         tr.innerHTML = `
           <td class="p-2">${solicitud.id}</td>
           <td class="p-2">${solicitud.titulo}</td>
           <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
+          ${window.usuario?.rolColaborador == 'Administrador' ?
+          `<td class="p-2">${solicitud.cliente ?? "--- --- ---"}</td>`
+            : 
+            ""
+          }
           <td class="p-2">${solicitud.fechaRegistro}</td>
           <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
-          <td class="p-2">${solicitud.estadoSolicitud}</td>
+          <td class="p-2">
+            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+              solicitud.estadoSolicitud === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' :
+              solicitud.estadoSolicitud === 'En proceso' ? 'bg-blue-100 text-blue-700' :
+              solicitud.estadoSolicitud === 'Asignada' ? 'bg-indigo-100 text-indigo-700' :
+              solicitud.estadoSolicitud === 'Atendida' ? 'bg-green-100 text-green-700' :
+              'bg-gray-100 text-gray-700'
+            }">
+              ${solicitud.estadoSolicitud}
+          </span>
+          </td>
           <td class="p-2 text-right">⋮</td>
         `;
-        tbody.appendChild(tr);
+        tbody.insertBefore(tr, tbody.firstChild);
 
         cerrarModal("modalSolicitud", "contenidoSolicitud");
       }

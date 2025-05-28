@@ -1,8 +1,11 @@
 package com.example.semana6.controlador;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.example.semana6.dto.colaborador.ColaboradorCrear;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.facade.ColaboradorFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +33,22 @@ public class ColaboradorServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    
+    req.setCharacterEncoding("UTF-8");
+    short tipoDocumentoId = Short.valueOf(req.getParameter("tipoDocumentoId"));
+    String numeroDocumento = req.getParameter("documento");
+    short rolColaboradorId = Short.valueOf(req.getParameter("rolColaboradorId"));
+    String nombre = req.getParameter("nombre");
+    String apellidoP = req.getParameter("apellidoP");
+    String apellidoM = req.getParameter("apellidoM");
+
+    ColaboradorCrear colaboradorCrear = new ColaboradorCrear(rolColaboradorId, tipoDocumentoId, numeroDocumento, nombre, apellidoP, apellidoM);
+    ColaboradorVista colaboradorVista = colaboradorFacade.crearColaborador(colaboradorCrear);
+
+    Map<String, Object> json = new HashMap<>();
+    json.put("ok", colaboradorVista != null);
+    json.put("colaborador", colaboradorVista);
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
-  
 }

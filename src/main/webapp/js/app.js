@@ -13,7 +13,7 @@ const servlets = {
 }
 
 const contextPath = window.location.pathname.split("/")[1];
-const vistasCache = {};
+let vistasCache = {};
 let paginaActual = ""
 
 async function init() {
@@ -53,7 +53,7 @@ async function cargarContenido(nombre, acutalizarURL = true) {
     return;
   }
 
-  try {
+  // try {
     const rutaJS = `/${contextPath}/js/${nombre}.js`;
     const respuesta = await fetch(`/${contextPath}/control/EvaluarJSP?vista=${nombre}.jsp`);
     if (!respuesta.ok) throw new Error("No se pudo cargar la vista.");
@@ -79,9 +79,9 @@ async function cargarContenido(nombre, acutalizarURL = true) {
       modulo
     };
 
-  } catch (error) {
-    console.error(error);
-  }
+  // } catch (error) {
+  //   console.error(error);
+  // }
 }
 
 function cerrarSesion() {
@@ -89,16 +89,26 @@ function cerrarSesion() {
   fetch(`/${contextPath}/control/LogoutServlet`)
   .then(resp => resp.json())
   .then(data => {
-    window.location.replace(data.redirect);
+    // window.location.replace(data.redirect);
+    window.usuario = null
+    sessionStorage.removeItem("usuario")
+    vistasCache = {}
+    window.location.href = data.redirect
   });
-  vistasCache = {}
 }
 
 window.addEventListener("popstate", (e) => {
+  // console.log(sessionStorage.getItem("usuario") == null);
+  // if (sessionStorage.getItem("usuario")) {
+  //   console.log("al fin");
+  //   window.location.href = `/${contextPath}/index.html`
+  //   return;
+  // }
   const nombre = e.state?.nombre || location.pathname.split("/").pop() || "inicio";
   cargarContenido(nombre, false)
 })
 
 document.addEventListener("DOMContentLoaded", () => {
+  window.usuario = JSON.parse(sessionStorage.getItem("usuario"))
   init()
 })

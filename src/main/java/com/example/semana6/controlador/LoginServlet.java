@@ -63,8 +63,8 @@ public class LoginServlet extends HttpServlet {
       session.setAttribute("rol", "cliente");
     }
 
-    // json.put("redirect", "menu-inicio.jsp");
     json.put("redirect", "menu");
+    json.put("usuario", usuario);
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(resp.getWriter(), json);
   }

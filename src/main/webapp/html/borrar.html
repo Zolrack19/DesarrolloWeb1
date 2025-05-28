@@ -9,78 +9,33 @@
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-  
-  <table class=" table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
-    <thead>
-      <tr class="bg-gradient-to-r from-gray-200 to-gray-300 text-sm text-gray-600 uppercase tracking-wider border-b border-gray-300">
-        <th class="px-4 py-3 min-w-[87px] max-w-[100px]">Id</th>
-        <th class="px-4 py-3 min-w-[268px] max-w-[400px]">Título</th>
-        <th class="px-4 py-3 min-w-[268px] max-w-[400px]">Coordinador</th>
-        <th class="px-4 py-3 min-w-[220px] max-w-[300px]">Fecha de registro</th>
-        <th class="px-4 py-3 min-w-[220px] max-w-[300px]">Fecha de finalización</th>
-        <th class="px-4 py-3 min-w-[80px] max-w-[80px]">Estado</th>
-        <th class="px-2 py-3 min-w-[10px] max-w-[40px] text-right">⋮</th>
-      </tr>
-    </thead>
-    <tbody id="tbodySolicitudes" class="divide-y divide-gray-200 text-gray-800">
-      <tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors">
-        <td class="px-4 py-2 font-medium text-gray-700">38</td>
-        <td class="px-4 py-2">Implementación del sistema</td>
-        <td class="px-4 py-2">Ana Martínez</td>
-        <td class="px-4 py-2">2024-12-10</td>
-        <td class="px-4 py-2">2025-01-20</td>
-        <td class="px-4 py-2">
-          <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-            Aprobado
-          </span>
-        </td>
-        <td class="px-2 py-2 text-right cursor-pointer text-gray-400 hover:text-gray-600">⋮</td>
-      </tr>
-  
-      <tr class="odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors">
-        <td class="px-4 py-2 font-medium text-gray-700">37</td>
-        <td class="px-4 py-2">Actualización de manuales</td>
-        <td class="px-4 py-2">Luis Pérez</td>
-        <td class="px-4 py-2">2024-12-01</td>
-        <td class="px-4 py-2">2025-01-05</td>
-        <td class="px-4 py-2">
-          <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-            Pendiente
-          </span>
-        </td>
-        <td class="px-2 py-2 text-right cursor-pointer text-gray-400 hover:text-gray-600">⋮</td>
-      </tr>
-  
-      <tr class="odd:bg-white even:bg-gray-100 hover:bg-gray-100 transition-colors">
-        <td class="px-4 py-2 font-medium text-gray-700">36</td>
-        <td class="px-4 py-2">Auditoría interna</td>
-        <td class="px-4 py-2">Carla Gómez</td>
-        <td class="px-4 py-2">2024-11-25</td>
-        <td class="px-4 py-2">2024-12-15</td>
-        <td class="px-4 py-2">
-          <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-            Rechazado
-          </span>
-        </td>
-        <td class="px-2 py-2 text-right cursor-pointer text-gray-400 hover:text-gray-600">⋮</td>
-      </tr>
 
-      <tr class="odd:bg-white even:bg-gray-100 hover:bg-gray-100 transition-colors">
-        <td class="px-4 py-2 font-medium text-gray-700">36</td>
-        <td class="px-4 py-2">Auditoría interna</td>
-        <td class="px-4 py-2">Carla Gómez</td>
-        <td class="px-4 py-2">2024-11-25</td>
-        <td class="px-4 py-2">2024-12-15</td>
-        <td class="px-4 py-2">
-          <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-            Rechazado
-          </span>
-        </td>
-        <td class="px-2 py-2 text-right cursor-pointer text-gray-400 hover:text-gray-600">⋮</td>
-      </tr>
-    </tbody>
-  </table>
-  
+<!-- Nivel 1 (0 o 1 solicitud): Muy disponible -->
+<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+  Muy disponible
+</span>
+
+<!-- Nivel 2 (2 solicitudes): Disponible -->
+<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-lime-100 text-lime-700">
+  Disponible
+</span>
+
+<!-- Nivel 3 (3 solicitudes): Moderadamente ocupado -->
+<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+  Moderado
+</span>
+
+<!-- Nivel 4 (4 solicitudes): Casi lleno -->
+<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
+  Casi al límite
+</span>
+
+<!-- Nivel 5 (5 solicitudes): Ocupado -->
+<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
+  Sin disponibilidad
+</span>
+
+
 
 </body>
 

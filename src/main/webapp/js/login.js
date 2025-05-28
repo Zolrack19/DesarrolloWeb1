@@ -19,6 +19,7 @@ document.getElementById("formulario").addEventListener("submit", async function 
   .then(res => res.json()
   .then(data => {
     if (data.ok) {
+      sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
       window.location.href = data.redirect;
       if (!errorMensaje.classList.contains("hidden")) {
         errorMensaje.classList.add("hidden")

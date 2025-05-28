@@ -6,12 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.semana6.dto.cliente.ClienteCrear;
-import com.example.semana6.dto.cliente.ClienteDTO;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
-import com.example.semana6.dto.cliente.PersonaConNegocioVista;
-import com.example.semana6.dto.colaborador.ColaboradorDTO;
-import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.facade.ClienteFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,7 +16,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ClienteServlet", urlPatterns = {"/control/ClienteServlet"})
 public class ClienteServlet extends HttpServlet {
@@ -58,9 +53,6 @@ public class ClienteServlet extends HttpServlet {
     String contrasena = req.getParameter("contrasena");
     String telefono = req.getParameter("telefono");
 
-    boolean ok = false;
-    boolean esPersonaConNegocio = false;
-
     ClienteCrear clienteCrear;
     if (tipoClienteId == 1) { //empresa
       clienteCrear = new ClienteCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento, email, contrasena, telefono);
@@ -70,21 +62,13 @@ public class ClienteServlet extends HttpServlet {
       String apellidoM = req.getParameter("apellidoM");
       clienteCrear = new PersonaConNegocioCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento, email, contrasena, telefono,
       nombre, apellidoP, apellidoM);
-      esPersonaConNegocio = true;
     }
 
     ClienteVista clienteVista = clienteFacade.crearCliente(clienteCrear);
-
-    if (clienteVista != null) {
-      HttpSession session = req.getSession();
-      session.setAttribute("usuario", esPersonaConNegocio ? ((PersonaConNegocioVista) clienteVista) : clienteVista);
-      session.setAttribute("rol", "cliente");
-      ok = true;
-    }
-
     
     Map<String, Object> json = new HashMap<>();
-    json.put("ok", ok);
+    json.put("ok", clienteVista != null);
+    json.put("cliente", clienteVista);
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
     new ObjectMapper().writeValue(resp.getWriter(), json);

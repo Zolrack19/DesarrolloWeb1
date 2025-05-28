@@ -43,7 +43,7 @@ public class SolicitudServlet extends HttpServlet {
     List<SolicitudVista> solicitudVistas = null;
 
     if (usuario instanceof ClienteDTO) { 
-      solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(),0, 10);
+      solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(), idLimite, maxResultados, paginaSiguiente);
     } else if (usuario instanceof ColaboradorDTO) {
       solicitudVistas = solicitudesFacade.getSolicitudes(idLimite, maxResultados, paginaSiguiente);
     }
@@ -58,31 +58,36 @@ public class SolicitudServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    short tipoSolicitudId = Short.valueOf(req.getParameter("cbxTipoSolicitud"));
-    String titulo = req.getParameter("txtTitulo");
-    String descripcion = req.getParameter("txtDescripcion");
-
-    HttpSession session = req.getSession(false);
-    Object usuario = (session != null) ? session.getAttribute("usuario") : null;
-    SolicitudCrear solicitudCrear = null;
-    if (usuario instanceof ClienteDTO) {
-      ClienteVista clienteVista = (ClienteVista) usuario;
-      solicitudCrear = new SolicitudCrear(tipoSolicitudId, (short) ValorDefecto.ESTADO_SOLICITUD.getValue(), titulo, descripcion, ValorDefecto.VALOR_NULO.getValue(), clienteVista.getId());
-    } else if (usuario instanceof ColaboradorDTO) {
-      ColaboradorVista colaboradorVista = (ColaboradorVista) usuario;
-      if (colaboradorVista.getRolColaborador().equals("Administrador")) {
-        short estadoSolicitud = Short.valueOf(req.getParameter("cbxEstadoSolicitud"));
-        short coordinadorId = Short.valueOf(req.getParameter("coordinadorId"));
-        short clienteId = Short.valueOf(req.getParameter("clienteId"));
-        solicitudCrear = new SolicitudCrear(tipoSolicitudId, estadoSolicitud, titulo, descripcion, coordinadorId, clienteId); // -1 es nulo
+    try {
+      short tipoSolicitudId = Short.valueOf(req.getParameter("cbxTipoSolicitud"));
+      String titulo = req.getParameter("txtTitulo");
+      String descripcion = req.getParameter("txtDescripcion");
+  
+      HttpSession session = req.getSession(false);
+      Object usuario = (session != null) ? session.getAttribute("usuario") : null;
+      SolicitudCrear solicitudCrear = null;
+      if (usuario instanceof ClienteDTO) {
+        ClienteVista clienteVista = (ClienteVista) usuario;
+        solicitudCrear = new SolicitudCrear(tipoSolicitudId, (short) ValorDefecto.ESTADO_SOLICITUD.getValue(), titulo, descripcion, ValorDefecto.VALOR_NULO.getValue(), clienteVista.getId());
+      } else if (usuario instanceof ColaboradorDTO) {
+        ColaboradorVista colaboradorVista = (ColaboradorVista) usuario;
+        if (colaboradorVista.getRolColaborador().equals("Administrador")) {
+          short estadoSolicitud = Short.valueOf(req.getParameter("cbxEstadoSolicitud"));
+          short coordinadorId = Short.valueOf(req.getParameter("coordinadorId"));
+          short clienteId = Short.valueOf(req.getParameter("clienteId"));
+          solicitudCrear = new SolicitudCrear(tipoSolicitudId, estadoSolicitud, titulo, descripcion, coordinadorId, clienteId); // -1 es nulo
+        }
       }
+  
+      SolicitudVista solicitudVista = solicitudesFacade.crearSolicitud(solicitudCrear);
+  
+      Map<String, Object> json = new HashMap<>();
+      json.put("ok", solicitudVista != null);
+      json.put("solicitud", solicitudVista);
+      new ObjectMapper().writeValue(resp.getWriter(), json);  
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-
-    SolicitudVista solicitudVista = solicitudesFacade.crearSolicitud(solicitudCrear);
-
-    Map<String, Object> json = new HashMap<>();
-    json.put("ok", solicitudVista != null);
-    json.put("solicitud", solicitudVista);
-    new ObjectMapper().writeValue(resp.getWriter(), json);
+    
   }
 }

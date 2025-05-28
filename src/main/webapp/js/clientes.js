@@ -133,6 +133,24 @@ export function init(datos) {
     .then(res => res.json()
     .then(data => {
       if (data.ok) {
+        
+        const cliente = data.cliente
+
+        if (!tbody) {
+          tbody = document.getElementById("tbodyClientes")
+        }
+        const tr = document.createElement("tr");
+        tr.className = "border-b hover:bg-gray-50";
+        tr.innerHTML = `
+          <td class="p-2">${cliente.razonSocial}</td>
+          <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
+          <td class="p-2">${cliente.tipoCliente}</td>
+          <td class="p-2">${cliente.tipoSectorEconomico}</td>
+          <td class="p-2">${cliente.telefono}</td>
+          <td class="p-2 text-right">⋮</td>
+        `;
+
+        tbody.insertBefore(tr, tbody.firstChild);
         cerrarModal("modalCliente", "contenidoCliente");
       }
     }));

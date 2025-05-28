@@ -21,6 +21,8 @@ public class ColaboradorDAO {
     s.beginTransaction();
 
     s.persist(colaborador);
+    s.flush();
+    s.refresh(colaborador);
 
     s.getTransaction().commit();
     s.close();

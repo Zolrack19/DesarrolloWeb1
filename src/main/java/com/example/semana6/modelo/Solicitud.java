@@ -34,7 +34,7 @@ public class Solicitud {
   private Colaborador cordinador;
 
   @ManyToOne
-  @JoinColumn(name = "cliente_id", nullable = false)
+  @JoinColumn(name = "cliente_id")
   private Cliente cliente;
 
   @org.hibernate.annotations.Generated(org.hibernate.annotations.GenerationTime.INSERT)

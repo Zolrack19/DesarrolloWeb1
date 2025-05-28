@@ -3,7 +3,7 @@
 CREATE TABLE rol_colaborador (
   id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   nombre varchar(120) NOT NULL UNIQUE,
-  codigo_prefijo varchar(10) CHECK (char_length(codigo_prefijo) >= 4) NOT NULL,
+  prefijo_codigo varchar(10) CHECK (char_length(prefijo_codigo) >= 4) NOT NULL,
   nombre_secuencia varchar(130) NOT NULL UNIQUE
 );
 
@@ -153,13 +153,13 @@ DECLARE
   nuevo_codigo TEXT;
 BEGIN
 
-  SELECT r.codigo_prefijo, r.nombre_secuencia
+  SELECT r.prefijo_codigo, r.nombre_secuencia
   INTO prefijo_actual, nombre_seq
   FROM rol_colaborador r
   WHERE r.id = NEW.rol_colaborador_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'rol_colaborador con id % no registrada', NEW.categoria_id;
+    RAISE EXCEPTION 'rol_colaborador con id % no registrada', NEW.rol_colaborador_id;
   END IF;
 
   secuencia_sql := 'SELECT nextval(''' || nombre_seq || ''')';

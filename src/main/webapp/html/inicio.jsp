@@ -15,7 +15,6 @@
       flujos de trabajo y escalar según las necesidades de tu negocio.
     </p>
 
-
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div onclick="cargarContenido('solicitudes')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
         <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">📌 Solicitudes</h2>
@@ -47,15 +46,6 @@
           <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">👥 Clientes</h2>
           <p class="text-gray-700">
             Administra roles, asigna tareas y monitorea el trabajo diario de tu equipo técnico con trazabilidad completa.
-          </p>
-        </div>
-      </c:if>
-
-      <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
-        <div class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
-          <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">⚙️ Configuración</h2>
-          <p class="text-gray-700">
-            Personaliza los parámetros del sistema, define tipos de solicitudes y ajusta notificaciones automáticas.
           </p>
         </div>
       </c:if>

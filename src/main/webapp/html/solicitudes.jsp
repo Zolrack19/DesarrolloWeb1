@@ -46,9 +46,14 @@
           <th class="p-2 max-w-[100px] min-w-[87px]">Id</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Título</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Cordinador</th>
-          <th class="p-2 max-w-[300px] min-w-[220px]">Fecha de registro</th>
-          <th class="p-2 max-w-[300px] min-w-[220px]">Fecha de finalización</th>
-          <th class="p-2 max-w-[80px] min-w-[80px]">Estado</th>
+    
+          <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
+            <th class="p-2 max-w-[400px] min-w-[268px]">Cliente</th>
+          </c:if>
+
+          <th class="p-2 max-w-[250px] min-w-[220px]">Fecha de registro</th>
+          <th class="p-2 max-w-[250px] min-w-[220px]">Fecha de finalización</th>
+          <th class="p-2 max-w-[100px] min-w-[100px]">Estado</th>
           <th class="p-2 max-w-[40px] min-w-[10px] text-right">⋮</th>
         </tr>
       </thead>
@@ -112,14 +117,14 @@
         <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
           <div>
             <label for="txtCoordinador" class="block text-sm font-medium text-gray-700 mb-1">Coordinador ('-1' sin coordinador)</label>
-            <input type="text" id="txtCoordinador" name="txtCoordinador" required
+            <input type="text" id="txtCoordinador" name="coordinadorId" required
               class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Buscar coordinador...">
           </div>
         
           <div>
             <label for="txtCliente" class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-            <input type="text" id="txtCliente" name="txtCliente" required
+            <input type="text" id="txtCliente" name="clienteId" required
               class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Buscar coordinador...">
           </div>
