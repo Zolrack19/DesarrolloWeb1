@@ -47,7 +47,7 @@
           <th class="p-2 max-w-[400px] min-w-[268px]">Título</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Cordinador</th>
     
-          <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
+          <c:if test="${rol != 'cliente' && (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
             <th class="p-2 max-w-[400px] min-w-[268px]">Cliente</th>
           </c:if>
 
