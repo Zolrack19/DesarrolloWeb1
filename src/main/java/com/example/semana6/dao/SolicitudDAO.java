@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.Solicitud;
 import com.example.semana6.singleton.HibernateUtil;
 import com.example.semana6.singleton.ValorDefecto;
@@ -71,67 +72,34 @@ public class SolicitudDAO {
     return solicitudes;
   }
 
-  public List<Solicitud> getRangoDescendienteByIdCliente(int clienteId, int idLimite, int maxResultados, boolean paginaSiguiente) {
-    Session s = HibernateUtil.getSession().openSession();
+  public List<Solicitud> getRango(int inicio, int fin) {
+    Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
-    List<Solicitud> solicitudes = null;
 
-    if (idLimite == ValorDefecto.VALOR_NULO.getValue()) {
-      solicitudes = s.createQuery("from Solicitud s where s.cliente.id = :idC order by s.id desc", Solicitud.class)
-      .setParameter("idC", clienteId)
-      .setMaxResults(maxResultados)
-      .list();
-  
-    } else if (paginaSiguiente) {
-      solicitudes = s.createQuery("from Solicitud s where s.id < :idLimite and s.cliente.id = :idC order by s.id desc", Solicitud.class)
-      .setParameter("idC", clienteId)
-      .setParameter("idLimite", idLimite)
-      .setMaxResults(maxResultados)
-      .list();
-  
-    } else {
-      solicitudes = s.createQuery("from Solicitud s where s.id > :idLimite and s.cliente.id = :idC order by s.id", Solicitud.class)
-      .setParameter("idC", clienteId)
-      .setParameter("idLimite", idLimite)
-      .setMaxResults(maxResultados)
-      .list();
-
-      Collections.reverse(solicitudes);
-    }
+    List<Solicitud> solicitudes = s.createQuery("from Solicitud s order by s.id desc", Solicitud.class)
+    .setFirstResult(inicio)
+    .setMaxResults(fin)
+    .list();
 
     s.getTransaction().commit();
     s.close();
     return solicitudes;
   }
 
-  // public List<Solicitud> getRango(int inicio, int fin) {
-  //   Session s =  HibernateUtil.getSession().openSession();
-  //   s.beginTransaction();
+  public List<Solicitud> getByClienteId(int clienteId, int inicio, int fin) {
+    Session s =  HibernateUtil.getSession().openSession();
+    s.beginTransaction();
 
-  //   List<Solicitud> solicitudes = s.createQuery("from Solicitud s order by s.id", Solicitud.class)
-  //   .setFirstResult(inicio)
-  //   .setMaxResults(fin)
-  //   .list();
+    List<Solicitud> solicitudes = s.createQuery("from Solicitud s where s.cliente.id = :idC order by s.id desc", Solicitud.class)
+    .setParameter("idC", clienteId)
+    .setFirstResult(inicio)
+    .setMaxResults(fin)
+    .list();
 
-  //   s.getTransaction().commit();
-  //   s.close();
-  //   return solicitudes;
-  // }
-
-  // public List<Solicitud> getByClienteId(int clienteId, int inicio, int fin) {
-  //   Session s =  HibernateUtil.getSession().openSession();
-  //   s.beginTransaction();
-
-  //   List<Solicitud> solicitudes = s.createQuery("from Solicitud s where s.cliente.id = :idC order by s.id", Solicitud.class)
-  //   .setParameter("idC", clienteId)
-  //   .setFirstResult(inicio)
-  //   .setMaxResults(fin)
-  //   .list();
-
-  //   s.getTransaction().commit();
-  //   s.close();
-  //   return solicitudes;
-  // }
+    s.getTransaction().commit();
+    s.close();
+    return solicitudes;
+  }
 
   
   public List<Solicitud> getByTipoSolicitud(int tipoSolicitudId, int inicio, int fin) {

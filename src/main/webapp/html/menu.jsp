@@ -25,9 +25,7 @@
         <c:if test="${rol != 'cliente' && (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
           <button onclick="cargarContenido('colaboradores')" class="font-semibold block w-full text-left py-2 px-4 hover:bg-blue-700">Colaboradores</button>
         </c:if>
-        <c:if test="${rol != 'cliente' && (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
-          <button onclick="cargarContenido('estadisticas')" class="font-semibold block w-full text-left py-2 px-4 hover:bg-blue-700">Estadísticas</button>
-        </c:if>
+        <button onclick="cargarContenido('estadisticas')" class="font-semibold block w-full text-left py-2 px-4 hover:bg-blue-700">Estadísticas</button>
       </nav>
 
       <div class="mt-auto space-y-2">

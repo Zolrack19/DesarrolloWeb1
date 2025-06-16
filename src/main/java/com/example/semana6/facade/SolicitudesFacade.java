@@ -42,8 +42,8 @@ public class SolicitudesFacade {
     return null;
   }
 
-  public List<SolicitudVista> getSolicitudes(int clienteId, int idLimite, int maxResultados, boolean paginaSiguiente) {
-    List<Solicitud> solicitudes = solicitudDAO.getRangoDescendienteByIdCliente(clienteId, idLimite, maxResultados, paginaSiguiente);
+  public List<SolicitudVista> getSolicitudes(int clienteId, int numPag) {
+    List<Solicitud> solicitudes = solicitudDAO.getByClienteId(clienteId, (numPag - 1)*10 + 1, 10);
     if (solicitudes.size() == 0) return null;
     List<SolicitudVista> solicitudVistas = new ArrayList<>();
     solicitudes.forEach((solicitud) -> {
@@ -52,8 +52,8 @@ public class SolicitudesFacade {
     return solicitudVistas;
   }
 
-  public List<SolicitudVista> getSolicitudes(int idLimite, int maxResultados, boolean paginaSiguiente) {
-    List<Solicitud> solicitudes = solicitudDAO.getRangoDescendiente(idLimite, maxResultados, paginaSiguiente);
+  public List<SolicitudVista> getSolicitudes(int numPag) {
+    List<Solicitud> solicitudes = solicitudDAO.getRango((numPag - 1)*10, 10);
     if (solicitudes.size() == 0) return null;
     List<SolicitudVista> solicitudVistas = new ArrayList<>();
     solicitudes.forEach((solicitud) -> {

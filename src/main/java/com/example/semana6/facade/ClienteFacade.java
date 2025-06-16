@@ -15,7 +15,6 @@ import com.example.semana6.modelo.Cliente;
 
 public class ClienteFacade {
   private final ClienteDAO clienteDAO = new ClienteDAO();
-  // private final PersonaConNegocioDAO personaConNegocioDAO = new PersonaConNegocioDAO();
   private final TipoClienteDAO tipoClienteDAO = new TipoClienteDAO();
   private final TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
   private final SectorEconomicoDAO sectorEconomicoDAO = new SectorEconomicoDAO();
@@ -47,8 +46,8 @@ public class ClienteFacade {
     return null;
   }
 
-  public List<ClienteVista> getClientes(int idLimite, int maxResultados, boolean paginaSiguiente) {
-    List<Cliente> clientes = clienteDAO.getPaginaDescendiente(idLimite, maxResultados, paginaSiguiente);
+  public List<ClienteVista> getClientes(int numPag) {
+    List<Cliente> clientes = clienteDAO.getRango((numPag - 1)*10, 10);
     if (clientes.size() == 0) return null;
     List<ClienteVista> clientesVista = new ArrayList<>();
     clientes.forEach((cliente) -> {

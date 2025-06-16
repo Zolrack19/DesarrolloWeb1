@@ -28,11 +28,9 @@ public class ClienteServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    int idLimite = Integer.parseInt(req.getParameter("idLimite"));
-    int maxResultados = Integer.parseInt(req.getParameter("maxResultados"));
-    boolean paginaSiguiente = Boolean.parseBoolean(req.getParameter("paginaSiguiente"));
+    int numPag = Integer.parseInt(req.getParameter("numPag"));
 
-    List<ClienteVista> clientesVista = clienteFacade.getClientes(idLimite, maxResultados, paginaSiguiente);
+    List<ClienteVista> clientesVista = clienteFacade.getClientes(numPag);
 
     ObjectMapper mapper = new ObjectMapper();
     String json = mapper.writeValueAsString(clientesVista);

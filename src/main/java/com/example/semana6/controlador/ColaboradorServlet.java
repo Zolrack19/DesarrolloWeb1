@@ -23,7 +23,8 @@ public class ColaboradorServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    List<ColaboradorVista> colaboradoresVista = colaboradorFacade.getcolaboradores(0, 10);
+    int numPag = Integer.parseInt(req.getParameter("numPag"));
+    List<ColaboradorVista> colaboradoresVista = colaboradorFacade.getcolaboradores(numPag);
     ObjectMapper mapper = new ObjectMapper();
     String json = mapper.writeValueAsString(colaboradoresVista);
     resp.setContentType("application/json");

@@ -27,8 +27,8 @@ public class ColaboradorFacade {
   }
 
 
-  public List<ColaboradorVista> getcolaboradores(int inicio, int fin) {
-    List<Colaborador> colaboradores = colaboradorDAO.getRango(inicio, fin);
+  public List<ColaboradorVista> getcolaboradores(int numPag) {
+    List<Colaborador> colaboradores = colaboradorDAO.getRango((numPag - 1)*10, 10);
     if (colaboradores.size() == 0) return null;
     List<ColaboradorVista> colaboradoresVista = new ArrayList<>();
     colaboradores.forEach((colaborador) -> {

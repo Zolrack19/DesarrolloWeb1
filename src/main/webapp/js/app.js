@@ -66,7 +66,8 @@ async function cargarContenido(nombre, acutalizarURL = true) {
     let datos = null
     if (servlets[nombre]) {
       contenedor.innerHTML = carga;
-      const res = await fetch(`/${contextPath}/control/${servlets[nombre]}?idLimite=-1&maxResultados=20&paginaSiguiente=true`)
+      console.log("llamando al servlet");
+      const res = await fetch(`/${contextPath}/control/${servlets[nombre]}?numPag=1`)
       datos = await res.json()
     }
 

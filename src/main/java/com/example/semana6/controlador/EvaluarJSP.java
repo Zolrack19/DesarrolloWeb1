@@ -28,7 +28,6 @@ public class EvaluarJSP extends HttpServlet {
       switch (vista) {
         case "clientes.jsp":
         case "colaboradores.jsp":
-        case "estadisticas.jsp":
           bloquear = true;
           break;
         default:
@@ -39,7 +38,6 @@ public class EvaluarJSP extends HttpServlet {
         switch (vista) {
           case "clientes.jsp":
           case "colaboradores.jsp":
-          case "estadisticas.jsp":
             bloquear = true;
             break;
           default:

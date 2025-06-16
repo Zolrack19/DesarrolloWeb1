@@ -29,6 +29,30 @@
       </tbody>
     </table>
   </div>
+  
+  <div class="bg-gray-100 flex items-center justify-center p-4 mt-10">
+    <div class="flex items-center justify-between p-4 bg-white shadow-md">
+      <div class="text-md text-gray-600">
+        Mostrando filas <span id="pagInicio" class="font-semibold">0</span> a <span id="pagFin" class="font-semibold">10</span> de <span class="font-semibold">200 </span>
+      </div>
+    
+      <div class="flex items-center space-x-2">
+        <button
+          class="ml-4 px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
+          id="atras"
+        >
+          ◀ Anterior
+        </button>
+    
+        <button
+          class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
+          id="adelante"
+        >
+          Siguiente ▶
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div id="modalColaborador"
   class="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50 hidden">

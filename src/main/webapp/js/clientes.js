@@ -1,5 +1,7 @@
-let tbody
 const contextPath = window.location.pathname.split("/")[1];
+
+let numPag = 1
+let tbody
 
 function llenarTabla(clientes, limpiar = false) {
   if (limpiar) {
@@ -24,6 +26,37 @@ function llenarTabla(clientes, limpiar = false) {
 
 
 export function init(datos) {
+  const pagInicio = document.getElementById("pagInicio")
+  const pagFin = document.getElementById("pagFin")
+
+  document.getElementById("atras").addEventListener("click", async function() {
+    const res = await fetch(`/${contextPath}/control/ClienteServlet?numPag=${numPag - 1}`)
+    datos = await res.json()
+    if (datos) {
+      numPag--
+      pagInicio.innerHTML = (numPag - 1)*10 + 1
+      pagFin.innerHTML = numPag*10
+      if (!tbody) {
+        tbody = document.getElementById("tbodyClientes")
+      }
+
+      llenarTabla(datos, true)
+    }
+  })
+
+  document.getElementById("adelante").addEventListener("click", async function() {
+    const res = await fetch(`/${contextPath}/control/ClienteServlet?numPag=${numPag + 1}`)
+    datos = await res.json()
+    if (datos) {
+      numPag++
+      pagInicio.innerHTML = (numPag - 1)*10 + 1
+      pagFin.innerHTML = numPag*10
+      if (!tbody) {
+        tbody = document.getElementById("tbodyClientes")
+      }
+      llenarTabla(datos, true)
+    }   
+  })
 
   if (datos) {
     tbody = document.getElementById("tbodyClientes")
@@ -274,5 +307,9 @@ export function actualizar(nodo) {
   if (tbody) {
     nodo.querySelector("tbody[id='tbodyClientes']").innerHTML = tbody.innerHTML
     tbody = null
+  }
+  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
+    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
+    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
   }
 }

@@ -10,31 +10,30 @@
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-<!-- Nivel 1 (0 o 1 solicitud): Muy disponible -->
-<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-  Muy disponible
-</span>
-
-<!-- Nivel 2 (2 solicitudes): Disponible -->
-<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-lime-100 text-lime-700">
-  Disponible
-</span>
-
-<!-- Nivel 3 (3 solicitudes): Moderadamente ocupado -->
-<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-  Moderado
-</span>
-
-<!-- Nivel 4 (4 solicitudes): Casi lleno -->
-<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
-  Casi al límite
-</span>
-
-<!-- Nivel 5 (5 solicitudes): Ocupado -->
-<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-  Sin disponibilidad
-</span>
-
+  <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-md">
+    <div class="text-sm text-gray-600">
+      Mostrando filas <span id="pagInicio" class="font-semibold">21</span> a <span id="pagFin" class="font-semibold">40</span> de <span class="font-semibold">200</span>
+    </div>
+  
+    <div class="flex items-center space-x-2">
+      <button
+        class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
+        onclick="goToPreviousPage()"
+        id="prevButton"
+      >
+        ← Anterior
+      </button>
+  
+      <button
+        class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
+        onclick="goToNextPage()"
+        id="nextButton"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </div>
+  
 
 
 </body>

@@ -1,9 +1,6 @@
 const contextPath = window.location.pathname.split("/")[1];
 
-const maxResultados = 20
-let idLimiteInferior = 0
-let idLimiteSuperior = 0
-
+let numPag = 1
 let tbody
 
 function llenarTabla(solicitudes, limpiar = false) {
@@ -43,14 +40,17 @@ function llenarTabla(solicitudes, limpiar = false) {
 }
 
 export function init(datos) {
+  const pagInicio = document.getElementById("pagInicio")
+  const pagFin = document.getElementById("pagFin")
+
 
   document.getElementById("atras").addEventListener("click", async function() {
-    const res = await fetch(`/${contextPath}/control/SolicitudServlet?idLimite=${idLimiteSuperior}&maxResultados=${maxResultados}&paginaSiguiente=false`)
+    const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag - 1}`)
     datos = await res.json()
     if (datos) {
-      idLimiteSuperior = datos[0].id
-      idLimiteInferior = datos[datos.length - 1].id
-      
+      numPag--
+      pagInicio.innerHTML = (numPag - 1)*10 + 1
+      pagFin.innerHTML = numPag*10
       if (!tbody) {
         tbody = document.getElementById("tbodySolicitudes")
       }
@@ -60,12 +60,12 @@ export function init(datos) {
   })
 
   document.getElementById("adelante").addEventListener("click", async function() {
-    const res = await fetch(`/${contextPath}/control/SolicitudServlet?idLimite=${idLimiteInferior}&maxResultados=${maxResultados}&paginaSiguiente=true`)
+    const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag + 1}`)
     datos = await res.json()
     if (datos) {
-      idLimiteSuperior = datos[0].id
-      idLimiteInferior = datos[datos.length - 1].id
-
+      numPag++
+      pagInicio.innerHTML = (numPag - 1)*10 + 1
+      pagFin.innerHTML = numPag*10
       if (!tbody) {
         tbody = document.getElementById("tbodySolicitudes")
       }
@@ -75,10 +75,7 @@ export function init(datos) {
 
 
   if (datos) {
-    idLimiteSuperior = datos[0].id
-    idLimiteInferior = datos[datos.length - 1].id
     tbody = document.getElementById("tbodySolicitudes")
-
     llenarTabla(datos)
   }
 
@@ -165,5 +162,9 @@ export function actualizar(nodo) {
   if (tbody) {
     nodo.querySelector("tbody[id='tbodySolicitudes']").innerHTML = tbody.innerHTML
     tbody = null
+  }
+  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
+    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
+    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
   }
 }

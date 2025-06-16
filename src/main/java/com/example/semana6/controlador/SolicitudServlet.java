@@ -33,9 +33,7 @@ public class SolicitudServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    int idLimite = Integer.parseInt(req.getParameter("idLimite"));
-    int maxResultados = Integer.parseInt(req.getParameter("maxResultados"));
-    boolean paginaSiguiente = Boolean.parseBoolean(req.getParameter("paginaSiguiente"));
+    int numPag = Integer.parseInt(req.getParameter("numPag"));
 
     HttpSession session = req.getSession(false);
     Object usuario = (session != null) ? session.getAttribute("usuario") : null;
@@ -43,9 +41,9 @@ public class SolicitudServlet extends HttpServlet {
     List<SolicitudVista> solicitudVistas = null;
 
     if (usuario instanceof ClienteDTO) { 
-      solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(), idLimite, maxResultados, paginaSiguiente);
+      solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(), numPag);
     } else if (usuario instanceof ColaboradorDTO) {
-      solicitudVistas = solicitudesFacade.getSolicitudes(idLimite, maxResultados, paginaSiguiente);
+      solicitudVistas = solicitudesFacade.getSolicitudes(numPag);
     }
 
 

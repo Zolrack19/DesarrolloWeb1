@@ -23,14 +23,12 @@
         </p>
       </div>
 
-      <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
-        <div onclick="cargarContenido('estadisticas')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
-          <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">📈 Reportes</h2>
-          <p class="text-gray-700">
-            Accede a estadísticas claras sobre el rendimiento del equipo, tiempos de respuesta y áreas más consultadas.
-          </p>
-        </div>
-      </c:if>
+      <div onclick="cargarContenido('estadisticas')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
+        <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">📈 Reportes</h2>
+        <p class="text-gray-700">
+          Accede a estadísticas claras sobre el rendimiento del equipo, tiempos de respuesta y áreas más consultadas.
+        </p>
+      </div>
     
       <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
         <div onclick="cargarContenido('colaboradores')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">

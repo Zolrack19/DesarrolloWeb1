@@ -5,7 +5,7 @@
 
   <header class="flex justify-between items-center px-6 py-4 border-b border-gray-500">
     <nav class="flex gap-6">
-      <p class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">
+      <p id="pnlSolicitudes" class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">
         <c:choose>
           <c:when test="${rol == 'cliente'}">
             <span>Mis solicitudes</span>
@@ -30,14 +30,6 @@
   </div>
   
   <!-- Navegación -->
-  <div class="flex justify-start gap-4 px-6 py-4">
-    <button id="atras" class="px-4 py-2 rounded-md border border-gray-300 shadow-sm text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
-      ◀ Atrás
-    </button>
-    <button id="adelante" class="px-4 py-2 rounded-md border border-gray-300 shadow-sm text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
-      Adelante ▶
-    </button>
-  </div>
 
   <div class="px-6 w-full overflow-x-auto">
     <table class="table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
@@ -61,6 +53,31 @@
       </tbody>
     </table>
   </div>
+
+  <div class="bg-gray-100 flex items-center justify-center p-4 mt-10">
+    <div class="flex items-center justify-between p-4 bg-white shadow-md">
+      <div class="text-md text-gray-600">
+        Mostrando filas <span id="pagInicio" class="font-semibold">1</span> a <span id="pagFin" class="font-semibold">10</span> de <span class="font-semibold">200 </span>
+      </div>
+    
+      <div class="flex items-center space-x-2">
+        <button
+          class="ml-4 px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
+          id="atras"
+        >
+          ◀ Anterior
+        </button>
+    
+        <button
+          class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
+          id="adelante"
+        >
+          Siguiente ▶
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <div id="modalSolicitud"
     class="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50 hidden">

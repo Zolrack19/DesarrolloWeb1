@@ -38,20 +38,19 @@ public class AutenticacionFacade {
       }
   
       Cliente cliente = clienteDAO.getByEmail(email);
-      if (cliente != null) {
-        if (!cliente.getContrasena().equals(contrasena)) return null;
-        if (cliente.getTipoCliente().getId() == 1) { //empresa
-          ClienteVista clienteVista = new ClienteVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
-          cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
-          cliente.getSectorEconomico().getNombre());
-          return clienteVista;
-        } else {
-          PersonaConNegocio persona = personaConNegocioDAO.getById(cliente.getId());
-          PersonaConNegocioVista clienteVista = new PersonaConNegocioVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
-          cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
-          cliente.getSectorEconomico().getNombre(), persona.getNombre(), persona.getApellidoPaterno(), persona.getApellidoMaterno());
-          return clienteVista;
-        }
+      if (cliente == null || !cliente.getContrasena().equals(contrasena)) return null;
+      System.out.println("Tipo: " + cliente.getTipoCliente().getNombre());
+      if (cliente.getTipoCliente().getId() == 1) { //empresa
+        ClienteVista clienteVista = new ClienteVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
+        cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
+        cliente.getSectorEconomico().getNombre());
+        return clienteVista;
+      } else {
+        PersonaConNegocio persona = personaConNegocioDAO.getById(cliente.getId());
+        PersonaConNegocioVista clienteVista = new PersonaConNegocioVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
+        cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
+        cliente.getSectorEconomico().getNombre(), persona.getNombre(), persona.getApellidoPaterno(), persona.getApellidoMaterno());
+        return clienteVista;
       }
     } catch (Exception e) {
       e.printStackTrace();
