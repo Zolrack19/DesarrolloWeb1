@@ -29,17 +29,7 @@ public class ColaboradorVista extends ColaboradorDTO implements Serializable {
     this.solicitudesActivas = colaborador.getSolicitudesActivas();
   }
 
-  public ColaboradorVista(String numeroDocumento, String nombre, String apellidoPaterno, String apellidoMaterno) {
-    super(numeroDocumento, nombre, apellidoPaterno, apellidoMaterno);
-  }
-  
-  public ColaboradorVista(String numeroDocumento, String nombre, String apellidoPaterno, String apellidoMaterno, int id, String codigo, String email) {
-    super(numeroDocumento, nombre, apellidoPaterno, apellidoMaterno);
-    this.id = id;
-    this.codigo = codigo;
-    this.email = email;
-  }
-
+  // constructor de mapeo
   public ColaboradorVista(int id, String rolColaborador, String tipoDocumento, String numeroDocumento, String codigo,
   String email, short solicitudesActivas, String nombre, String apellidoPaterno, String apellidoMaterno) {
     super(numeroDocumento, nombre, apellidoPaterno, apellidoMaterno);

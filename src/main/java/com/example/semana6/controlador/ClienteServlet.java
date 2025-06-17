@@ -1,7 +1,6 @@
 package com.example.semana6.controlador;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +39,14 @@ public class ClienteServlet extends HttpServlet {
   }
 
   private void buscarClientesPorTokens(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String[] ids = req.getParameterValues("token");
-    System.out.println(Arrays.toString(ids));
+    String[] tokens = req.getParameterValues("token");
+    List<ClienteVista> clientesVista = clienteFacade.getClientes(tokens);
+
+    ObjectMapper mapper = new ObjectMapper();
+    String json = mapper.writeValueAsString(clientesVista);
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    resp.getWriter().write(json);
   }
 
   private void cargarClientes(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

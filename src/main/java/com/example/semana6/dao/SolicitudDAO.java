@@ -87,12 +87,13 @@ public class SolicitudDAO {
     return solicitudes;
   }
 
-  public List<Solicitud> getByClienteId(int clienteId, int inicio, int fin) {
+  @SuppressWarnings("unchecked")
+  public List<SolicitudVista> getByClienteId(int clienteId, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
 
-    List<Solicitud> solicitudes = s.createQuery("from Solicitud s where s.cliente.id = :idC order by s.id desc", Solicitud.class)
-    .setParameter("idC", clienteId)
+    List<SolicitudVista> solicitudes = s.createNativeQuery("select * from solicituddto_vista s where s.cliente_id = :id order by s.id desc", "SolicitudVistaMapping")
+    .setParameter("id", clienteId)
     .setFirstResult(inicio)
     .setMaxResults(fin)
     .list();

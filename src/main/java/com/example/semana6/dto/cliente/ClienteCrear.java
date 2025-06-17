@@ -13,10 +13,6 @@ public class ClienteCrear extends ClienteDTO {
   private short sectorEconomicoId;
   private String contrasena;
 
-  public ClienteCrear(String razonSocial, String numeroDocumento, String telefono, String email) {
-    super(razonSocial, numeroDocumento, telefono, email);
-  }
-
   public ClienteCrear(short tipoDocumentoId, short tipoClienteId, short sectorEconomicoId, String razonSocial,
   String numeroDocumento, String email, String contrasena, String telefono) {
     super(razonSocial, numeroDocumento, telefono, email);

@@ -114,6 +114,8 @@ export function actualizar(nodo) {
 
 function confInputText() {
   const txtCoordinador = document.getElementById("txtCoordinador")
+  if (txtCoordinador === null) return;
+
   const txtCliente = document.getElementById("txtCliente")
   const popupCliente = document.getElementById("popupCliente")
   const popupCoordinador = document.getElementById("popupCoordinador")
@@ -132,20 +134,38 @@ function confInputText() {
   txtCoordinador.addEventListener("input", e => {
     clearTimeout(taskCoordinador)
     taskCoordinador = setTimeout(async () => {
-      const tokens = e.target.value.split(" ").filter(value => {
-        if (value.length > 3) return value 
-      })
-      console.log(tokens)
+      const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
+      if (tokens.length === 0) return
       const params = new URLSearchParams();
-      tokens.forEach(id => params.append("token", id))
+      for (let i = 0; i < tokens.length; i++) {
+        if (params.size > 4) break
+        if (tokens[i].length > 3) {
+          params.append("token", tokens[i])
+        }
+      }
+      if (params.size === 0) return
       await fetch("/" + contextPath + `/control/ColaboradorServlet?action=1&` + params.toString())
       .then(resp => {
         if (resp.ok) {
           return resp.json()
         }
       })
-      .then(data => {
-        console.log(data);
+      .then(colaboradores => {
+        if (colaboradores === null) {
+          popupCoordinador.classList.add("hidden")
+          return
+        }
+        popupCoordinador.innerHTML = ""
+        colaboradores.forEach(colaborador => {
+          const li = document.createElement("li");
+          li.className = "px-4 py-2 hover:bg-blue-100 cursor-pointer";
+          li.dataset.id = colaborador.id
+          li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
+          popupCoordinador.appendChild(li);
+        });
+        popupCoordinador.classList.remove("hidden")
+
+        console.log(colaboradores);
       })
     }, 400);
   })
@@ -153,20 +173,37 @@ function confInputText() {
   txtCliente.addEventListener("input", e => {
     clearTimeout(taskCliente)
     taskCliente = setTimeout(async () => {
-      const tokens = e.target.value.split(" ").filter(value => {
-        if (value.length > 3) return value
-      })
-      console.log(tokens)
+      const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
+      if (tokens.length === 0) return
       const params = new URLSearchParams();
-      tokens.forEach(id => params.append("token", id))
+      for (let i = 0; i < tokens.length; i++) {
+        if (params.size > 4) break
+        if (tokens[i].length > 3) {
+          params.append("token", tokens[i])
+        }
+      }
+      if (params.size === 0) return
       await fetch("/" + contextPath + `/control/ClienteServlet?action=1&` + params.toString())
       .then(resp => {
         if (resp.ok) {
           return resp.json()
         }
       })
-      .then(data => {
-        console.log(data);
+      .then(clientes => {
+        if (clientes === null) {
+          popupCliente.classList.add("hidden")
+          return
+        }
+        popupCliente.innerHTML = ""
+        clientes.forEach(cliente => {
+          const li = document.createElement("li");
+          li.className = "px-4 py-2 hover:bg-blue-100 cursor-pointer";
+          li.dataset.id = cliente.id
+          li.innerHTML = `${cliente.razonSocial}`
+          popupCliente.appendChild(li);
+        });
+        popupCliente.classList.remove("hidden")
+        console.log(clientes);
       })
     }, 400);
   })

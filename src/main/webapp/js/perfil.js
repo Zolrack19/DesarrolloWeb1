@@ -16,9 +16,8 @@ export function init() {
   btnConfirmarContrasena.addEventListener("click", () => {togglePassword("confirmarContrasena")})
   btnContraCerrarModal.addEventListener("click", () => {cerrarModal("modalContrasena", "mContrasenaContenido")})
 
-  try {
-    lblTelefono = document.getElementById("lblTelefono")
-
+  lblTelefono = document.getElementById("lblTelefono")
+  if (lblTelefono !== null) {
     const editTelefono = document.getElementById("editTelefono")
     const btnCancelarTelefono = document.getElementById("btnCancelarTelefono")
 
@@ -81,11 +80,10 @@ export function init() {
 
       cerrarModal('modalRazon', 'contenidoRazon');
     });
-  } catch (error) {
   }
 
-  try {
-    lblNombre = document.getElementById("lblNombre")
+  lblNombre = document.getElementById("lblNombre")
+  if (lblNombre !== null) {
 
     const editNombre = document.getElementById("editNombre")
     const btnCancelarNombre = document.getElementById("btnCancelarNombre")
@@ -121,7 +119,6 @@ export function init() {
       })
       cerrarModal('modalNombre', 'contenidoNombre');
     });
-  } catch (error) {
   }
 
 

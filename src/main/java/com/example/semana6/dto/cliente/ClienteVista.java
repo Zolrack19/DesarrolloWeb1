@@ -22,10 +22,6 @@ public class ClienteVista extends ClienteDTO {
     this.tipoSectorEconomico = cliente.getSectorEconomico().getNombre();
   }
   
-  public ClienteVista(String razonSocial, String numeroDocumento, String telefono, String email) {
-    super(razonSocial, numeroDocumento, telefono, email);
-  }
-
   public ClienteVista(String razonSocial, String numeroDocumento, String telefono, int id, String email,
   String tipoDocumento, String tipoCliente, String tipoSectorEconomico) {
     super(razonSocial, numeroDocumento, telefono, email);

@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.example.semana6.dto.colaborador.ColaboradorVista;
+import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.Colaborador;
 import com.example.semana6.singleton.HibernateUtil;
 
@@ -77,6 +78,17 @@ public class ColaboradorDAO {
     s.getTransaction().commit();
     s.close();
     return colaborador;
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<ColaboradorVista> getClientesByQuery(String query) {
+    Session s = HibernateUtil.getSession().openSession();
+    
+    List<ColaboradorVista> colaboradores = s.createNativeQuery(query, "ColaboradorVistaMapping")
+    .getResultList();
+
+    s.close();
+    return colaboradores;
   }
 
   @SuppressWarnings("unchecked")

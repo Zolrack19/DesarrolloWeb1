@@ -12,23 +12,6 @@ public class PersonaConNegocioCrear extends ClienteCrear {
   private String apellidoPaterno;
   private String apellidoMaterno;
   
-  public PersonaConNegocioCrear(String razonSocial, String numeroDocumento, String telefono, String email) {
-    super(razonSocial, numeroDocumento, telefono, email);
-  }
-  
-  public PersonaConNegocioCrear(String razonSocial, String numeroDocumento, String telefono, String email,
-  String nombre, String apellidoPaterno, String apellidoMaterno) {
-    super(razonSocial, numeroDocumento, telefono, email);
-    this.nombre = nombre;
-    this.apellidoPaterno = apellidoPaterno;
-    this.apellidoMaterno = apellidoMaterno;
-  }
-
-  public PersonaConNegocioCrear(short tipoDocumentoId, short tipoClienteId, short tipoSectorEconomico, String razonSocial,
-  String numeroDocumento, String email, String contrasena, String telefono) {
-    super(tipoDocumentoId, tipoClienteId, tipoSectorEconomico, razonSocial, numeroDocumento, email, contrasena, telefono);
-  }
-
   public PersonaConNegocioCrear(short tipoDocumentoId, short tipoClienteId, short tipoSectorEconomico, String razonSocial,
   String numeroDocumento, String email, String contrasena, String telefono, String nombre, String apellidoPaterno,
   String apellidoMaterno) {

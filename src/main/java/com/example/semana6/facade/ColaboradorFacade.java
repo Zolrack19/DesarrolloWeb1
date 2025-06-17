@@ -13,7 +13,10 @@ public class ColaboradorFacade {
   private ColaboradorDAO colaboradorDAO = new ColaboradorDAO();
   private TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
   private RolColaboradorDAO rolColaboradorDAO = new RolColaboradorDAO();
-
+  private StringBuilder query = new StringBuilder("""
+    SELECT c.*
+    FROM colaboradordto_vista c WHERE 
+  """);
   
   public ColaboradorVista crearColaborador(ColaboradorCrear colaboradorcCrear) {
     Colaborador colaborador = colaboradorcCrear.toColaborador();
@@ -22,6 +25,31 @@ public class ColaboradorFacade {
     colaboradorDAO.crearColaborador(colaborador);
     ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador);
     return colaboradorVista;
+  }
+
+    public List<ColaboradorVista> getcolaboradores(String[] tokens) {
+    if (tokens.length == 0) return null;
+    query.delete(49, query.length());
+
+    for (int i = 0; i < tokens.length; i++) {
+      String token = tokens[i];
+      if (i != 0) {
+        query.append(" OR ");
+      }
+      query.append("(\n");
+      query.append("c.nombre ILIKE unaccent('%").append(token); 
+      query.append("%') OR \n");
+      query.append("c.apellido_paterno ILIKE unaccent('%").append(token); 
+      query.append("%') OR \n");
+      query.append("c.apellido_materno ILIKE unaccent('%").append(token); 
+      query.append("%') OR \n");
+      query.append("c.numero_documento LIKE ('").append(token); 
+      query.append("%')");
+      query.append(")\n");
+    }
+    query.append("limit 5");
+    List<ColaboradorVista> colaboradores = colaboradorDAO.getClientesByQuery(query.toString());
+    return colaboradores;
   }
 
 

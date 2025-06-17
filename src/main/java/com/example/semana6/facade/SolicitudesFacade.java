@@ -1,6 +1,5 @@
 package com.example.semana6.facade;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.example.semana6.dao.ClienteDAO;
@@ -43,22 +42,14 @@ public class SolicitudesFacade {
   }
 
   public List<SolicitudVista> getSolicitudes(int clienteId, int numPag) {
-    List<Solicitud> solicitudes = solicitudDAO.getByClienteId(clienteId, (numPag - 1)*10 + 1, 10);
+    List<SolicitudVista> solicitudes = solicitudDAO.getByClienteId(clienteId, (numPag - 1)*10, 10);
     if (solicitudes.size() == 0) return null;
-    List<SolicitudVista> solicitudVistas = new ArrayList<>();
-    solicitudes.forEach((solicitud) -> {
-      solicitudVistas.add(new SolicitudVista(solicitud));
-    });
-    return solicitudVistas;
+    return solicitudes;
   }
 
   public List<SolicitudVista> getSolicitudes(int numPag) {
     List<SolicitudVista> solicitudes = solicitudDAO.getRangoVista((numPag - 1)*10, 10);
     if (solicitudes.size() == 0) return null;
-    // List<SolicitudVista> solicitudVistas = new ArrayList<>();
-    // solicitudes.forEach((solicitud) -> {
-    //   solicitudVistas.add(new SolicitudVista(solicitud));
-    // });
     return solicitudes;
   }
 }

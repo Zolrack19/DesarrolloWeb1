@@ -29,8 +29,8 @@ import lombok.Setter;
     @ColumnResult(name = "descripcion", type = String.class),
     @ColumnResult(name = "coordinador", type = String.class),
     @ColumnResult(name = "cliente", type = String.class),
-    @ColumnResult(name = "fecha_registro", type = String.class),
-    @ColumnResult(name = "fecha_finalizacion", type = String.class),
+    @ColumnResult(name = "fecha_registro", type = LocalDateTime.class),
+    @ColumnResult(name = "fecha_finalizacion", type = LocalDateTime.class),
     @ColumnResult(name = "estado_solicitud", type = String.class),
   }
 ))

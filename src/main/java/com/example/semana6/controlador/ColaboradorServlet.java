@@ -1,7 +1,6 @@
 package com.example.semana6.controlador;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +34,14 @@ public class ColaboradorServlet extends HttpServlet {
   }
 
   private void buscarColaboradoresPorTokens(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String[] ids = req.getParameterValues("token");
-    System.out.println(Arrays.toString(ids));
+    String[] tokens = req.getParameterValues("token");
+    List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getcolaboradores(tokens);
+
+    ObjectMapper mapper = new ObjectMapper();
+    String json = mapper.writeValueAsString(colaboradorVistas);
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    resp.getWriter().write(json);
   }
 
   private void cargarColaboradores(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

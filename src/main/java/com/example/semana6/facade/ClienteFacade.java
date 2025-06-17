@@ -12,6 +12,7 @@ import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
 import com.example.semana6.modelo.Cliente;
+import com.example.semana6.modelo.PersonaConNegocio;
 
 public class ClienteFacade {
   private final ClienteDAO clienteDAO = new ClienteDAO();
@@ -52,10 +53,10 @@ public class ClienteFacade {
     return null;
   }
 
-  public List<Cliente> getClientes(String[] tokens) {
+  public List<ClienteVista> getClientes(String[] tokens) {
     if (tokens.length == 0) return null;
-    System.out.println(query.length());
-    // query.delete(34, query.length());
+    // System.out.println(query.length());
+    query.delete(146, query.length());
 
     for (int i = 0; i < tokens.length; i++) {
       String token = tokens[i];
@@ -69,13 +70,18 @@ public class ClienteFacade {
       query.append("%')");
       query.append(")\n");
     }
-    System.err.println('\n');
-    System.err.println('\n');
-    System.out.println(query.toString());
-    System.err.println('\n');
-    System.err.println('\n');
+    query.append("limit 5");
     List<Cliente> clientes = clienteDAO.getClientesByQuery(query.toString());
-    return clientes;
+    if (clientes.size() == 0) return null;
+    List<ClienteVista> clientesVista = new ArrayList<>();
+    for (Cliente cliente : clientes) {
+      if (cliente instanceof PersonaConNegocio) {
+        clientesVista.add(new PersonaConNegocioVista((PersonaConNegocio) cliente));
+      } else {
+        clientesVista.add(new ClienteVista(cliente));
+      }
+    }
+    return clientesVista;
   }
 
   public List<ClienteVista> getClientes(int numPag) {
@@ -83,7 +89,11 @@ public class ClienteFacade {
     if (clientes.size() == 0) return null;
     List<ClienteVista> clientesVista = new ArrayList<>();
     clientes.forEach((cliente) -> {
-      clientesVista.add(new ClienteVista(cliente));
+      if (cliente instanceof PersonaConNegocio) {
+        clientesVista.add(new PersonaConNegocioVista((PersonaConNegocio) cliente));
+      } else {
+        clientesVista.add(new ClienteVista(cliente));
+      }
     });
     return clientesVista;
   }

@@ -29,8 +29,6 @@ public class SolicitudVista implements Serializable {
   @Setter(AccessLevel.NONE)
   private String estadoSolicitud;
 
-  public SolicitudVista() {}
-
   public SolicitudVista(Solicitud solicitud) {
     this.id = solicitud.getId();
     this.tipoSolicitud = solicitud.getTipoSolicitud().getNombre();
@@ -42,24 +40,30 @@ public class SolicitudVista implements Serializable {
     if (solicitud.getCliente() != null) {
       this.cliente = solicitud.getCliente().getRazonSocial();
     }
-    this.fechaRegistro = FormatoFecha.getFormatoFecha().fechaConHora(solicitud.getFechaRegistro());
+    this.fechaRegistro = FormatoFecha.fechaConHora(solicitud.getFechaRegistro());
     if (fechaFinalizacion != null) {
-      this.fechaFinalizacion = FormatoFecha.getFormatoFecha().fechaConHora(solicitud.getFechaFinalizacion());
+      this.fechaFinalizacion = FormatoFecha.fechaConHora(solicitud.getFechaFinalizacion());
     }
     this.estadoSolicitud = solicitud.getEstadoSolicitud().getNombre();
   }
 
+  // constructor de mapeo
   public SolicitudVista(int id, String tipoSolicitud, String titulo, String descripcion, String coordinador, String cliente,
-  String fechaRegistro, String fechaFinalizacion, String estadoSolicitud) {
+  LocalDateTime fechaRegistro, LocalDateTime fechaFinalizacion, String estadoSolicitud) {
     this.id = id;
     this.tipoSolicitud = tipoSolicitud;
     this.titulo = titulo;
     this.descripcion = descripcion;
     this.coordinador = coordinador;
     this.cliente = cliente;
-    this.fechaRegistro = fechaRegistro;
-    this.fechaFinalizacion = fechaFinalizacion;
+    if (fechaRegistro != null) {
+      this.fechaRegistro = FormatoFecha.fechaConHora(fechaRegistro);
+    }
+    if (fechaFinalizacion != null) {
+      this.fechaFinalizacion = FormatoFecha.fechaConHora(fechaFinalizacion);
+    }
     this.estadoSolicitud = estadoSolicitud;
+
   }
 
 
