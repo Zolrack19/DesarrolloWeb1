@@ -138,13 +138,6 @@
               placeholder="Buscar coordinador...">
             
             <ul id="popupCoordinador" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-48 overflow-y-auto hidden">
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
             </ul>
           </div>
         
@@ -153,15 +146,7 @@
             <input type="text" id="txtCliente" name="clienteId" required autocomplete="off"
               class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Buscar cliente...">
-            <ul id="popupCliente" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto hidden">
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
-              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+            <ul id="popupCliente" tabindex="1" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto hidden">
             </ul>
           </div>
         </c:if>

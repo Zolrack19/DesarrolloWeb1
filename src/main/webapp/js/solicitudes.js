@@ -124,12 +124,72 @@ function confInputText() {
   let taskCoordinador = null
 
   txtCoordinador.addEventListener("focusout", () => {
-    popupCoordinador.classList.add("hidden")
+    setTimeout(() => {
+      if (popupCoordinador === document.activeElement.parentElement) return
+      popupCoordinador.classList.add("hidden")
+    }, 100);
   })
-  
+  txtCoordinador.addEventListener("focusin", () => {
+    if (popupCoordinador.hasChildNodes()) {
+      popupCoordinador.classList.remove("hidden")
+    }
+  })
+
   txtCliente.addEventListener("focusout", () => {
-    popupCliente.classList.add("hidden")
+    setTimeout(() => {
+      if (popupCliente === document.activeElement.parentElement) return
+      popupCliente.classList.add("hidden")
+    }, 100);
   })
+  txtCliente.addEventListener("focusin", () => {
+    if (popupCliente.hasChildNodes()) {
+      popupCliente.classList.remove("hidden")
+    }
+  })
+
+  popupCoordinador.addEventListener('click', e => {
+    if (e.target.tagName === 'LI') {
+      txtCoordinador.value = e.target.textContent
+    }
+  });
+  popupCoordinador.addEventListener("focusout", e => {
+    setTimeout(() => {
+      if (!popupCoordinador.contains(document.activeElement)) {
+        console.log('La lista completa perdió el foco');
+        popupCoordinador.classList.add("hidden")
+      }
+    }, 0);
+  });
+  popupCoordinador.addEventListener("keypress", e => {
+    if ((e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      txtCoordinador.value = document.activeElement.innerHTML
+      txtCliente.focus()
+      popupCoordinador.classList.add("hidden")
+    }
+  });
+
+  popupCliente.addEventListener('click', e => {
+    if (e.target.tagName === 'LI') {
+      txtCliente.value = e.target.textContent
+    }
+  });
+  popupCliente.addEventListener("focusout", e => {
+    setTimeout(() => {
+      if (!popupCliente.contains(document.activeElement)) {
+        console.log('La lista completa perdió el foco');
+        popupCliente.classList.add("hidden")
+      }
+    }, 0);
+  });
+
+  popupCliente.addEventListener("keypress", e => {
+    if ((e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      txtCliente.value = document.activeElement.innerHTML
+      popupCliente.classList.add("hidden")
+    }
+  });
 
   txtCoordinador.addEventListener("input", e => {
     clearTimeout(taskCoordinador)
@@ -158,14 +218,13 @@ function confInputText() {
         popupCoordinador.innerHTML = ""
         colaboradores.forEach(colaborador => {
           const li = document.createElement("li");
-          li.className = "px-4 py-2 hover:bg-blue-100 cursor-pointer";
+          li.tabIndex = 0
+          li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
           li.dataset.id = colaborador.id
           li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
           popupCoordinador.appendChild(li);
         });
         popupCoordinador.classList.remove("hidden")
-
-        console.log(colaboradores);
       })
     }, 400);
   })
@@ -197,13 +256,13 @@ function confInputText() {
         popupCliente.innerHTML = ""
         clientes.forEach(cliente => {
           const li = document.createElement("li");
-          li.className = "px-4 py-2 hover:bg-blue-100 cursor-pointer";
+          li.tabIndex = 0
+          li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
           li.dataset.id = cliente.id
           li.innerHTML = `${cliente.razonSocial}`
           popupCliente.appendChild(li);
         });
         popupCliente.classList.remove("hidden")
-        console.log(clientes);
       })
     }, 400);
   })
