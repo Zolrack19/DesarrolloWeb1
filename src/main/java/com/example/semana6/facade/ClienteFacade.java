@@ -18,6 +18,12 @@ public class ClienteFacade {
   private final TipoClienteDAO tipoClienteDAO = new TipoClienteDAO();
   private final TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
   private final SectorEconomicoDAO sectorEconomicoDAO = new SectorEconomicoDAO();
+
+  private StringBuilder query = new StringBuilder("""
+    SELECT c.*, p.*,
+    CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END AS clazz_
+    FROM cliente c LEFT JOIN persona_con_negocio p ON p.id = c.id WHERE 
+  """);
   
   public ClienteVista crearCliente(ClienteCrear clienteCrear) {
     try {
@@ -44,6 +50,32 @@ public class ClienteFacade {
       e.printStackTrace();
     }
     return null;
+  }
+
+  public List<Cliente> getClientes(String[] tokens) {
+    if (tokens.length == 0) return null;
+    System.out.println(query.length());
+    // query.delete(34, query.length());
+
+    for (int i = 0; i < tokens.length; i++) {
+      String token = tokens[i];
+      if (i != 0) {
+        query.append(" OR ");
+      }
+      query.append("(\n");
+      query.append("c.razon_social ILIKE unaccent('%").append(token); 
+      query.append("%') OR \n");
+      query.append("c.numero_documento LIKE ('").append(token); 
+      query.append("%')");
+      query.append(")\n");
+    }
+    System.err.println('\n');
+    System.err.println('\n');
+    System.out.println(query.toString());
+    System.err.println('\n');
+    System.err.println('\n');
+    List<Cliente> clientes = clienteDAO.getClientesByQuery(query.toString());
+    return clientes;
   }
 
   public List<ClienteVista> getClientes(int numPag) {

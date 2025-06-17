@@ -3,7 +3,11 @@ package com.example.semana6.modelo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.semana6.dto.solicitud.SolicitudVista;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -12,9 +16,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SqlResultSetMapping;
 import lombok.Getter;
 import lombok.Setter;
 
+@SqlResultSetMapping(name = "SolicitudVistaMapping", classes = @ConstructorResult(
+  targetClass = SolicitudVista.class,
+  columns = {
+    @ColumnResult(name = "id", type = Integer.class),
+    @ColumnResult(name = "tipo_solicitud", type = String.class),
+    @ColumnResult(name = "titulo", type = String.class),
+    @ColumnResult(name = "descripcion", type = String.class),
+    @ColumnResult(name = "coordinador", type = String.class),
+    @ColumnResult(name = "cliente", type = String.class),
+    @ColumnResult(name = "fecha_registro", type = String.class),
+    @ColumnResult(name = "fecha_finalizacion", type = String.class),
+    @ColumnResult(name = "estado_solicitud", type = String.class),
+  }
+))
 @Getter
 @Setter
 @Entity

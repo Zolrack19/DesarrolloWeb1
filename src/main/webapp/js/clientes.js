@@ -3,28 +3,6 @@ const contextPath = window.location.pathname.split("/")[1];
 let numPag = 1
 let tbody
 
-function llenarTabla(clientes, limpiar = false) {
-  if (limpiar) {
-    tbody.innerHTML = ""
-  }
-
-  clientes.forEach((cliente) => {
-    const tr = document.createElement("tr");
-    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
-  
-    tr.innerHTML = `
-      <td class="p-2">${cliente.razonSocial}</td>
-      <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
-      <td class="p-2">${cliente.tipoCliente}</td>
-      <td class="p-2">${cliente.tipoSectorEconomico}</td>
-      <td class="p-2">${cliente.telefono}</td>
-      <td class="p-2 text-right">⋮</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-
 export function init(datos) {
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
@@ -280,27 +258,6 @@ export function init(datos) {
   btnNuevoCliente.addEventListener("click", () => { abrirModal("modalCliente", "contenidoCliente") })
   btnCancelarCliente.addEventListener("click", () => { cerrarModal("modalCliente", "contenidoCliente") })
 
-
-  function abrirModal(idModal, idContenido) {
-    const modal = document.getElementById(idModal);
-    const contenido = document.getElementById(idContenido);
-    modal.classList.remove("hidden");
-    setTimeout(() => {
-      contenido.classList.remove("scale-95", "opacity-0");
-      contenido.classList.add("scale-100", "opacity-100");
-    }, 10);
-  }
-
-  function cerrarModal(idModal, idContenido) {
-    const modal = document.getElementById(idModal);
-    const contenido = document.getElementById(idContenido);
-    contenido.classList.add("scale-95", "opacity-0");
-    contenido.classList.remove("scale-100", "opacity-100");
-    setTimeout(() => {
-      modal.classList.add("hidden");
-    }, 200);
-  }
-
 }
 
 export function actualizar(nodo) {
@@ -312,4 +269,47 @@ export function actualizar(nodo) {
     nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
     nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
   }
+}
+
+
+function abrirModal(idModal, idContenido) {
+  const modal = document.getElementById(idModal);
+  const contenido = document.getElementById(idContenido);
+  modal.classList.remove("hidden");
+  setTimeout(() => {
+    contenido.classList.remove("scale-95", "opacity-0");
+    contenido.classList.add("scale-100", "opacity-100");
+  }, 10);
+}
+
+function cerrarModal(idModal, idContenido) {
+  const modal = document.getElementById(idModal);
+  const contenido = document.getElementById(idContenido);
+  contenido.classList.add("scale-95", "opacity-0");
+  contenido.classList.remove("scale-100", "opacity-100");
+  setTimeout(() => {
+    modal.classList.add("hidden");
+  }, 200);
+}
+
+function llenarTabla(clientes, limpiar = false) {
+  if (limpiar) {
+    tbody.innerHTML = ""
+  }
+
+  clientes.forEach((cliente) => {
+    const tr = document.createElement("tr");
+    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
+    tr.dataset.id = cliente.id
+
+    tr.innerHTML = `
+      <td class="p-2">${cliente.razonSocial}</td>
+      <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
+      <td class="p-2">${cliente.tipoCliente}</td>
+      <td class="p-2">${cliente.tipoSectorEconomico}</td>
+      <td class="p-2">${cliente.telefono}</td>
+      <td class="p-2 text-right">⋮</td>
+    `;
+    tbody.appendChild(tr);
+  });
 }

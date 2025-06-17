@@ -137,6 +137,16 @@ public class ClienteDAO {
     return clientes;
   }
 
+  public List<Cliente> getClientesByQuery(String query) {
+    Session s = HibernateUtil.getSession().openSession();
+    
+    List<Cliente> clientes = s.createNativeQuery(query, Cliente.class)
+    .getResultList();
+
+    s.close();
+    return clientes;
+  }
+
   public void actualizarCliente(Cliente cliente) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();

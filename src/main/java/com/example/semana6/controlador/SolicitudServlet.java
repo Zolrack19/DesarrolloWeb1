@@ -39,11 +39,12 @@ public class SolicitudServlet extends HttpServlet {
     Object usuario = (session != null) ? session.getAttribute("usuario") : null;
 
     List<SolicitudVista> solicitudVistas = null;
-
-    if (usuario instanceof ClienteDTO) { 
-      solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(), numPag);
-    } else if (usuario instanceof ColaboradorDTO) {
-      solicitudVistas = solicitudesFacade.getSolicitudes(numPag);
+    if (numPag > 0) { 
+      if (usuario instanceof ClienteDTO) { 
+        solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(), numPag);
+      } else if (usuario instanceof ColaboradorDTO) {
+        solicitudVistas = solicitudesFacade.getSolicitudes(numPag);
+      }
     }
 
 

@@ -21,7 +21,7 @@ public class LogoutServlet extends HttpServlet {
       session.invalidate();
     }
     Map<String, Object> json = new HashMap<>();
-    json.put("redirect", req.getContextPath() + "/htlm/login.html");
+    json.put("redirect", req.getContextPath() + "/html/login.html");
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import com.example.semana6.modelo.Cliente;
+import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Solicitud;
 import com.example.semana6.singleton.HibernateUtil;
 import com.example.semana6.singleton.ValorDefecto;
@@ -72,11 +72,12 @@ public class SolicitudDAO {
     return solicitudes;
   }
 
-  public List<Solicitud> getRango(int inicio, int fin) {
+  @SuppressWarnings("unchecked")
+  public List<SolicitudVista> getRangoVista(int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
 
-    List<Solicitud> solicitudes = s.createQuery("from Solicitud s order by s.id desc", Solicitud.class)
+    List<SolicitudVista> solicitudes = s.createNativeQuery("select * from solicituddto_vista s order by s.id desc", "SolicitudVistaMapping")
     .setFirstResult(inicio)
     .setMaxResults(fin)
     .list();

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.modelo.Colaborador;
 import com.example.semana6.singleton.HibernateUtil;
 
@@ -78,11 +79,12 @@ public class ColaboradorDAO {
     return colaborador;
   }
 
-  public List<Colaborador> getRango(int inicio, int fin) {
+  @SuppressWarnings("unchecked")
+  public List<ColaboradorVista> getRangoVista(int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
 
-    List<Colaborador> colaboradores = s.createQuery("from Colaborador order by id", Colaborador.class)
+    List<ColaboradorVista> colaboradores = s.createNativeQuery("select * from colaboradordto_vista order by id", "ColaboradorVistaMapping")
     .setFirstResult(inicio)
     .setMaxResults(fin)
     .list();

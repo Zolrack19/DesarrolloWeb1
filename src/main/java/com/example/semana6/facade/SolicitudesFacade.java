@@ -53,12 +53,12 @@ public class SolicitudesFacade {
   }
 
   public List<SolicitudVista> getSolicitudes(int numPag) {
-    List<Solicitud> solicitudes = solicitudDAO.getRango((numPag - 1)*10, 10);
+    List<SolicitudVista> solicitudes = solicitudDAO.getRangoVista((numPag - 1)*10, 10);
     if (solicitudes.size() == 0) return null;
-    List<SolicitudVista> solicitudVistas = new ArrayList<>();
-    solicitudes.forEach((solicitud) -> {
-      solicitudVistas.add(new SolicitudVista(solicitud));
-    });
-    return solicitudVistas;
+    // List<SolicitudVista> solicitudVistas = new ArrayList<>();
+    // solicitudes.forEach((solicitud) -> {
+    //   solicitudVistas.add(new SolicitudVista(solicitud));
+    // });
+    return solicitudes;
   }
 }

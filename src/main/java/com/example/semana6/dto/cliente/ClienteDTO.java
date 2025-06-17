@@ -13,11 +13,13 @@ public class ClienteDTO implements Serializable {
   private String razonSocial;
   private String numeroDocumento;
   private String telefono;
+  private String email;
 
-  public ClienteDTO(String razonSocial, String numeroDocumento, String telefono) {
+  public ClienteDTO(String razonSocial, String numeroDocumento, String telefono, String email) {
     this.razonSocial = razonSocial;
     this.numeroDocumento = numeroDocumento;
     this.telefono = telefono;
+    this.email = email;
   }
 
   public Cliente toCliente() {
@@ -25,6 +27,7 @@ public class ClienteDTO implements Serializable {
     cliente.setRazonSocial(razonSocial);
     cliente.setNumeroDocumento(numeroDocumento);
     cliente.setTelefono(telefono);
+    cliente.setEmail(email);
     return cliente;
   }
   

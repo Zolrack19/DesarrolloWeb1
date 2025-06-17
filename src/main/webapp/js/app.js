@@ -90,7 +90,6 @@ function cerrarSesion() {
   fetch(`/${contextPath}/control/LogoutServlet`)
   .then(resp => resp.json())
   .then(data => {
-    // window.location.replace(data.redirect);
     window.usuario = null
     sessionStorage.removeItem("usuario")
     vistasCache = {}

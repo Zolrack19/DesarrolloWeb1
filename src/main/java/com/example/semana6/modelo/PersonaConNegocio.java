@@ -18,8 +18,5 @@ public class PersonaConNegocio extends Cliente {
   
   @Column(name = "apellido_materno", length = 50, nullable = false)
   private String apellidoMaterno;
-  
-  // @Column(name = "razon_social", length = 200, nullable = false)
-  // private String razonSocial;
 
 }

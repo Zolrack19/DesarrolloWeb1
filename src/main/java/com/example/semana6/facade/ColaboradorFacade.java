@@ -1,6 +1,5 @@
 package com.example.semana6.facade;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.example.semana6.dao.ColaboradorDAO;
@@ -22,18 +21,13 @@ public class ColaboradorFacade {
     colaborador.setRolColaborador(rolColaboradorDAO.getById(colaboradorcCrear.getRolColaboradorId()));
     colaboradorDAO.crearColaborador(colaborador);
     ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador);
-    System.out.println("todo bien!!");
     return colaboradorVista;
   }
 
 
   public List<ColaboradorVista> getcolaboradores(int numPag) {
-    List<Colaborador> colaboradores = colaboradorDAO.getRango((numPag - 1)*10, 10);
+    List<ColaboradorVista> colaboradores = colaboradorDAO.getRangoVista((numPag - 1)*10, 10);
     if (colaboradores.size() == 0) return null;
-    List<ColaboradorVista> colaboradoresVista = new ArrayList<>();
-    colaboradores.forEach((colaborador) -> {
-      colaboradoresVista.add(new ColaboradorVista(colaborador));
-    });
-    return colaboradoresVista;
+    return colaboradores;
   }
 }

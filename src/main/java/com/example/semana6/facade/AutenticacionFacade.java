@@ -2,7 +2,6 @@ package com.example.semana6.facade;
 
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.ColaboradorDAO;
-import com.example.semana6.dao.PersonaConNegocioDAO;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
@@ -12,18 +11,10 @@ import com.example.semana6.modelo.PersonaConNegocio;
 
 public class AutenticacionFacade {
   private final ClienteDAO clienteDAO;
-  private final PersonaConNegocioDAO personaConNegocioDAO;
   private final ColaboradorDAO colaboradorDAO;
 
-  public AutenticacionFacade(ClienteDAO clienteDAO, PersonaConNegocioDAO personaConNegocioDAO, ColaboradorDAO colaboradorDAO) {
-    this.clienteDAO = clienteDAO;
-    this.personaConNegocioDAO = personaConNegocioDAO;
-    this.colaboradorDAO = colaboradorDAO;
-  }
-  
   public AutenticacionFacade() {
     this.clienteDAO = new ClienteDAO();
-    this.personaConNegocioDAO = new PersonaConNegocioDAO();
     this.colaboradorDAO = new ColaboradorDAO();
   }
 
@@ -39,19 +30,13 @@ public class AutenticacionFacade {
   
       Cliente cliente = clienteDAO.getByEmail(email);
       if (cliente == null || !cliente.getContrasena().equals(contrasena)) return null;
-      System.out.println("Tipo: " + cliente.getTipoCliente().getNombre());
-      if (cliente.getTipoCliente().getId() == 1) { //empresa
-        ClienteVista clienteVista = new ClienteVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
-        cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
-        cliente.getSectorEconomico().getNombre());
-        return clienteVista;
+      ClienteVista clienteVista = null;
+      if (cliente instanceof PersonaConNegocio) {
+        clienteVista = new PersonaConNegocioVista((PersonaConNegocio) cliente);
       } else {
-        PersonaConNegocio persona = personaConNegocioDAO.getById(cliente.getId());
-        PersonaConNegocioVista clienteVista = new PersonaConNegocioVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
-        cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
-        cliente.getSectorEconomico().getNombre(), persona.getNombre(), persona.getApellidoPaterno(), persona.getApellidoMaterno());
-        return clienteVista;
+        clienteVista = new ClienteVista(cliente);
       }
+      return clienteVista;
     } catch (Exception e) {
       e.printStackTrace();
     }

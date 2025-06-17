@@ -12,13 +12,13 @@ public class PersonaConNegocioCrear extends ClienteCrear {
   private String apellidoPaterno;
   private String apellidoMaterno;
   
-  public PersonaConNegocioCrear(String razonSocial, String numeroDocumento, String telefono) {
-    super(razonSocial, numeroDocumento, telefono);
+  public PersonaConNegocioCrear(String razonSocial, String numeroDocumento, String telefono, String email) {
+    super(razonSocial, numeroDocumento, telefono, email);
   }
   
-  public PersonaConNegocioCrear(String razonSocial, String numeroDocumento, String telefono,
+  public PersonaConNegocioCrear(String razonSocial, String numeroDocumento, String telefono, String email,
   String nombre, String apellidoPaterno, String apellidoMaterno) {
-    super(razonSocial, numeroDocumento, telefono);
+    super(razonSocial, numeroDocumento, telefono, email);
     this.nombre = nombre;
     this.apellidoPaterno = apellidoPaterno;
     this.apellidoMaterno = apellidoMaterno;

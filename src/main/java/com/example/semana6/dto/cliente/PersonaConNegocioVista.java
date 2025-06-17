@@ -12,17 +12,14 @@ public class PersonaConNegocioVista extends ClienteVista {
   private String apellidoPaterno;
   private String apellidoMaterno;
 
-  public PersonaConNegocioVista(String razonSocial, String numeroDocumento, String telefono) {
-    super(razonSocial, numeroDocumento, telefono);
+  public PersonaConNegocioVista(PersonaConNegocio cliente) {
+    super(cliente.getRazonSocial(), cliente.getNumeroDocumento(), cliente.getTelefono(), cliente.getId(), cliente.getEmail(),
+    cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(), cliente.getSectorEconomico().getNombre());
+    this.nombre = cliente.getNombre();
+    this.apellidoPaterno = cliente.getApellidoPaterno();
+    this.apellidoMaterno = cliente.getApellidoMaterno();
   }
 
-  public PersonaConNegocioVista(String razonSocial, String numeroDocumento, String telefono, String nombre,
-  String apellidoPaterno, String apellidoMaterno) {
-    super(razonSocial, numeroDocumento, telefono);
-    this.nombre = nombre;
-    this.apellidoPaterno = apellidoPaterno;
-    this.apellidoMaterno = apellidoMaterno;
-  }
 
   public PersonaConNegocioVista(String razonSocial, String numeroDocumento, String telefono, int id, String email,
   String tipoDocumento, String tipoCliente, String tipoSectorEconomico) {

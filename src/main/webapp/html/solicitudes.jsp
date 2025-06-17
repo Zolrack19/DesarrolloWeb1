@@ -30,7 +30,6 @@
   </div>
   
   <!-- Navegación -->
-
   <div class="px-6 w-full overflow-x-auto">
     <table class="table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
       <thead>
@@ -126,24 +125,44 @@
         <div>
           <label for="txtDescripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
           <textarea id="txtDescripcion" name="txtDescripcion" rows="4" required
-              class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y max-h-100 min-h-50"
+              class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y max-h-80 min-h-50"
             placeholder="Describe los detalles de tu solicitud"></textarea>
         </div>
 
         <!-- buscar coordinador -->
         <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
-          <div>
-            <label for="txtCoordinador" class="block text-sm font-medium text-gray-700 mb-1">Coordinador ('-1' sin coordinador)</label>
-            <input type="text" id="txtCoordinador" name="coordinadorId" required
+          <div class="relative">
+            <label for="txtCoordinador" class="block text-sm font-medium text-gray-700 mb-1">Coordinador</label>
+            <input type="text" id="txtCoordinador" name="coordinadorId" required autocomplete="off"
               class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Buscar coordinador...">
+            
+            <ul id="popupCoordinador" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-48 overflow-y-auto hidden">
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+            </ul>
           </div>
         
-          <div>
+          <div class="relative">
             <label for="txtCliente" class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-            <input type="text" id="txtCliente" name="clienteId" required
+            <input type="text" id="txtCliente" name="clienteId" required autocomplete="off"
               class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Buscar coordinador...">
+              placeholder="Buscar cliente...">
+            <ul id="popupCliente" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto hidden">
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+              <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;">djaos</li>
+            </ul>
           </div>
         </c:if>
 

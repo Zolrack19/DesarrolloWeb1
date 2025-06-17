@@ -3,46 +3,6 @@ const contextPath = window.location.pathname.split("/")[1];
 let numPag = 1
 let tbody
 
-function llenarTabla(colaboradores, limpiar = false) {
-  if (limpiar) {
-    tbody.innerHTML = ""
-  }
-  colaboradores.forEach((colaborador) => {
-    const tr = document.createElement("tr")
-    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
-
-    tr.innerHTML = `
-      <td class="p-2">${colaborador.codigo}</td>
-      <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
-      <td class="p-2"><strong>${colaborador.tipoDocumento}</strong> ${colaborador.numeroDocumento}</td>
-      <td class="p-2">${colaborador.rolColaborador}</td>
-      <td class="p-2">${colaborador.email}</td>
-      <td class="p-2 w-full flex justify-between items-start text-sm">
-        ${colaborador.solicitudesActivas}
-          ${colaborador.solicitudesActivas <= 1 ? `
-          <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-            Muy disponible
-          </span>` :  
-          colaborador.solicitudesActivas == 2 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-lime-100 text-lime-700">
-            Disponible
-          </span>` : 
-          colaborador.solicitudesActivas == 3 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-            Moderado
-          </span>` :  
-          colaborador.solicitudesActivas == 4 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
-            Casi al límite
-          </span>` : `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-            Sin disponibilidad
-          </span>` 
-        }
-      </td>
-      <td class="p-2 text-right">⋮</td>
-    `;
-    tbody.appendChild(tr)
-  });
-}
-
-
 export function init(datos) {
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
@@ -88,26 +48,6 @@ export function init(datos) {
   
   btnNuevoColaborador.addEventListener("click", () => {abrirModal("modalColaborador", "contenidoColaborador")})
   btnCancelarColaborador.addEventListener("click", () => {cerrarModal("modalColaborador", "contenidoColaborador")})
-
-  function abrirModal(modalId, contenidoId) {
-    const modal = document.getElementById(modalId);
-    const contenido = document.getElementById(contenidoId);
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-      contenido.classList.remove('scale-95', 'opacity-0');
-      contenido.classList.add('scale-100', 'opacity-100');
-    }, 10);
-  }
-
-  function cerrarModal(modalId, contenidoId) {
-    const modal = document.getElementById(modalId);
-    const contenido = document.getElementById(contenidoId);
-    contenido.classList.remove('scale-100', 'opacity-100');
-    contenido.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => {
-      modal.classList.add('hidden');
-    }, 300);
-  }
 
   const ocultoDoc = document.getElementById("ocultoDoc")
   document.getElementById("tipoDocumentoId").addEventListener("change", (e) => {
@@ -241,4 +181,65 @@ export function actualizar(nodo) {
     nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
     nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
   }
+}
+
+
+function abrirModal(modalId, contenidoId) {
+  const modal = document.getElementById(modalId);
+  const contenido = document.getElementById(contenidoId);
+  modal.classList.remove('hidden');
+  setTimeout(() => {
+    contenido.classList.remove('scale-95', 'opacity-0');
+    contenido.classList.add('scale-100', 'opacity-100');
+  }, 10);
+}
+
+function cerrarModal(modalId, contenidoId) {
+  const modal = document.getElementById(modalId);
+  const contenido = document.getElementById(contenidoId);
+  contenido.classList.remove('scale-100', 'opacity-100');
+  contenido.classList.add('scale-95', 'opacity-0');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+  }, 300);
+}
+
+function llenarTabla(colaboradores, limpiar = false) {
+  if (limpiar) {
+    tbody.innerHTML = ""
+  }
+  colaboradores.forEach((colaborador) => {
+    const tr = document.createElement("tr")
+    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
+    tr.dataset.id = colaborador.id
+
+    tr.innerHTML = `
+      <td class="p-2">${colaborador.codigo}</td>
+      <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
+      <td class="p-2"><strong>${colaborador.tipoDocumento}</strong> ${colaborador.numeroDocumento}</td>
+      <td class="p-2">${colaborador.rolColaborador}</td>
+      <td class="p-2">${colaborador.email}</td>
+      <td class="p-2 w-full flex justify-between items-start text-sm">
+        ${colaborador.solicitudesActivas}
+          ${colaborador.solicitudesActivas <= 1 ? `
+          <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+            Muy disponible
+          </span>` :  
+          colaborador.solicitudesActivas == 2 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-lime-100 text-lime-700">
+            Disponible
+          </span>` : 
+          colaborador.solicitudesActivas == 3 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+            Moderado
+          </span>` :  
+          colaborador.solicitudesActivas == 4 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
+            Casi al límite
+          </span>` : `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
+            Sin disponibilidad
+          </span>` 
+        }
+      </td>
+      <td class="p-2 text-right">⋮</td>
+    `;
+    tbody.appendChild(tr)
+  });
 }

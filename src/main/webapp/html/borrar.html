@@ -9,32 +9,40 @@
 </head>
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-
-  <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-md">
-    <div class="text-sm text-gray-600">
-      Mostrando filas <span id="pagInicio" class="font-semibold">21</span> a <span id="pagFin" class="font-semibold">40</span> de <span class="font-semibold">200</span>
-    </div>
+  <div class="relative w-64">
+    <input
+      type="text"
+      placeholder="Buscar..."
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+      oninput="showSuggestions(this.value)"
+      id="searchInput"
+      autocomplete="off"
+    />
   
-    <div class="flex items-center space-x-2">
-      <button
-        class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
-        onclick="goToPreviousPage()"
-        id="prevButton"
-      >
-        ← Anterior
-      </button>
-  
-      <button
-        class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
-        onclick="goToNextPage()"
-        id="nextButton"
-      >
-        Siguiente →
-      </button>
-    </div>
+    <!-- Lista de sugerencias -->
+    <ul
+      id="suggestionList"
+      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-48 overflow-y-auto hidden"
+    >
+      <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+      <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+      <li class="px-4 py-2 hover:bg-blue-100 cursor-pointer;" >djaos</li>
+    </ul>
   </div>
   
+  <script>
+    const list = document.getElementById("suggestionList");
+    const input = document.getElementById("searchInput");
+  
+    input.addEventListener("focusout", () => {
+      list.classList.add("hidden");
+    })
 
+    function showSuggestions(query) {
+      list.classList.remove("hidden");
+    }
+  </script>
+  
 
 </body>
 
