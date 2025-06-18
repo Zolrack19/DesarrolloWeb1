@@ -42,14 +42,14 @@
           class="ml-4 px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
           id="atras"
         >
-          ◀ Anterior
+          ◀
         </button>
     
         <button
           class="px-3 py-1 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50"
           id="adelante"
         >
-          Siguiente ▶
+          ▶
         </button>
       </div>
     </div>

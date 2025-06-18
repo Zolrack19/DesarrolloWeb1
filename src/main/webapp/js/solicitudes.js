@@ -1,24 +1,36 @@
 const contextPath = window.location.pathname.split("/")[1];
-
+let solicitudes = []
 let numPag = 1
 let tbody
+let actualizarTbody = false
+let initModalForm = true
 
 export function init(datos) {
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
-
+  tbody = document.getElementById("tbodySolicitudes")
+  let rellenarVista = null
+  tbody.addEventListener("click", (event) => {
+    const fila = event.target.closest("tr")
+    if (fila && tbody.contains(fila)) {
+      if (!rellenarVista) {
+        rellenarVista = confVistaSolicitud()
+      }
+      rellenarVista(solicitudes.find((solicitud) => solicitud.id == fila.dataset.id))
+      abrirModal("modalVerSolicitud", "contenidoVerSolicitud")
+    }
+  });
+  
   document.getElementById("atras").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag - 1}`)
     datos = await res.json()
     if (datos) {
+      solicitudes 
+      solicitudes = datos
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      if (!tbody) {
-        tbody = document.getElementById("tbodySolicitudes")
-      }
-
-      llenarTabla(datos, true)
+      llenarTabla(tbody, datos, true)
     }
   })
 
@@ -26,34 +38,58 @@ export function init(datos) {
     const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag + 1}`)
     datos = await res.json()
     if (datos) {
+      solicitudes = datos
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      if (!tbody) {
-        tbody = document.getElementById("tbodySolicitudes")
-      }
-      llenarTabla(datos, true)
+      llenarTabla(tbody, datos, true)
     }   
   })
 
   if (datos) {
-    tbody = document.getElementById("tbodySolicitudes")
-    llenarTabla(datos)
+    solicitudes = datos
+    llenarTabla(tbody, datos)
   }
-
-  confInputText();
-
-  const btnNuevaSolicitud = document.getElementById("btnNuevaSolicitud")
-  const btnCancelarSolicitud = document.getElementById("btnCancelarSolicitud")
   
-  btnNuevaSolicitud.addEventListener("click", () => {abrirModal("modalSolicitud", "contenidoSolicitud")})
-  btnCancelarSolicitud.addEventListener("click", () => {cerrarModal("modalSolicitud", "contenidoSolicitud")})
+  document.getElementById("btnNuevaSolicitud").addEventListener("click", () => {
+    if (initModalForm) {
+      confModalForm()
+      initModalForm = false
+    }
+    abrirModal("modalSolicitud", "contenidoSolicitud")}
+  )
+  document.getElementById("btnCancelarSolicitud").addEventListener("click", () => {cerrarModal("modalSolicitud", "contenidoSolicitud")})
+  
+}
 
+export function actualizar(nodo) {
+  if (actualizarTbody) {
+    nodo.querySelector("tbody[id='tbodySolicitudes']").innerHTML = tbody.innerHTML
+    actualizarTbody = false
+    tbody = null
+  }
+  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
+    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
+    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
+  }
+  initModalForm = true
+}
+
+
+function confModalForm() {
+  confInputText()
   document.getElementById("formSolicitud").addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(document.getElementById("formSolicitud"))
 
-    await fetch("/" + contextPath + `/control/SolicitudServlet`, {
+    const txtCoordinador = document.getElementById("txtCoordinador")
+    if (txtCoordinador !== null) {
+      const txtCliente = document.getElementById("txtCliente")
+      formData.set("coordinadorId", txtCoordinador.dataset.id)
+      formData.set("clienteId", txtCliente.dataset.id)
+    };
+    
+    await fetch(`/${contextPath}/control/SolicitudServlet`, {
       method: "POST",
       body: new URLSearchParams(formData)
     })
@@ -61,9 +97,6 @@ export function init(datos) {
     .then(data => {
       if (data.ok) {
         const solicitud = data.solicitud
-        if (!tbody) {
-          tbody = document.getElementById("tbodySolicitudes")
-        }
         const tr = document.createElement("tr");
         tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
       
@@ -91,120 +124,108 @@ export function init(datos) {
           </td>
           <td class="p-2 text-right">⋮</td>
         `;
-        tbody.insertBefore(tr, tbody.firstChild);
-
+        tbody.insertBefore(tr, tbody.firstChild)
+        if (tbody.children.length > 10) {
+          tbody.lastElementChild.remove()
+        }
+        actualizarTbody = true
         cerrarModal("modalSolicitud", "contenidoSolicitud");
       }
     }));
   });
-  
 }
-
-export function actualizar(nodo) {
-  if (tbody) {
-    nodo.querySelector("tbody[id='tbodySolicitudes']").innerHTML = tbody.innerHTML
-    tbody = null
-  }
-  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
-    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
-    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
-  }
-}
-
 
 function confInputText() {
-  const txtCoordinador = document.getElementById("txtCoordinador")
-  if (txtCoordinador === null) return;
+  function popUpCoordinador(popUp, colaboradores) {
+    popUp.innerHTML = ""
+    colaboradores.forEach(colaborador => {
+      const li = document.createElement("li");
+      li.tabIndex = 0
+      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
+      li.dataset.id = colaborador.id
+      li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
+      popUp.appendChild(li);
+    });
+    popUp.classList.remove("hidden")
+  }
+  function popUpCliente(popUp, clientes) {
+    popUp.innerHTML = ""
+    clientes.forEach(cliente => {
+      const li = document.createElement("li");
+      li.tabIndex = 0
+      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
+      li.dataset.id = cliente.id
+      li.innerHTML = `${cliente.razonSocial}`
+      popUp.appendChild(li);
+    });
+    popUp.classList.remove("hidden")
+  }
+  confTextSearch("txtCoordinador", "popupCoordinador", `/${contextPath}/control/ColaboradorServlet?action=1&`, popUpCoordinador)
+  confTextSearch("txtCliente", "popupCliente", `/${contextPath}/control/ClienteServlet?action=1&`, popUpCliente)
+}
 
-  const txtCliente = document.getElementById("txtCliente")
-  const popupCliente = document.getElementById("popupCliente")
-  const popupCoordinador = document.getElementById("popupCoordinador")
-
-  let taskCliente = null
-  let taskCoordinador = null
-
-  txtCoordinador.addEventListener("focusout", () => {
-    setTimeout(() => {
-      if (popupCoordinador === document.activeElement.parentElement) return
-      popupCoordinador.classList.add("hidden")
-    }, 100);
-  })
-  txtCoordinador.addEventListener("focusin", () => {
-    if (popupCoordinador.hasChildNodes()) {
-      popupCoordinador.classList.remove("hidden")
+function filtrarTokens(e) {
+  const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
+  if (tokens.length === 0) return null
+  const params = new URLSearchParams();
+  for (let i = 0; i < tokens.length; i++) {
+    if (params.size > 4) break
+    if (tokens[i].length > 3) {
+      params.append("token", tokens[i])
     }
-  })
+  }
+  return params
+}
 
-  txtCliente.addEventListener("focusout", () => {
-    setTimeout(() => {
-      if (popupCliente === document.activeElement.parentElement) return
-      popupCliente.classList.add("hidden")
-    }, 100);
-  })
-  txtCliente.addEventListener("focusin", () => {
-    if (popupCliente.hasChildNodes()) {
-      popupCliente.classList.remove("hidden")
-    }
-  })
+function confTextSearch(idText, idPopup, fetchURL, funcPopup) {
+  const txtBuscar = document.getElementById(idText)
+  if (txtBuscar === null) return;
+  const popUp = document.getElementById(idPopup)
 
-  popupCoordinador.addEventListener('click', e => {
+  let taskColaborador = null
+
+  popUp.addEventListener('click', e => {
     if (e.target.tagName === 'LI') {
-      txtCoordinador.value = e.target.textContent
+      txtBuscar.value = e.target.textContent
+      txtBuscar.dataset.id = e.target.dataset.id
+      popUp.classList.add("hidden")
     }
   });
-  popupCoordinador.addEventListener("focusout", e => {
+  popUp.addEventListener("focusout", () => {
     setTimeout(() => {
-      if (!popupCoordinador.contains(document.activeElement)) {
-        console.log('La lista completa perdió el foco');
-        popupCoordinador.classList.add("hidden")
+      if (!popUp.contains(document.activeElement)) {
+        popUp.classList.add("hidden")
       }
     }, 0);
   });
-  popupCoordinador.addEventListener("keypress", e => {
+  popUp.addEventListener("keypress", e => {
     if ((e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
-      txtCoordinador.value = document.activeElement.innerHTML
-      txtCliente.focus()
-      popupCoordinador.classList.add("hidden")
+      txtBuscar.value = document.activeElement.innerHTML
+      txtBuscar.dataset.id = e.target.dataset.id
+      popUp.classList.add("hidden")
     }
   });
 
-  popupCliente.addEventListener('click', e => {
-    if (e.target.tagName === 'LI') {
-      txtCliente.value = e.target.textContent
-    }
-  });
-  popupCliente.addEventListener("focusout", e => {
+  txtBuscar.addEventListener("focusout", () => {
     setTimeout(() => {
-      if (!popupCliente.contains(document.activeElement)) {
-        console.log('La lista completa perdió el foco');
-        popupCliente.classList.add("hidden")
-      }
-    }, 0);
-  });
-
-  popupCliente.addEventListener("keypress", e => {
-    if ((e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
-      txtCliente.value = document.activeElement.innerHTML
-      popupCliente.classList.add("hidden")
+      if (popUp === document.activeElement.parentElement) return
+      popUp.classList.add("hidden")
+    }, 100);
+  })
+  txtBuscar.addEventListener("focusin", () => {
+    if (popUp.hasChildNodes()) {
+      popUp.classList.remove("hidden")
     }
-  });
+  })
 
-  txtCoordinador.addEventListener("input", e => {
-    clearTimeout(taskCoordinador)
-    taskCoordinador = setTimeout(async () => {
-      const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
-      if (tokens.length === 0) return
-      const params = new URLSearchParams();
-      for (let i = 0; i < tokens.length; i++) {
-        if (params.size > 4) break
-        if (tokens[i].length > 3) {
-          params.append("token", tokens[i])
-        }
-      }
-      if (params.size === 0) return
-      await fetch("/" + contextPath + `/control/ColaboradorServlet?action=1&` + params.toString())
+  txtBuscar.addEventListener("input", e => {
+    clearTimeout(taskColaborador)
+    taskColaborador = setTimeout(async () => {
+      const params = filtrarTokens(e)
+      if (!params || params.size === 0) return
+      
+      await fetch(`${fetchURL}${params.toString()}`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -212,63 +233,49 @@ function confInputText() {
       })
       .then(colaboradores => {
         if (colaboradores === null) {
-          popupCoordinador.classList.add("hidden")
+          popUp.classList.add("hidden")
           return
         }
-        popupCoordinador.innerHTML = ""
-        colaboradores.forEach(colaborador => {
-          const li = document.createElement("li");
-          li.tabIndex = 0
-          li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
-          li.dataset.id = colaborador.id
-          li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
-          popupCoordinador.appendChild(li);
-        });
-        popupCoordinador.classList.remove("hidden")
+        funcPopup(popUp, colaboradores)
       })
     }, 400);
   })
-
-  txtCliente.addEventListener("input", e => {
-    clearTimeout(taskCliente)
-    taskCliente = setTimeout(async () => {
-      const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
-      if (tokens.length === 0) return
-      const params = new URLSearchParams();
-      for (let i = 0; i < tokens.length; i++) {
-        if (params.size > 4) break
-        if (tokens[i].length > 3) {
-          params.append("token", tokens[i])
-        }
-      }
-      if (params.size === 0) return
-      await fetch("/" + contextPath + `/control/ClienteServlet?action=1&` + params.toString())
-      .then(resp => {
-        if (resp.ok) {
-          return resp.json()
-        }
-      })
-      .then(clientes => {
-        if (clientes === null) {
-          popupCliente.classList.add("hidden")
-          return
-        }
-        popupCliente.innerHTML = ""
-        clientes.forEach(cliente => {
-          const li = document.createElement("li");
-          li.tabIndex = 0
-          li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
-          li.dataset.id = cliente.id
-          li.innerHTML = `${cliente.razonSocial}`
-          popupCliente.appendChild(li);
-        });
-        popupCliente.classList.remove("hidden")
-      })
-    }, 400);
-  })
-
 }
 
+function confVistaSolicitud() {
+  document.getElementById("btnCerrarVerSolicitud").addEventListener("click", () => {
+    cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
+  })
+  const verTipoSolicitud = document.getElementById("verTipoSolicitud")
+  const verEstadoSolicitud = document.getElementById("verEstadoSolicitud")
+  const verTituloSolicitud = document.getElementById("verTituloSolicitud")
+  const verDescripcionSolicitud = document.getElementById("verDescripcionSolicitud")
+  const verCoordinador = document.getElementById("verCoordinador")
+  const verCliente = document.getElementById("verCliente")
+  
+  function prueba(popUp, colaboradores) {
+    popUp.innerHTML = ""
+    colaboradores.forEach(colaborador => {
+      const li = document.createElement("li");
+      li.tabIndex = 0
+      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
+      li.dataset.id = colaborador.id
+      li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
+      popUp.appendChild(li);
+    });
+    popUp.classList.remove("hidden")
+  }
+  confTextSearch("txtBuscar", "popUp", `/${contextPath}/control/ColaboradorServlet?action=1&`, prueba)
+
+  return function llenarVista(solicitud) {
+    verTipoSolicitud.innerHTML = solicitud.tipoSolicitud
+    verEstadoSolicitud.innerHTML = solicitud.estadoSolicitud
+    verTituloSolicitud.innerHTML = solicitud.titulo
+    verDescripcionSolicitud.innerHTML = solicitud.descripcion
+    verCoordinador.innerHTML = solicitud.coordinador ? solicitud.coordinador : "---- ----- -----"
+    verCliente.innerHTML = solicitud.cliente ? solicitud.cliente : "---- ----- -----"
+  }
+}
 
 
 function abrirModal(idModal, idContenido) {
@@ -291,10 +298,11 @@ function cerrarModal(idModal, idContenido) {
   }, 300);
 }
 
-function llenarTabla(solicitudes, limpiar = false) {
+function llenarTabla(tbody, solicitudes, limpiar = false) {
   if (limpiar) {
     tbody.innerHTML = ""
   }
+  actualizarTbody = true
   solicitudes.forEach((solicitud) => {
     const tr = document.createElement("tr");
     tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";

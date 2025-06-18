@@ -160,8 +160,10 @@ export function init(datos) {
           <td class="p-2">${cliente.telefono}</td>
           <td class="p-2 text-right">⋮</td>
         `;
-
         tbody.insertBefore(tr, tbody.firstChild);
+        if (tbody.children.length > 10) {
+          tbody.lastElementChild.remove()
+        }
         cerrarModal("modalCliente", "contenidoCliente");
       }
     }));
