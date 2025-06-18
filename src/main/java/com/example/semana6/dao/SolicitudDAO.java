@@ -31,6 +31,11 @@ public class SolicitudDAO {
     s.close();
   }
 
+  public Solicitud getById(Session s, int id) {
+    Solicitud solicitud = s.find(Solicitud.class, id);
+    return solicitud;
+  }
+
   public Solicitud getById(int id) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();

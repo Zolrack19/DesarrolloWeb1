@@ -16,8 +16,13 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 public class AsignacionDAO {
+
+  public void crearAsignacion(Session s, Asignacion asignacion) {
+    s.persist(asignacion);
+  }
+
   public void crearAsignacion(Asignacion asignacion) {
-    Session s =  HibernateUtil.getSession().openSession();
+    Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
 
     s.persist(asignacion);

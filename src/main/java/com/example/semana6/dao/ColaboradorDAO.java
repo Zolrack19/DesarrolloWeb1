@@ -6,7 +6,6 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.example.semana6.dto.colaborador.ColaboradorVista;
-import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.Colaborador;
 import com.example.semana6.singleton.HibernateUtil;
 
@@ -28,6 +27,11 @@ public class ColaboradorDAO {
 
     s.getTransaction().commit();
     s.close();
+  }
+
+  public Colaborador getById(Session s, int id) {
+    Colaborador colaborador = s.find(Colaborador.class, id);
+    return colaborador;
   }
 
   public Colaborador getById(int id) {

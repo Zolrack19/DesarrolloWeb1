@@ -27,7 +27,7 @@ public class ColaboradorFacade {
     return colaboradorVista;
   }
 
-    public List<ColaboradorVista> getcolaboradores(String[] tokens) {
+    public List<ColaboradorVista> getColaboradores(String[] tokens) {
     if (tokens.length == 0) return null;
     query.delete(49, query.length());
 
@@ -52,10 +52,13 @@ public class ColaboradorFacade {
     return colaboradores;
   }
 
-
-  public List<ColaboradorVista> getcolaboradores(int numPag) {
+  public List<ColaboradorVista> getColaboradores(int numPag) {
     List<ColaboradorVista> colaboradores = colaboradorDAO.getRangoVista((numPag - 1)*10, 10);
     if (colaboradores.size() == 0) return null;
     return colaboradores;
+  }
+
+  public List<ColaboradorVista> getColaboradores(int solicitudId, int usuarioId) {
+    return null;
   }
 }

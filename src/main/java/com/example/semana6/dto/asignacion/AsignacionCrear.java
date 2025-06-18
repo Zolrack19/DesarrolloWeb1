@@ -16,7 +16,10 @@ public class AsignacionCrear implements Serializable {
   private String inicioAtencion;
   private String finAtencion;
   
-  public AsignacionCrear() {}
+  public AsignacionCrear(int solicitudId, int colaboradorId) {
+    this.solicitudId = solicitudId;
+    this.colaboradorId = colaboradorId;
+  }
 
   public AsignacionCrear(int solicitudId, int colaboradorId, String inicioAtencion, String finAtencion) {
     this.solicitudId = solicitudId;

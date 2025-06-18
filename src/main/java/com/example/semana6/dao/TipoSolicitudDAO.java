@@ -18,6 +18,11 @@ public class TipoSolicitudDAO {
     s.getTransaction().commit();
     s.close();
   }
+
+  public TipoSolicitud getById(Session s, short id) {
+    TipoSolicitud tipos = s.find(TipoSolicitud.class, id);
+    return tipos;
+  }
   
   public TipoSolicitud getById(short id) {
     Session s =  HibernateUtil.getSession().openSession();

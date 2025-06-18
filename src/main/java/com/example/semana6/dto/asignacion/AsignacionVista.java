@@ -16,7 +16,8 @@ public class AsignacionVista implements Serializable {
   private String inicioAtencion;
   private String finAtencion;
   
-  public AsignacionVista() {}
+  public AsignacionVista() {
+  }
 
   public AsignacionVista(String solicitudId, String colaboradorId, String inicioAtencion, String finAtencion) {
     this.solicitudId = solicitudId;

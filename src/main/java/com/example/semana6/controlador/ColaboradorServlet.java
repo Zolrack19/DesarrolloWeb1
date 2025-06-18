@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.semana6.dto.cliente.ClienteDTO;
+import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.colaborador.ColaboradorCrear;
+import com.example.semana6.dto.colaborador.ColaboradorDTO;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.facade.ColaboradorFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +18,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ColaboradorServlet", urlPatterns = { "/control/ColaboradorServlet" })
 public class ColaboradorServlet extends HttpServlet {
@@ -29,13 +33,33 @@ public class ColaboradorServlet extends HttpServlet {
       case "1" -> {
         buscarColaboradoresPorTokens(req, resp);
       }
+      case "2" -> {
+        colaboradoresDeSolicitud(req, resp);
+      }
       default -> {}
     }
   }
 
+  private void colaboradoresDeSolicitud(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    Object usuario = session.getAttribute("usuario");
+    if (usuario instanceof ClienteDTO) {
+      ((ClienteVista) usuario).getId();
+    } else if (usuario instanceof ColaboradorDTO) {
+      ((ColaboradorVista) usuario).getId(); 
+    }
+
+    
+    ObjectMapper mapper = new ObjectMapper();
+    // String json = mapper.writeValueAsString(colaboradorVistas);
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    // resp.getWriter().write(json);
+  }
+
   private void buscarColaboradoresPorTokens(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String[] tokens = req.getParameterValues("token");
-    List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getcolaboradores(tokens);
+    List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getColaboradores(tokens);
 
     ObjectMapper mapper = new ObjectMapper();
     String json = mapper.writeValueAsString(colaboradorVistas);
@@ -48,7 +72,7 @@ public class ColaboradorServlet extends HttpServlet {
     int numPag = Integer.parseInt(req.getParameter("numPag"));
     List<ColaboradorVista> colaboradoresVista = null;
     if (numPag > 0) {
-      colaboradoresVista = colaboradorFacade.getcolaboradores(numPag);
+      colaboradoresVista = colaboradorFacade.getColaboradores(numPag);
     }
     ObjectMapper mapper = new ObjectMapper();
     String json = mapper.writeValueAsString(colaboradoresVista);

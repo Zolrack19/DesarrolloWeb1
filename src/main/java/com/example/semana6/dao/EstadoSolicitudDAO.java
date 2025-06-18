@@ -29,6 +29,11 @@ public class EstadoSolicitudDAO {
     s.close();
     return estados;
   }
+  
+  public EstadoSolicitud getById(Session s, short id) {
+    EstadoSolicitud estados = s.find(EstadoSolicitud.class, id);
+    return estados;
+  }
 
   public List<EstadoSolicitud> getRango(int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();

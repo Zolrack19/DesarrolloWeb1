@@ -15,6 +15,10 @@ public class AsignacionId implements Serializable {
   private int colaboradorId;
   
   public AsignacionId() {}
+  public AsignacionId(int solicitudId, int colaboradorId) {
+    this.solicitudId = solicitudId;
+    this.colaboradorId = colaboradorId;
+  }
 
   @Override
   public boolean equals(Object o) {

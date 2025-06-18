@@ -34,4 +34,12 @@ public class Asignacion {
   
   @Column(name = "fin_atencion")
   private LocalDateTime finAtencion;
+
+  public Asignacion() {}
+
+  public Asignacion(Solicitud solicitud, Colaborador colaborador) {
+    this.solicitud = solicitud;
+    this.colaborador = colaborador;
+    this.id = new AsignacionId(solicitud.getId(), colaborador.getId());
+  }
 }

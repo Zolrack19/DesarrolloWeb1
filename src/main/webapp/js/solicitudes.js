@@ -77,7 +77,34 @@ export function actualizar(nodo) {
 
 
 function confModalForm() {
-  confInputText()
+  function popUpCoordinador(popUp, colaboradores) {
+    popUp.innerHTML = ""
+    colaboradores.forEach(colaborador => {
+      const li = document.createElement("li");
+      li.tabIndex = 0
+      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
+      li.dataset.id = colaborador.id
+      li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
+      popUp.appendChild(li);
+    });
+    popUp.classList.remove("hidden")
+  }
+  function popUpCliente(popUp, clientes) {
+    popUp.innerHTML = ""
+    clientes.forEach(cliente => {
+      const li = document.createElement("li");
+      li.tabIndex = 0
+      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
+      li.dataset.id = cliente.id
+      li.innerHTML = `${cliente.razonSocial}`
+      popUp.appendChild(li);
+    });
+    popUp.classList.remove("hidden")
+  }
+  confTextSearch("txtCoordinador", "popupCoordinador", `/${contextPath}/control/ColaboradorServlet?action=1&`, popUpCoordinador)
+  confTextSearch("txtCliente", "popupCliente", `/${contextPath}/control/ClienteServlet?action=1&`, popUpCliente)
+
+
   document.getElementById("formSolicitud").addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(document.getElementById("formSolicitud"))
@@ -89,7 +116,7 @@ function confModalForm() {
       formData.set("clienteId", txtCliente.dataset.id)
     };
     
-    await fetch(`/${contextPath}/control/SolicitudServlet`, {
+    await fetch(`/${contextPath}/control/SolicitudServlet&action=1`, {
       method: "POST",
       body: new URLSearchParams(formData)
     })
@@ -135,37 +162,7 @@ function confModalForm() {
   });
 }
 
-function confInputText() {
-  function popUpCoordinador(popUp, colaboradores) {
-    popUp.innerHTML = ""
-    colaboradores.forEach(colaborador => {
-      const li = document.createElement("li");
-      li.tabIndex = 0
-      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
-      li.dataset.id = colaborador.id
-      li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
-      popUp.appendChild(li);
-    });
-    popUp.classList.remove("hidden")
-  }
-  function popUpCliente(popUp, clientes) {
-    popUp.innerHTML = ""
-    clientes.forEach(cliente => {
-      const li = document.createElement("li");
-      li.tabIndex = 0
-      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
-      li.dataset.id = cliente.id
-      li.innerHTML = `${cliente.razonSocial}`
-      popUp.appendChild(li);
-    });
-    popUp.classList.remove("hidden")
-  }
-  confTextSearch("txtCoordinador", "popupCoordinador", `/${contextPath}/control/ColaboradorServlet?action=1&`, popUpCoordinador)
-  confTextSearch("txtCliente", "popupCliente", `/${contextPath}/control/ClienteServlet?action=1&`, popUpCliente)
-}
-
-function filtrarTokens(e) {
-  const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
+function filtrarTokens(tokens) {
   if (tokens.length === 0) return null
   const params = new URLSearchParams();
   for (let i = 0; i < tokens.length; i++) {
@@ -222,7 +219,8 @@ function confTextSearch(idText, idPopup, fetchURL, funcPopup) {
   txtBuscar.addEventListener("input", e => {
     clearTimeout(taskColaborador)
     taskColaborador = setTimeout(async () => {
-      const params = filtrarTokens(e)
+      const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
+      const params = filtrarTokens(tokens)
       if (!params || params.size === 0) return
       
       await fetch(`${fetchURL}${params.toString()}`)
@@ -252,6 +250,7 @@ function confVistaSolicitud() {
   const verDescripcionSolicitud = document.getElementById("verDescripcionSolicitud")
   const verCoordinador = document.getElementById("verCoordinador")
   const verCliente = document.getElementById("verCliente")
+  const contenedorTarjetas = document.getElementById("contenedorTarjetas")
   
   function prueba(popUp, colaboradores) {
     popUp.innerHTML = ""
@@ -265,10 +264,56 @@ function confVistaSolicitud() {
     });
     popUp.classList.remove("hidden")
   }
-  confTextSearch("txtBuscar", "popUp", `/${contextPath}/control/ColaboradorServlet?action=1&`, prueba)
+  confTextSearch("txtBuscarColaborador", "popupColaboradores", `/${contextPath}/control/ColaboradorServlet?action=1&`, prueba)
+
+  document.getElementById("btnAsignarColaborador")?.addEventListener("click", async () => {
+    const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
+    console.log("ejeuctando el post al servlet");
+    
+    if (!txtBuscarColaborador.value.trim()) return
+    const colaboradorId = txtBuscarColaborador.dataset.id
+    const solicitudId = verTipoSolicitud.dataset.id
+    await fetch(`/${contextPath}/control/SolicitudServlet?action=2`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({colaboradorId, solicitudId})
+    })
+    .then(resp => {
+      if (resp.ok) {
+        return resp.json()
+      }
+    })
+    .then(colaborador => {
+      const tarjetilla = document.createElement("div")
+      tarjetilla.dataset.id = colaborador.id
+      tarjetilla.className = "flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
+      tarjetilla.innerHTML = `
+        <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </div>
+        <div class="text-gray-800 text-sm flex-1 min-w-0">
+          <div class="font-medium truncate">
+            ${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}
+          </div>
+          <div class="text-gray-500 text-sm">
+            Código: ${colaborador.codigo}
+          </div>
+        </div>
+      `
+      contenedorTarjetas.appendChild(tarjetilla)
+    })
+  }) 
+
+
+
 
   return function llenarVista(solicitud) {
     verTipoSolicitud.innerHTML = solicitud.tipoSolicitud
+    verTipoSolicitud.dataset.id = solicitud.id
     verEstadoSolicitud.innerHTML = solicitud.estadoSolicitud
     verTituloSolicitud.innerHTML = solicitud.titulo
     verDescripcionSolicitud.innerHTML = solicitud.descripcion

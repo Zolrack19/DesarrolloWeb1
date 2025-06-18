@@ -26,6 +26,11 @@ public class ClienteDAO {
     s.close();
   }
   
+  public Cliente getById(Session s, int id) {
+    Cliente cliente = s.find(Cliente.class, id);
+    return cliente;
+  }
+  
   public Cliente getById(int id) {
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
