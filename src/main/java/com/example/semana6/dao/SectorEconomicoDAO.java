@@ -19,14 +19,8 @@ public class SectorEconomicoDAO {
     s.close();
   }
   
-  public SectorEconomico getById(short id) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public SectorEconomico getById(Session s, short id) {
     SectorEconomico sector = s.find(SectorEconomico.class, id);
-
-    s.getTransaction().commit();
-    s.close();
     return sector;
   }
 

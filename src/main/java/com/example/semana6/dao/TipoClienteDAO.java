@@ -18,14 +18,8 @@ public class TipoClienteDAO {
     s.close();
   }
   
-  public TipoCliente getById(short id) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public TipoCliente getById(Session s, short id) {
     TipoCliente tipoCliente = s.find(TipoCliente.class, id);
-
-    s.getTransaction().commit();
-    s.close();
     return tipoCliente;
   }
 

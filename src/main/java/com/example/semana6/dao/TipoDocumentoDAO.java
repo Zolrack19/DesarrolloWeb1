@@ -19,14 +19,8 @@ public class TipoDocumentoDAO {
     s.close();
   }
   
-  public TipoDocumento getById(short id) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public TipoDocumento getById(Session s, short id) {
     TipoDocumento documentos = s.find(TipoDocumento.class, id);
-
-    s.getTransaction().commit();
-    s.close();
     return documentos;
   }
 

@@ -34,17 +34,6 @@ public class ColaboradorDAO {
     return colaborador;
   }
 
-  public Colaborador getById(int id) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
-    Colaborador colaborador = s.find(Colaborador.class, id);
-
-    s.getTransaction().commit();
-    s.close();
-    return colaborador;
-  }
-
   public Colaborador getByDocumento(String numDocumento) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
@@ -71,16 +60,10 @@ public class ColaboradorDAO {
     return colaborador;
   }
 
-  public Colaborador getByEmail(String email) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public Colaborador getByEmail(Session s, String email) {
     Colaborador colaborador = s.createQuery("from Colaborador c where c.email = :email", Colaborador.class)
     .setParameter("email", email)
     .uniqueResult();
-
-    s.getTransaction().commit();
-    s.close();
     return colaborador;
   }
 
@@ -185,26 +168,14 @@ public class ColaboradorDAO {
     return colaboradores;
   }
 
-  public void actualizarColaborador(Colaborador colaborador) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void actualizarColaborador(Session s, Colaborador colaborador) {
     s.merge(colaborador);
-
-    s.getTransaction().commit();
-    s.close();
   }
   
-  public void eliminarColaboradorById(int id) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void eliminarColaboradorById(Session s, int id) {
     Query q = s.createQuery("DELETE FROM Colaborador c WHERE c.id = :id")
     .setParameter("id", id);
     q.executeUpdate();
-
-    s.getTransaction().commit();
-    s.close();
   }
   
   public void eliminarColaborador(Colaborador colaborador) {

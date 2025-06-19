@@ -65,13 +65,11 @@ public class AsignacionDAO {
     return asignaciones;
   }
   
-  public List<Asignacion> getByIdSolicitud(int solicitudId, int inicio, int fin) {
+  public List<Asignacion> getByIdSolicitud(int solicitudId) {
     Session s = HibernateUtil.getSession().openSession();
 
     List<Asignacion> asignaciones = s.createQuery("from Asignacion a where a.solicitud.id = :id order by a.id.solicitudId, a.id.colaboradorId", Asignacion.class)
     .setParameter("id", solicitudId)
-    .setFirstResult(inicio)
-    .setMaxResults(fin)
     .list();
 
     s.close();

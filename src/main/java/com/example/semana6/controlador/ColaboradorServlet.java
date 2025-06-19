@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.semana6.dto.cliente.ClienteDTO;
-import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.colaborador.ColaboradorCrear;
-import com.example.semana6.dto.colaborador.ColaboradorDTO;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.facade.ColaboradorFacade;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,18 +40,15 @@ public class ColaboradorServlet extends HttpServlet {
   private void colaboradoresDeSolicitud(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     HttpSession session = req.getSession(false);
     Object usuario = session.getAttribute("usuario");
-    if (usuario instanceof ClienteDTO) {
-      ((ClienteVista) usuario).getId();
-    } else if (usuario instanceof ColaboradorDTO) {
-      ((ColaboradorVista) usuario).getId(); 
-    }
 
+    int solicitudId = Integer.parseInt(req.getParameter("solicitudId"));
+    List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getColaboradores(solicitudId,  usuario);
     
     ObjectMapper mapper = new ObjectMapper();
-    // String json = mapper.writeValueAsString(colaboradorVistas);
+    String json = mapper.writeValueAsString(colaboradorVistas);
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
-    // resp.getWriter().write(json);
+    resp.getWriter().write(json);
   }
 
   private void buscarColaboradoresPorTokens(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

@@ -3,6 +3,8 @@ package com.example.semana6.facade;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.SectorEconomicoDAO;
 import com.example.semana6.dao.TipoClienteDAO;
@@ -13,6 +15,7 @@ import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
 import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.PersonaConNegocio;
+import com.example.semana6.singleton.HibernateUtil;
 
 public class ClienteFacade {
   private final ClienteDAO clienteDAO = new ClienteDAO();
@@ -27,13 +30,15 @@ public class ClienteFacade {
   """);
   
   public ClienteVista crearCliente(ClienteCrear clienteCrear) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
     try {
       Cliente cliente = clienteCrear.toCliente();
-      cliente.setTipoCliente(tipoClienteDAO.getById(clienteCrear.getTipoClienteId()));
-      cliente.setTipoDocumento(tipoDocumentoDAO.getById(clienteCrear.getTipoDocumentoId()));
-      cliente.setSectorEconomico(sectorEconomicoDAO.getById(clienteCrear.getSectorEconomicoId()));
+      cliente.setTipoCliente(tipoClienteDAO.getById(s, clienteCrear.getTipoClienteId()));
+      cliente.setTipoDocumento(tipoDocumentoDAO.getById(s, clienteCrear.getTipoDocumentoId()));
+      cliente.setSectorEconomico(sectorEconomicoDAO.getById(s, clienteCrear.getSectorEconomicoId()));
       
-      clienteDAO.crearCliente(cliente);
+      clienteDAO.crearCliente(s, cliente);
       
       ClienteVista clienteVista = new PersonaConNegocioVista(cliente.getRazonSocial(), cliente.getNumeroDocumento(),
       cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
@@ -45,11 +50,14 @@ public class ClienteFacade {
         ((PersonaConNegocioVista) clienteVista).setApellidoPaterno(((PersonaConNegocioCrear) clienteCrear).getApellidoPaterno());
         ((PersonaConNegocioVista) clienteVista).setApellidoMaterno(((PersonaConNegocioCrear) clienteCrear).getApellidoMaterno());
       }
-      System.out.println("todo biennnnnn!!");
+      s.getTransaction().commit();
+      s.close();
       return clienteVista;  
     } catch (Exception e) {
+      s.getTransaction().rollback();
       e.printStackTrace();
     }
+    s.close();
     return null;
   }
 

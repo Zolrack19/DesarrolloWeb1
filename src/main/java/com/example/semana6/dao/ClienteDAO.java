@@ -16,14 +16,8 @@ import jakarta.persistence.criteria.Root;
 
 public class ClienteDAO {
 
-  public void crearCliente(Cliente cliente) {
-    Session s = HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void crearCliente(Session s, Cliente cliente) {
     s.persist(cliente);
-
-    s.getTransaction().commit();
-    s.close();
   }
   
   public Cliente getById(Session s, int id) {
@@ -55,16 +49,10 @@ public class ClienteDAO {
     return cliente;
   }
   
-  public Cliente getByEmail(String email) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public Cliente getByEmail(Session s, String email) {
     Cliente cliente = s.createQuery("from Cliente c where c.email = :email", Cliente.class)
     .setParameter("email", email)
     .uniqueResult();
-
-    s.getTransaction().commit();
-    s.close();
     return cliente;
   }
   
@@ -162,29 +150,17 @@ public class ClienteDAO {
     s.close();
   }
 
-  public void actualizarUnAtributo(String query, int id, Object valor) {
-    Session s = HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-    
+  public void actualizarUnAtributo(Session s, String query, int id, Object valor) {
     Query q = s.createQuery(query)
     .setParameter(1, valor)
     .setParameter(2, id);
     q.executeUpdate();
-
-    s.getTransaction().commit();
-    s.close();
   }
 
-  public void eliminarClienteById(int id) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-    
+  public void eliminarClienteById(Session s, int id) {
     Query q = s.createQuery("DELETE FROM Cliente c WHERE c.id = :id")
     .setParameter("id", id);
     q.executeUpdate();
-
-    s.getTransaction().commit();
-    s.close();
   }
   
   public void eliminarCliente(Cliente cliente) {

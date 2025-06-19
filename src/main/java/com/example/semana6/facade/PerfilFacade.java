@@ -2,6 +2,8 @@ package com.example.semana6.facade;
 
 import java.util.Map;
 
+import org.hibernate.Session;
+
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.ColaboradorDAO;
 import com.example.semana6.dao.PersonaConNegocioDAO;
@@ -11,6 +13,7 @@ import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.Colaborador;
 import com.example.semana6.modelo.PersonaConNegocio;
+import com.example.semana6.singleton.HibernateUtil;
 
 public class PerfilFacade {
   private ClienteDAO clienteDAO = new ClienteDAO();
@@ -18,15 +21,17 @@ public class PerfilFacade {
   private ColaboradorDAO colaboradorDAO = new ColaboradorDAO();
 
   public boolean actualizarAtributos(Map<String, Object> campos, Object usuario) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+
     try {
-      
       String query = "";
   
       if (campos.containsKey("razon")) {
         if (usuario instanceof ClienteVista) {
           query = "UPDATE Cliente c SET c.razonSocial = ?1 WHERE c.id = ?2";
           String razon = (String) campos.get("razon");
-          clienteDAO.actualizarUnAtributo(query, ((ClienteVista) usuario).getId(), razon);
+          clienteDAO.actualizarUnAtributo(s, query, ((ClienteVista) usuario).getId(), razon);
           ((ClienteVista) usuario).setRazonSocial(razon);
         }
       }
@@ -35,7 +40,7 @@ public class PerfilFacade {
         if (usuario instanceof ClienteVista) {
           query = "UPDATE Cliente c SET c.telefono = ?1 WHERE c.id = ?2";
           String telefono = (String) campos.get("telefono");
-          clienteDAO.actualizarUnAtributo(query, ((ClienteVista) usuario).getId(), telefono);
+          clienteDAO.actualizarUnAtributo(s, query, ((ClienteVista) usuario).getId(), telefono);
           ((ClienteVista) usuario).setTelefono(telefono);
         }
       }
@@ -47,16 +52,16 @@ public class PerfilFacade {
           if (cliente == null) return false;
           if (cliente.getContrasena().equals(campos.get("contrasena"))) {
             query = "UPDATE Cliente c SET c.contrasena = ?1 WHERE c.id = ?2";
-            clienteDAO.actualizarUnAtributo(query, cliente.getId(), campos.get("nuevaContrasena"));
+            clienteDAO.actualizarUnAtributo(s, query, cliente.getId(), campos.get("nuevaContrasena"));
           }
   
         } else if (usuario instanceof ColaboradorVista) {
-          Colaborador colaborador = colaboradorDAO.getById(((ColaboradorVista) usuario).getId());
+          Colaborador colaborador = colaboradorDAO.getById(s, ((ColaboradorVista) usuario).getId());
           if (colaborador == null) return false;
           if (colaborador.getContrasena().equals(campos.get("contrasena"))) {
             query = "UPDATE Cliente c SET c.contrasena = ?1 WHERE c.id = ?2";
             colaborador.setContrasena((String) campos.get("contrasena"));
-            colaboradorDAO.actualizarColaborador(colaborador);
+            colaboradorDAO.actualizarColaborador(s, colaborador);
           }
         }
       }
@@ -79,30 +84,39 @@ public class PerfilFacade {
           ((PersonaConNegocioVista) usuario).setApellidoMaterno(apellidoMaterno);
   
         } else if (usuario instanceof ColaboradorVista) {
-          Colaborador colaborador = colaboradorDAO.getById(((ColaboradorVista) usuario).getId());
+          Colaborador colaborador = colaboradorDAO.getById(s, ((ColaboradorVista) usuario).getId());
           if (colaborador == null) return false;
           colaborador.setNombre(nombre);
           colaborador.setApellidoPaterno(apellidoPaterno);
           colaborador.setApellidoMaterno(apellidoMaterno);
-          colaboradorDAO.actualizarColaborador(colaborador);
+          colaboradorDAO.actualizarColaborador(s, colaborador);
           ((ColaboradorVista) usuario).setNombre(nombre);
           ((ColaboradorVista) usuario).setApellidoPaterno(apellidoPaterno);
           ((ColaboradorVista) usuario).setApellidoMaterno(apellidoMaterno);
         }
       }
+      s.getTransaction().commit();
     } catch (Exception e) {
+      s.getTransaction().rollback();
       e.printStackTrace();
     }
+    s.close();
     return true;
   }
 
   public boolean eliminarPerfil(Object usuario) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    
     if (usuario instanceof ClienteVista) {
-      clienteDAO.eliminarClienteById(((ClienteVista) usuario).getId());
+      clienteDAO.eliminarClienteById(s, ((ClienteVista) usuario).getId());
     } else if (usuario instanceof ColaboradorVista) {
-      colaboradorDAO.eliminarColaboradorById(((ColaboradorVista) usuario).getId());
+      colaboradorDAO.eliminarColaboradorById(s, ((ColaboradorVista) usuario).getId());
     }
     usuario = null;
+
+    s.getTransaction().commit();
+    s.close();
     return true;
   }
 }

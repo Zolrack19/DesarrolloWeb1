@@ -241,9 +241,6 @@ function confTextSearch(idText, idPopup, fetchURL, funcPopup) {
 }
 
 function confVistaSolicitud() {
-  document.getElementById("btnCerrarVerSolicitud").addEventListener("click", () => {
-    cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
-  })
   const verTipoSolicitud = document.getElementById("verTipoSolicitud")
   const verEstadoSolicitud = document.getElementById("verEstadoSolicitud")
   const verTituloSolicitud = document.getElementById("verTituloSolicitud")
@@ -252,6 +249,11 @@ function confVistaSolicitud() {
   const verCliente = document.getElementById("verCliente")
   const contenedorTarjetas = document.getElementById("contenedorTarjetas")
   
+  document.getElementById("btnCerrarVerSolicitud").addEventListener("click", () => {
+    contenedorTarjetas.innerHTML = ""
+    cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
+  })
+
   function prueba(popUp, colaboradores) {
     popUp.innerHTML = ""
     colaboradores.forEach(colaborador => {
@@ -268,7 +270,6 @@ function confVistaSolicitud() {
 
   document.getElementById("btnAsignarColaborador")?.addEventListener("click", async () => {
     const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
-    console.log("ejeuctando el post al servlet");
     
     if (!txtBuscarColaborador.value.trim()) return
     const colaboradorId = txtBuscarColaborador.dataset.id
@@ -309,9 +310,38 @@ function confVistaSolicitud() {
   }) 
 
 
-
-
   return function llenarVista(solicitud) {
+    setTimeout(async () => {
+      await fetch(`/${contextPath}/control/ColaboradorServlet?action=2&solicitudId=${solicitud.id}`)
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+      })
+      .then(colaboradores => {
+        colaboradores.forEach(colaborador => {
+          const tarjetilla = document.createElement("div")
+          tarjetilla.dataset.id = colaborador.id
+          tarjetilla.className = "flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
+          tarjetilla.innerHTML = `
+            <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+            </div>
+            <div class="text-gray-800 text-sm flex-1 min-w-0">
+              <div class="font-medium truncate">
+                ${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}
+              </div>
+              <div class="text-gray-500 text-sm">
+                Código: ${colaborador.codigo}
+              </div>
+            </div>
+          `
+          contenedorTarjetas.appendChild(tarjetilla)
+        });
+      })
+    }, 0);
     verTipoSolicitud.innerHTML = solicitud.tipoSolicitud
     verTipoSolicitud.dataset.id = solicitud.id
     verEstadoSolicitud.innerHTML = solicitud.estadoSolicitud

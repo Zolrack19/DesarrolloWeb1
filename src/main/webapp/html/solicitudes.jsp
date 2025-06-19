@@ -230,24 +230,6 @@
           </div>
           <div id="contenedorTarjetas"
             class="rounded-lg p-4 min-h-[40vh] max-h-[50vh] overflow-y-auto bg-gray-50">
-        
-            <div class="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2">
-              <!-- Icono de usuario -->
-              <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
-              </div>
-              <!-- Info del colaborador -->
-              <div class="text-gray-800 text-sm flex-1 min-w-0">
-                <div class="font-medium truncate">
-                  Juan Pérez
-                </div>
-                <div class="text-gray-500 text-sm">
-                  Código: 12345
-                </div>
-              </div>
-            </div>
           </div>
 
 
