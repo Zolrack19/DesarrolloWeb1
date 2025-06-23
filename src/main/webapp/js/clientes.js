@@ -1,11 +1,14 @@
 const contextPath = window.location.pathname.split("/")[1];
 
+let clientes = []
 let numPag = 1
 let tbody
+let initModalForm = true
 
 export function init(datos) {
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
+  tbody = document.getElementById("tbodyClientes")
 
   document.getElementById("atras").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/ClienteServlet?numPag=${numPag - 1}`)
@@ -14,11 +17,8 @@ export function init(datos) {
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      if (!tbody) {
-        tbody = document.getElementById("tbodyClientes")
-      }
 
-      llenarTabla(datos, true)
+      llenarTabla(datos)
     }
   })
 
@@ -29,18 +29,37 @@ export function init(datos) {
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      if (!tbody) {
-        tbody = document.getElementById("tbodyClientes")
-      }
-      llenarTabla(datos, true)
+      llenarTabla(datos)
     }   
   })
 
   if (datos) {
-    tbody = document.getElementById("tbodyClientes")
+    clientes = datos
     llenarTabla(datos)
+  } else {
+    llenarTabla(clientes)
   }
 
+  document.getElementById("btnNuevoCliente").addEventListener("click", () => {
+    if (initModalForm) {
+      confModalForm()
+      initModalForm = false
+    }
+    abrirModal("modalCliente", "contenidoCliente")
+  })
+  document.getElementById("btnCancelarCliente").addEventListener("click", () => {cerrarModal("modalCliente", "contenidoCliente") })
+
+}
+
+export function actualizar(nodo) {
+  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
+    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
+    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
+  }
+  initModalForm = true
+}
+
+function confModalForm() {
   const divNombre = document.getElementById("divNombre")
   const divApellidoP = document.getElementById("divApellidoP")
   const divApellidoM = document.getElementById("divApellidoM")
@@ -64,110 +83,6 @@ export function init(datos) {
   const ocultoTel = document.getElementById("ocultoTel")
   const txtTelefono = document.getElementById("telefono")
 
-  const form = document.getElementById("formulario")
-
-  form.addEventListener("submit", async function (e) {
-
-    e.preventDefault()
-    let stop = false
-    const tipoDocumentoId = cbxDoc.value
-    const documento = txtDocumento.value
-    const telefono = txtTelefono.value
-    const contrasena = txtContrasena.value
-
-    switch (tipoDocumentoId) {
-      case "1":
-        if (/^\d{8}$/.test(documento)) {
-          ocultoDoc.classList.add("hidden")
-        } else {
-          ocultoDoc.classList.remove("hidden")
-          stop = true
-        }
-        break;
-      case "2":
-        if (/^\d{11}$/.test(documento)) {
-          ocultoDoc.classList.add("hidden")
-        } else {
-          ocultoDoc.classList.remove("hidden")
-          stop = true
-        }
-        break;
-      case "3":
-      case "4":
-        const ln = documento.length;
-        if (ln >= 4 && ln < 15) {
-          ocultoDoc.classList.add("hidden")
-        } else {
-          ocultoDoc.classList.remove("hidden")
-          stop = true
-        }
-        break;
-      default:
-        break;
-    }
-
-    if (/^9\d{8}$/.test(telefono)) {
-      ocultoTel.classList.add("hidden")
-    } else {
-      ocultoTel.classList.remove("hidden")
-      stop = true;
-    }
-
-    if (contrasena.length < 8) {
-      ocultoContra.classList.remove("hidden")
-      stop = true
-    } else {
-      ocultoContra.classList.add("hidden")
-    }
-    if (stop) {
-      return
-    }
-
-    const tipoClienteId = cbxCliente.value
-    const tipoSectorEconomicoId = cbxSectorEco.value
-    const razon = txtRazon.value.trim()
-    const nombre = txtNombre.value.trim()
-    const apellidoP = txtApellidoP.value.trim()
-    const apellidoM = txtApellidoM.value.trim()
-    const email = txtEmail.value.trim()
-
-    await fetch("/" + contextPath + "/control/ClienteServlet", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        tipoDocumentoId, documento, tipoClienteId, tipoSectorEconomicoId, razon, email, contrasena, telefono,
-        nombre, apellidoP, apellidoM
-      }),
-    })
-    .then(res => res.json()
-    .then(data => {
-      if (data.ok) {
-        
-        const cliente = data.cliente
-
-        if (!tbody) {
-          tbody = document.getElementById("tbodyClientes")
-        }
-        const tr = document.createElement("tr");
-        tr.className = "border-b hover:bg-gray-50";
-        tr.innerHTML = `
-          <td class="p-2">${cliente.razonSocial}</td>
-          <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
-          <td class="p-2">${cliente.tipoCliente}</td>
-          <td class="p-2">${cliente.tipoSectorEconomico}</td>
-          <td class="p-2">${cliente.telefono}</td>
-          <td class="p-2 text-right">⋮</td>
-        `;
-        tbody.insertBefore(tr, tbody.firstChild);
-        if (tbody.children.length > 10) {
-          tbody.lastElementChild.remove()
-        }
-        cerrarModal("modalCliente", "contenidoCliente");
-      }
-    }));
-  })
 
   cbxCliente.addEventListener("change", (e) => {
     switch (e.target.value) {
@@ -254,23 +169,101 @@ export function init(datos) {
     }
   })
 
-  const btnNuevoCliente = document.getElementById("btnNuevoCliente")
-  const btnCancelarCliente = document.getElementById("btnCancelarCliente")
+  document.getElementById("formulario").addEventListener("submit", async function (e) {
+    e.preventDefault()
+    let stop = false
+    const tipoDocumentoId = cbxDoc.value
+    const documento = txtDocumento.value
+    const telefono = txtTelefono.value
+    const contrasena = txtContrasena.value
 
-  btnNuevoCliente.addEventListener("click", () => { abrirModal("modalCliente", "contenidoCliente") })
-  btnCancelarCliente.addEventListener("click", () => { cerrarModal("modalCliente", "contenidoCliente") })
+    switch (tipoDocumentoId) {
+      case "1":
+        if (/^\d{8}$/.test(documento)) {
+          ocultoDoc.classList.add("hidden")
+        } else {
+          ocultoDoc.classList.remove("hidden")
+          stop = true
+        }
+        break;
+      case "2":
+        if (/^\d{11}$/.test(documento)) {
+          ocultoDoc.classList.add("hidden")
+        } else {
+          ocultoDoc.classList.remove("hidden")
+          stop = true
+        }
+        break;
+      case "3":
+      case "4":
+        const ln = documento.length;
+        if (ln >= 4 && ln < 15) {
+          ocultoDoc.classList.add("hidden")
+        } else {
+          ocultoDoc.classList.remove("hidden")
+          stop = true
+        }
+        break;
+      default:
+        break;
+    }
 
-}
+    if (/^9\d{8}$/.test(telefono)) {
+      ocultoTel.classList.add("hidden")
+    } else {
+      ocultoTel.classList.remove("hidden")
+      stop = true;
+    }
 
-export function actualizar(nodo) {
-  if (tbody) {
-    nodo.querySelector("tbody[id='tbodyClientes']").innerHTML = tbody.innerHTML
-    tbody = null
-  }
-  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
-    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
-    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
-  }
+    if (contrasena.length < 8) {
+      ocultoContra.classList.remove("hidden")
+      stop = true
+    } else {
+      ocultoContra.classList.add("hidden")
+    }
+    if (stop) {
+      return
+    }
+
+    const tipoClienteId = cbxCliente.value
+    const tipoSectorEconomicoId = cbxSectorEco.value
+    const razon = txtRazon.value.trim()
+    const nombre = txtNombre.value.trim()
+    const apellidoP = txtApellidoP.value.trim()
+    const apellidoM = txtApellidoM.value.trim()
+    const email = txtEmail.value.trim()
+
+    await fetch("/" + contextPath + "/control/ClienteServlet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        tipoDocumentoId, documento, tipoClienteId, tipoSectorEconomicoId, razon, email, contrasena, telefono,
+        nombre, apellidoP, apellidoM
+      }),
+    })
+    .then(res => res.json()
+    .then(data => {
+      if (data.ok) {
+        const cliente = []
+        cliente.push(data.cliente)
+        llenarTabla(cliente, false)
+        if (clientes.length > 10) {
+          const ultimaFila = tbody.lastElementChild
+          const index = clientes.findIndex(s => s.id == ultimaFila.dataset.id);
+          if (index !== -1) {
+            clientes.splice(index, 1);
+          }
+          
+          tbody.lastElementChild.remove()
+        }
+        clientes.push(data.cliente)
+
+        cerrarModal("modalCliente", "contenidoCliente");
+      }
+    }));
+  })
 }
 
 
@@ -294,11 +287,7 @@ function cerrarModal(idModal, idContenido) {
   }, 200);
 }
 
-function llenarTabla(clientes, limpiar = false) {
-  if (limpiar) {
-    tbody.innerHTML = ""
-  }
-
+function llenarTabla(clientes, append = true) {
   clientes.forEach((cliente) => {
     const tr = document.createElement("tr");
     tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
@@ -310,8 +299,45 @@ function llenarTabla(clientes, limpiar = false) {
       <td class="p-2">${cliente.tipoCliente}</td>
       <td class="p-2">${cliente.tipoSectorEconomico}</td>
       <td class="p-2">${cliente.telefono}</td>
-      <td class="p-2 text-right">⋮</td>
+      <td class="p-2 text-right">
+        <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+          ⋮
+        </button>
+        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
+          <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
+          <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+        </div>
+      </td>
     `;
-    tbody.appendChild(tr);
+
+    const popupBtn = tr.querySelector('.popup-btn');
+    const popupMenu = tr.querySelector('.popup-menu');
+    
+    popupBtn.addEventListener('click', e => {
+      e.stopPropagation();
+    
+      document.querySelectorAll('.popup-menu').forEach(menu => {
+        if (menu !== popupMenu) {
+          menu.classList.add('hidden');
+        }
+      });
+      popupMenu.classList.remove('hidden');
+      popupMenu.focus();
+    });
+    
+    popupMenu.addEventListener('blur', () => {
+      popupMenu.classList.add('hidden');
+    });
+    
+    popupMenu.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+
+    if (append) {
+      tbody.appendChild(tr);
+    } else {
+      tbody.insertBefore(tr, tbody.firstChild)
+    }
   });
 }

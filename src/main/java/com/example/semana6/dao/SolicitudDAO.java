@@ -230,15 +230,9 @@ public class SolicitudDAO {
     s.close();
   }
   
-  public void eliminarSolicitud(Solicitud solicitud) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-  
+  public void eliminarSolicitud(Session s, Solicitud solicitud) {
     s.merge(solicitud);
     s.remove(solicitud);
-  
-    s.getTransaction().commit();
-    s.close();
   }
 
   public List<Solicitud> buscarPorFiltros(short tipoSolicitdId, short estadoSolicitudId, int colaboradorId, int clienteId, LocalDateTime fechaRegistro, LocalDateTime fechaFinalizacion) {

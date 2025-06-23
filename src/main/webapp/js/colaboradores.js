@@ -1,11 +1,14 @@
 const contextPath = window.location.pathname.split("/")[1];
 
+let colaboradores = []
 let numPag = 1
 let tbody
+let initModalForm = true
 
 export function init(datos) {
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
+  tbody = document.getElementById("tbodyColaboradores")
 
   document.getElementById("atras").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/ColaboradorServlet?numPag=${numPag - 1}`)
@@ -14,9 +17,6 @@ export function init(datos) {
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      if (!tbody) {
-        tbody = document.getElementById("tbodyColaboradores")
-      }
       llenarTabla(datos, true)
     }
   })
@@ -28,27 +28,37 @@ export function init(datos) {
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      if (!tbody) {
-        tbody = document.getElementById("tbodyColaboradores")
-      }
       llenarTabla(datos, true)
     }   
   })
 
-
-
   if (datos) {
-    tbody = document.getElementById("tbodyColaboradores")
+    colaboradores = datos
     llenarTabla(datos)
+  } else {
+    llenarTabla(colaboradores)
   }
 
-  const btnNuevoColaborador = document.getElementById("btnNuevoColaborador")
-  const btnCancelarColaborador = document.getElementById("btnCancelarColaborador")
-
+  document.getElementById("btnNuevoColaborador").addEventListener("click", () => {
+    if (initModalForm) {
+      confModalForm()
+      initModalForm = false
+    }
+    abrirModal("modalColaborador", "contenidoColaborador")
+  })
+  document.getElementById("btnCancelarColaborador").addEventListener("click", () => {cerrarModal("modalColaborador", "contenidoColaborador")})
   
-  btnNuevoColaborador.addEventListener("click", () => {abrirModal("modalColaborador", "contenidoColaborador")})
-  btnCancelarColaborador.addEventListener("click", () => {cerrarModal("modalColaborador", "contenidoColaborador")})
+}
 
+export function actualizar(nodo) {
+  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
+    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
+    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
+  }
+  initModalForm = true
+}
+
+function confModalForm() {
   const ocultoDoc = document.getElementById("ocultoDoc")
   document.getElementById("tipoDocumentoId").addEventListener("change", (e) => {
     switch (e.target.value) {
@@ -69,7 +79,6 @@ export function init(datos) {
 
   document.getElementById("formColaborador").addEventListener("submit", async function (e) {
     e.preventDefault();
-    console.log("ejecutando el fetch");
     const formData = new FormData(document.getElementById("formColaborador"))
     let stop = false;
 
@@ -129,60 +138,22 @@ export function init(datos) {
     .then(resp => resp.json())
     .then(data => {
       if (data.ok) {
-        const colaborador = data.colaborador
-        if (!tbody) {
-          tbody = document.getElementById("tbodyColaboradores")
-        }
-        const tr = document.createElement("tr");
-        tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
-        tr.innerHTML = `
-          <td class="p-2">${colaborador.codigo}</td>
-          <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
-          <td class="p-2"><strong>${colaborador.tipoDocumento}</strong> ${colaborador.numeroDocumento}</td>
-          <td class="p-2">${colaborador.rolColaborador}</td>
-          <td class="p-2">${colaborador.email}</td>
-          <td class="p-2 w-full flex justify-between items-start text-sm">
-            ${colaborador.solicitudesActivas}
-              ${colaborador.solicitudesActivas <= 1 ? `
-              <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                Muy disponible
-              </span>` :  
-              colaborador.solicitudesActivas == 2 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-lime-100 text-lime-700">
-                Disponible
-              </span>` : 
-              colaborador.solicitudesActivas == 3 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
-                Moderado
-              </span>` :  
-              colaborador.solicitudesActivas == 4 ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
-                Casi al límite
-              </span>` : `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-                Sin disponibilidad
-              </span>` 
-            }
-          </td>
-          <td class="p-2 text-right">⋮</td>
-        `;
-        tbody.insertBefore(tr, tbody.firstChild);
-        if (tbody.children.length > 10) {
+        const colaborador = []
+        colaborador.push(data.colaborador)
+        llenarTabla(colaborador, false)
+        if (colaboradores.length > 10) {
+          const ultimaFila = tbody.lastElementChild
+          const index = colaboradores.findIndex(s => s.id == ultimaFila.dataset.id);
+          if (index !== -1) {
+            colaboradores.splice(index, 1);
+          }
           tbody.lastElementChild.remove()
         }
+        colaboradores.push(data.colaborador)
+        cerrarModal("modalColaborador", "contenidoColaborador");
       }
     })
-
-
-    cerrarModal("modalColaborador", "contenidoColaborador");
   });
-}
-
-export function actualizar(nodo) {
-  if (tbody) {
-    nodo.querySelector("tbody[id='tbodyColaboradores']").innerHTML = tbody.innerHTML
-    tbody = null
-  }
-  if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
-    nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
-    nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
-  }
 }
 
 
@@ -206,15 +177,11 @@ function cerrarModal(modalId, contenidoId) {
   }, 300);
 }
 
-function llenarTabla(colaboradores, limpiar = false) {
-  if (limpiar) {
-    tbody.innerHTML = ""
-  }
+function llenarTabla(colaboradores, append = true) {
   colaboradores.forEach((colaborador) => {
     const tr = document.createElement("tr")
     tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
     tr.dataset.id = colaborador.id
-
     tr.innerHTML = `
       <td class="p-2">${colaborador.codigo}</td>
       <td class="p-2">${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}</td>
@@ -240,8 +207,44 @@ function llenarTabla(colaboradores, limpiar = false) {
           </span>` 
         }
       </td>
-      <td class="p-2 text-right">⋮</td>
+      <td class="p-2 text-right">
+        <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+          ⋮
+        </button>
+        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
+          <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
+          <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+        </div>
+      </td>
     `;
-    tbody.appendChild(tr)
+
+    const popupBtn = tr.querySelector('.popup-btn');
+    const popupMenu = tr.querySelector('.popup-menu');
+    
+    popupBtn.addEventListener('click', e => {
+      e.stopPropagation();
+    
+      document.querySelectorAll('.popup-menu').forEach(menu => {
+        if (menu !== popupMenu) {
+          menu.classList.add('hidden');
+        }
+      });
+      popupMenu.classList.remove('hidden');
+      popupMenu.focus();
+    });
+    
+    popupMenu.addEventListener('blur', () => {
+      popupMenu.classList.add('hidden');
+    });
+    
+    popupMenu.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    if (append) {
+      tbody.appendChild(tr);
+    } else {
+      tbody.insertBefore(tr, tbody.firstChild)
+    }
   });
 }

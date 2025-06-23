@@ -1,6 +1,6 @@
 package com.example.semana6.facade;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -81,7 +81,7 @@ public class ClienteFacade {
     query.append("limit 5");
     List<Cliente> clientes = clienteDAO.getClientesByQuery(query.toString());
     if (clientes.size() == 0) return null;
-    List<ClienteVista> clientesVista = new ArrayList<>();
+    List<ClienteVista> clientesVista = new LinkedList<>();
     for (Cliente cliente : clientes) {
       if (cliente instanceof PersonaConNegocio) {
         clientesVista.add(new PersonaConNegocioVista((PersonaConNegocio) cliente));
@@ -95,7 +95,7 @@ public class ClienteFacade {
   public List<ClienteVista> getClientes(int numPag) {
     List<Cliente> clientes = clienteDAO.getRango((numPag - 1)*10, 10);
     if (clientes.size() == 0) return null;
-    List<ClienteVista> clientesVista = new ArrayList<>();
+    List<ClienteVista> clientesVista = new LinkedList<>();
     clientes.forEach((cliente) -> {
       if (cliente instanceof PersonaConNegocio) {
         clientesVista.add(new PersonaConNegocioVista((PersonaConNegocio) cliente));

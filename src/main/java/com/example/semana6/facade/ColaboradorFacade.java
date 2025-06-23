@@ -1,6 +1,5 @@
 package com.example.semana6.facade;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import com.example.semana6.dao.ColaboradorDAO;
 import com.example.semana6.dao.RolColaboradorDAO;
 import com.example.semana6.dao.TipoDocumentoDAO;
 import com.example.semana6.dto.cliente.ClienteDTO;
+import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.colaborador.ColaboradorCrear;
 import com.example.semana6.dto.colaborador.ColaboradorDTO;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
@@ -47,28 +47,27 @@ public class ColaboradorFacade {
     return null;
   }
 
-    public List<ColaboradorVista> getColaboradores(String[] tokens) {
+  public List<ColaboradorVista> getColaboradores(String[] tokens) {
     if (tokens.length == 0) return null;
     query.append("""
       SELECT c.*
       FROM colaboradordto_vista c WHERE 
     """);
 
-    for (int i = 0; i < tokens.length; i++) {
+    for (int i = 0; i < Math.min(tokens.length, 5); i++) {
       String token = tokens[i];
       if (i != 0) {
         query.append(" OR ");
       }
       query.append("(\n");
-      query.append("c.nombre ILIKE unaccent('%").append(token); 
-      query.append("%') OR \n");
-      query.append("c.apellido_paterno ILIKE unaccent('%").append(token); 
-      query.append("%') OR \n");
-      query.append("c.apellido_materno ILIKE unaccent('%").append(token); 
-      query.append("%') OR \n");
-      query.append("c.numero_documento LIKE ('").append(token); 
-      query.append("%')");
-      query.append(")\n");
+      if (token.matches("\\d+")) {
+        query.append("c.numero_documento LIKE ('").append(token).append("%')");
+      } else {
+        query.append("c.nombre ILIKE unaccent('%").append(token).append("%') OR \n"); 
+        query.append("c.apellido_paterno ILIKE unaccent('%").append(token).append("%') OR \n"); 
+        query.append("c.apellido_materno ILIKE unaccent('%").append(token).append("%')"); 
+      }
+      query.append(" and c.solicitudes_activas < 5 )\n");
     }
     query.append("limit 5");
     List<ColaboradorVista> colaboradores = colaboradorDAO.getClientesByQuery(query.toString());
@@ -85,18 +84,18 @@ public class ColaboradorFacade {
   public List<ColaboradorVista> getColaboradores(int solicitudId, Object usuario) {
     try {
       if (usuario instanceof ClienteDTO) {
+        if (asignacionDAO.getById(new AsignacionId(solicitudId, ((ClienteVista) usuario).getId())) == null) return null;
       } else if (usuario instanceof ColaboradorDTO) {
-        if (((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
-          List<Asignacion> asignaciones = asignacionDAO.getByIdSolicitud(solicitudId);
-          List<ColaboradorVista> colaboradorVistas = new LinkedList<>();
-          for (Asignacion asignacion : asignaciones) {
-            colaboradorVistas.add(new ColaboradorVista(asignacion.getColaborador()));
-          }
-          return colaboradorVistas;
-        } else {
-  
+        if (!((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+          if (asignacionDAO.getById(new AsignacionId(solicitudId, ((ColaboradorVista) usuario).getId())) == null) return null;
         }
       }
+      List<Asignacion> asignaciones = asignacionDAO.getByIdSolicitud(solicitudId);
+      List<ColaboradorVista> colaboradorVistas = new LinkedList<>();
+      for (Asignacion asignacion : asignaciones) {
+        colaboradorVistas.add(new ColaboradorVista(asignacion.getColaborador()));
+      }
+      return colaboradorVistas;
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -2,7 +2,6 @@ const contextPath = window.location.pathname.split("/")[1];
 let solicitudes = []
 let numPag = 1
 let tbody
-let actualizarTbody = false
 let initModalForm = true
 
 export function init(datos) {
@@ -10,14 +9,33 @@ export function init(datos) {
   const pagFin = document.getElementById("pagFin")
   tbody = document.getElementById("tbodySolicitudes")
   let rellenarVista = null
-  tbody.addEventListener("click", (event) => {
-    const fila = event.target.closest("tr")
-    if (fila && tbody.contains(fila)) {
+  tbody.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("btn-ver-detalles")) {
+      const fila = e.target.closest("tr");
+      if (!fila) return;
       if (!rellenarVista) {
         rellenarVista = confVistaSolicitud()
       }
       rellenarVista(solicitudes.find((solicitud) => solicitud.id == fila.dataset.id))
       abrirModal("modalVerSolicitud", "contenidoVerSolicitud")
+    } else if (e.target.classList.contains("btn-eliminar")) {
+      const fila = e.target.closest("tr");
+      if (!fila) return;
+
+      await fetch("/" + contextPath + `/control/SolicitudServlet?id=${fila.dataset.id}`, {
+        method: "DELETE"
+      }).then(response => {
+        if (response.ok) {
+          const index = solicitudes.findIndex(s => s.id == fila.dataset.id);
+          if (index !== -1) {
+            solicitudes.splice(index, 1);
+          }
+          fila.remove()
+          return response.json()
+        } else {
+          console.error("Error al eliminar solicitud");
+        }
+      })
     }
   });
   
@@ -25,12 +43,12 @@ export function init(datos) {
     const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag - 1}`)
     datos = await res.json()
     if (datos) {
-      solicitudes 
       solicitudes = datos
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      llenarTabla(tbody, datos, true)
+      tbody.innerHTML = ''
+      llenarTabla(datos)
     }
   })
 
@@ -42,13 +60,16 @@ export function init(datos) {
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10
-      llenarTabla(tbody, datos, true)
+      tbody.innerHTML = ''
+      llenarTabla(datos)
     }   
   })
 
   if (datos) {
     solicitudes = datos
-    llenarTabla(tbody, datos)
+    llenarTabla(datos)
+  } else {
+    llenarTabla(solicitudes)
   }
   
   document.getElementById("btnNuevaSolicitud").addEventListener("click", () => {
@@ -63,11 +84,6 @@ export function init(datos) {
 }
 
 export function actualizar(nodo) {
-  if (actualizarTbody) {
-    nodo.querySelector("tbody[id='tbodySolicitudes']").innerHTML = tbody.innerHTML
-    actualizarTbody = false
-    tbody = null
-  }
   if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
     nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
     nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
@@ -115,47 +131,29 @@ function confModalForm() {
       formData.set("coordinadorId", txtCoordinador.dataset.id)
       formData.set("clienteId", txtCliente.dataset.id)
     };
-    
-    await fetch(`/${contextPath}/control/SolicitudServlet&action=1`, {
+    await fetch(`/${contextPath}/control/SolicitudServlet?action=1`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: new URLSearchParams(formData)
     })
     .then(resp => resp.json()
     .then(data => {
       if (data.ok) {
-        const solicitud = data.solicitud
-        const tr = document.createElement("tr");
-        tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors"
-      
-        tr.innerHTML = `
-          <td class="p-2">${solicitud.id}</td>
-          <td class="p-2">${solicitud.titulo}</td>
-          <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
-          ${window.usuario?.rolColaborador == 'Administrador' ?
-          `<td class="p-2">${solicitud.cliente ?? "--- --- ---"}</td>`
-            : 
-            ""
+        const solicitud = []
+        solicitud.push(data.solicitud)
+        llenarTabla(solicitud, false)
+        if (solicitudes.length > 10) {
+          const ultimaFila = tbody.lastElementChild
+          const index = solicitudes.findIndex(s => s.id == ultimaFila.dataset.id);
+          if (index !== -1) {
+            solicitudes.splice(index, 1);
           }
-          <td class="p-2">${solicitud.fechaRegistro}</td>
-          <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
-          <td class="p-2">
-            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-              solicitud.estadoSolicitud === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' :
-              solicitud.estadoSolicitud === 'En proceso' ? 'bg-blue-100 text-blue-700' :
-              solicitud.estadoSolicitud === 'Asignada' ? 'bg-indigo-100 text-indigo-700' :
-              solicitud.estadoSolicitud === 'Atendida' ? 'bg-green-100 text-green-700' :
-              'bg-gray-100 text-gray-700'
-            }">
-              ${solicitud.estadoSolicitud}
-          </span>
-          </td>
-          <td class="p-2 text-right">⋮</td>
-        `;
-        tbody.insertBefore(tr, tbody.firstChild)
-        if (tbody.children.length > 10) {
+          
           tbody.lastElementChild.remove()
         }
-        actualizarTbody = true
+        solicitudes.push(data.solicitud)
         cerrarModal("modalSolicitud", "contenidoSolicitud");
       }
     }));
@@ -373,11 +371,7 @@ function cerrarModal(idModal, idContenido) {
   }, 300);
 }
 
-function llenarTabla(tbody, solicitudes, limpiar = false) {
-  if (limpiar) {
-    tbody.innerHTML = ""
-  }
-  actualizarTbody = true
+function llenarTabla(solicitudes, append = true) {
   solicitudes.forEach((solicitud) => {
     const tr = document.createElement("tr");
     tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
@@ -405,8 +399,45 @@ function llenarTabla(tbody, solicitudes, limpiar = false) {
           ${solicitud.estadoSolicitud}
         </span>
       </td>
-      <td class="p-2 text-right">⋮</td>
+      <td class="p-2 text-right">
+        <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+          ⋮
+        </button>
+        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
+          <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
+          <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+        </div>
+      </td>
     `;
-    tbody.appendChild(tr);
+
+    const popupBtn = tr.querySelector('.popup-btn');
+    const popupMenu = tr.querySelector('.popup-menu');
+    
+    popupBtn.addEventListener('click', e => {
+      e.stopPropagation();
+    
+      document.querySelectorAll('.popup-menu').forEach(menu => {
+        if (menu !== popupMenu) {
+          menu.classList.add('hidden');
+        }
+      });
+      popupMenu.classList.remove('hidden');
+      popupMenu.focus();
+    });
+    
+    popupMenu.addEventListener('blur', () => {
+      popupMenu.classList.add('hidden');
+    });
+    
+    popupMenu.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    if (append) {
+      tbody.appendChild(tr);
+    } else {
+      tbody.insertBefore(tr, tbody.firstChild)
+    }
+
   });
 }

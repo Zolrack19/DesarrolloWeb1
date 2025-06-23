@@ -88,20 +88,6 @@
 
         <c:set var="claseValor" value="${(rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador') ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''}" />
         <div class="${claseValor}">
-          <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
-            <div>
-              <label for="cbxEstadoSolicitud" class="block text-sm font-medium text-gray-700 mb-1">Tipo de solicitud</label>
-              <select id="cbxEstadoSolicitud" name="cbxEstadoSolicitud" required
-                class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Selecciona una opción</option>
-                <option value="1">Pendiente</option>
-                <option value="2">Asignada</option>
-                <option value="3">En proceso</option>
-                <option value="4">Atendida</option>
-              </select>
-            </div>
-          </c:if>
-
           <div>
             <label for="cbxTipoSolicitud" class="block text-sm font-medium text-gray-700 mb-1">Tipo de solicitud</label>
             <select id="cbxTipoSolicitud" name="cbxTipoSolicitud" required

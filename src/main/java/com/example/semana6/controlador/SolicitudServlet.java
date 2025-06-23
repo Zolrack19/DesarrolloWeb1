@@ -51,11 +51,7 @@ public class SolicitudServlet extends HttpServlet {
 
     List<SolicitudVista> solicitudVistas = null;
     if (numPag > 0) { 
-      if (usuario instanceof ClienteDTO) { 
-        solicitudVistas = solicitudesFacade.getSolicitudes(((ClienteVista) usuario).getId(), numPag);
-      } else if (usuario instanceof ColaboradorDTO) {
-        solicitudVistas = solicitudesFacade.getSolicitudes(numPag);
-      }
+      solicitudVistas = solicitudesFacade.getSolicitudes(usuario, numPag);
     }
     ObjectMapper mapper = new ObjectMapper();
     String json = mapper.writeValueAsString(solicitudVistas);
@@ -101,10 +97,9 @@ public class SolicitudServlet extends HttpServlet {
       } else if (usuario instanceof ColaboradorDTO) {
         ColaboradorVista colaboradorVista = (ColaboradorVista) usuario;
         if (colaboradorVista.getRolColaborador().equals("Administrador")) {
-          short estadoSolicitud = Short.valueOf(req.getParameter("cbxEstadoSolicitud"));
-          short coordinadorId = Short.valueOf(req.getParameter("coordinadorId"));
-          short clienteId = Short.valueOf(req.getParameter("clienteId"));
-          solicitudCrear = new SolicitudCrear(tipoSolicitudId, estadoSolicitud, titulo, descripcion, coordinadorId, clienteId); // -1 es nulo
+          short coordinadorId = Short.parseShort(req.getParameter("coordinadorId"));
+          short clienteId = Short.parseShort(req.getParameter("clienteId"));
+          solicitudCrear = new SolicitudCrear(tipoSolicitudId, (short) ValorDefecto.ESTADO_SOLICITUD.getValue() , titulo, descripcion, coordinadorId, clienteId); // -1 es nulo
         }
       }
   
@@ -117,5 +112,19 @@ public class SolicitudServlet extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    int solicitudId =  Integer.parseInt(req.getParameter("id"));
+    solicitudesFacade.eliminarSolicitud(session.getAttribute("usuario"), solicitudId);
+    
+    // Map<String, Object> json = new HashMap<>();
+    // json.put("ok", exito);
+    // json.put("redirect", req.getContextPath() + "/index.html");
+    // resp.setContentType("application/json");
+    // resp.setCharacterEncoding("UTF-8");
+    // new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 }
