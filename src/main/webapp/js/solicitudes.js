@@ -46,7 +46,7 @@ export function init(datos) {
       solicitudes = datos
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
-      pagFin.innerHTML = numPag*10
+      pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
       llenarTabla(datos)
     }
@@ -59,7 +59,7 @@ export function init(datos) {
       solicitudes = datos
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
-      pagFin.innerHTML = numPag*10
+      pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
       llenarTabla(datos)
     }   
@@ -308,7 +308,7 @@ function confVistaSolicitud() {
   }) 
 
 
-  return function llenarVista(solicitud) {
+  return function (solicitud) {
     setTimeout(async () => {
       await fetch(`/${contextPath}/control/ColaboradorServlet?action=2&solicitudId=${solicitud.id}`)
       .then(resp => {

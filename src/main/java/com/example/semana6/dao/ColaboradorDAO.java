@@ -178,15 +178,9 @@ public class ColaboradorDAO {
     q.executeUpdate();
   }
   
-  public void eliminarColaborador(Colaborador colaborador) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void eliminarColaborador(Session s, Colaborador colaborador) {
     s.merge(colaborador);
     s.remove(colaborador);
-
-    s.getTransaction().commit();
-    s.close();
   }
 
   public List<Colaborador> buscarPorFiltros(short tipoDocId, short rolColaboradorId, String nombre, String apellidoPaterno) {

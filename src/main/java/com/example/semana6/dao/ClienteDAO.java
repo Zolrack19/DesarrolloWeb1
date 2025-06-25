@@ -163,15 +163,9 @@ public class ClienteDAO {
     q.executeUpdate();
   }
   
-  public void eliminarCliente(Cliente cliente) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void eliminarCliente(Session s, Cliente cliente) {
     s.merge(cliente);
     s.remove(cliente);
-
-    s.getTransaction().commit();
-    s.close();
   }
 
   public List<Cliente> buscarPorFiltros(short tipoDocId, short tipoClienteId, short sectorEconomicoId,  String razonSocial, String telefono) {

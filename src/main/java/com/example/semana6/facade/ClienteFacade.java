@@ -10,9 +10,12 @@ import com.example.semana6.dao.SectorEconomicoDAO;
 import com.example.semana6.dao.TipoClienteDAO;
 import com.example.semana6.dao.TipoDocumentoDAO;
 import com.example.semana6.dto.cliente.ClienteCrear;
+import com.example.semana6.dto.cliente.ClienteDTO;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
 import com.example.semana6.dto.cliente.PersonaConNegocioVista;
+import com.example.semana6.dto.colaborador.ColaboradorDTO;
+import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.PersonaConNegocio;
 import com.example.semana6.singleton.HibernateUtil;
@@ -104,6 +107,30 @@ public class ClienteFacade {
       }
     });
     return clientesVista;
+  }
+
+  public void eliminarCliente(Object usuario, int clienteId) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    Cliente cliente = clienteDAO.getById(s, clienteId);
+    if (cliente == null) {
+      System.out.println("no hay cliente a eliminar");
+      s.close();
+      return;
+    }
+    if (usuario instanceof ClienteDTO) {
+      s.close();
+      return;
+    } else if (usuario instanceof ColaboradorDTO) {
+      if (!((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+        s.close();
+        return;
+      }
+    }
+    clienteDAO.eliminarCliente(s, cliente);
+    
+    s.getTransaction().commit();
+    s.close();
   }
 
 }

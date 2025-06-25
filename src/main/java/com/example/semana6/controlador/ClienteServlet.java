@@ -16,6 +16,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ClienteServlet", urlPatterns = {"/control/ClienteServlet"})
 public class ClienteServlet extends HttpServlet {
@@ -93,5 +94,19 @@ public class ClienteServlet extends HttpServlet {
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
     new ObjectMapper().writeValue(resp.getWriter(), json);
+  }
+
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    int clienteId =  Integer.parseInt(req.getParameter("id"));
+    clienteFacade.eliminarCliente(session.getAttribute("usuario"), clienteId);
+    
+    // Map<String, Object> json = new HashMap<>();
+    // json.put("ok", exito);
+    // json.put("redirect", req.getContextPath() + "/index.html");
+    // resp.setContentType("application/json");
+    // resp.setCharacterEncoding("UTF-8");
+    // new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 }

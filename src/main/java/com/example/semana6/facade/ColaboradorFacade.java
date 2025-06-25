@@ -102,4 +102,28 @@ public class ColaboradorFacade {
 
     return null;
   }
+
+    public void eliminarColaborador(Object usuario, int colaboradorId) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    Colaborador colaborador = colaboradorDAO.getById(s, colaboradorId);
+    if (colaborador == null) {
+      System.out.println("no hay cliente a eliminar");
+      s.close();
+      return;
+    }
+    if (usuario instanceof ClienteDTO) {
+      s.close();
+      return;
+    } else if (usuario instanceof ColaboradorDTO) {
+      if (!((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+        s.close();
+        return;
+      }
+    }
+    colaboradorDAO.eliminarColaborador(s, colaborador);
+    
+    s.getTransaction().commit();
+    s.close();
+  }
 }

@@ -9,6 +9,37 @@ export function init(datos) {
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
   tbody = document.getElementById("tbodyColaboradores")
+  let rellenarModal = null
+  tbody.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("btn-editar")) {
+      const fila = e.target.closest("tr");
+      if (!fila) return;
+      if (initModalForm) {
+        rellenarModal = confModalForm()
+        initModalForm = false
+      }
+      rellenarModal(colaboradores.find((colaborador) => colaborador.id == fila.dataset.id))
+      abrirModal("modalColaborador", "contenidoColaborador")
+    } else if (e.target.classList.contains("btn-eliminar")) {
+      const fila = e.target.closest("tr");
+      if (!fila) return;
+
+      await fetch("/" + contextPath + `/control/ColaboradorServlet?id=${fila.dataset.id}`, {
+        method: "DELETE"
+      }).then(response => {
+        if (response.ok) {
+          const index = colaboradores.findIndex(s => s.id == fila.dataset.id);
+          if (index !== -1) {
+            colaboradores.splice(index, 1);
+          }
+          fila.remove()
+          // return response.json()
+        } else {
+          console.error("Error al eliminar colbaroador");
+        }
+      })
+    }
+  });
 
   document.getElementById("atras").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/ColaboradorServlet?numPag=${numPag - 1}`)
@@ -16,8 +47,9 @@ export function init(datos) {
     if (datos) {
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
-      pagFin.innerHTML = numPag*10
-      llenarTabla(datos, true)
+      pagFin.innerHTML = numPag*10 - (10 - datos.length) 
+      tbody.innerHTML = ''
+      llenarTabla(datos)
     }
   })
 
@@ -27,8 +59,9 @@ export function init(datos) {
     if (datos) {
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
-      pagFin.innerHTML = numPag*10
-      llenarTabla(datos, true)
+      pagFin.innerHTML = numPag*10 - (10 - datos.length) 
+      tbody.innerHTML = ''
+      llenarTabla(datos)
     }   
   })
 
@@ -41,7 +74,7 @@ export function init(datos) {
 
   document.getElementById("btnNuevoColaborador").addEventListener("click", () => {
     if (initModalForm) {
-      confModalForm()
+      rellenarModal = confModalForm()
       initModalForm = false
     }
     abrirModal("modalColaborador", "contenidoColaborador")
@@ -154,6 +187,10 @@ function confModalForm() {
       }
     })
   });
+
+  return (colaborador) => {
+    console.log(colaborador);
+  }
 }
 
 
@@ -212,7 +249,7 @@ function llenarTabla(colaboradores, append = true) {
           ⋮
         </button>
         <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
-          <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
+          <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
           <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
         </div>
       </td>

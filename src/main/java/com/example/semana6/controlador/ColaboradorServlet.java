@@ -95,4 +95,18 @@ public class ColaboradorServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
+
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    int colaboradorId =  Integer.parseInt(req.getParameter("id"));
+    colaboradorFacade.eliminarColaborador(session.getAttribute("usuario"), colaboradorId);
+    
+    // Map<String, Object> json = new HashMap<>();
+    // json.put("ok", exito);
+    // json.put("redirect", req.getContextPath() + "/index.html");
+    // resp.setContentType("application/json");
+    // resp.setCharacterEncoding("UTF-8");
+    // new ObjectMapper().writeValue(resp.getWriter(), json);
+  }
 }
