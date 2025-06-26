@@ -22,7 +22,7 @@ export function init(datos) {
       abrirModal("modalColaborador", "contenidoColaborador")
     } else if (e.target.classList.contains("btn-eliminar")) {
       const fila = e.target.closest("tr");
-      if (!fila) return;
+      if (!fila || !confirm("¿Está seguro que quiere elimminar este colaborador?")) return;
 
       await fetch("/" + contextPath + `/control/ColaboradorServlet?id=${fila.dataset.id}`, {
         method: "DELETE"

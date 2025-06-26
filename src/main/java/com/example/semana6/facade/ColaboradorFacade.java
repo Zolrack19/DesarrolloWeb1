@@ -82,12 +82,15 @@ public class ColaboradorFacade {
   }
 
   public List<ColaboradorVista> getColaboradores(int solicitudId, Object usuario) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    
     try {
       if (usuario instanceof ClienteDTO) {
-        if (asignacionDAO.getById(new AsignacionId(solicitudId, ((ClienteVista) usuario).getId())) == null) return null;
+        if (asignacionDAO.getById(s, new AsignacionId(solicitudId, ((ClienteVista) usuario).getId())) == null) return null;
       } else if (usuario instanceof ColaboradorDTO) {
         if (!((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
-          if (asignacionDAO.getById(new AsignacionId(solicitudId, ((ColaboradorVista) usuario).getId())) == null) return null;
+          if (asignacionDAO.getById(s, new AsignacionId(solicitudId, ((ColaboradorVista) usuario).getId())) == null) return null;
         }
       }
       List<Asignacion> asignaciones = asignacionDAO.getByIdSolicitud(solicitudId);
@@ -95,15 +98,17 @@ public class ColaboradorFacade {
       for (Asignacion asignacion : asignaciones) {
         colaboradorVistas.add(new ColaboradorVista(asignacion.getColaborador()));
       }
+      s.close();
       return colaboradorVistas;
     } catch (Exception e) {
       e.printStackTrace();
     }
 
+    s.close();
     return null;
   }
 
-    public void eliminarColaborador(Object usuario, int colaboradorId) {
+  public void eliminarColaborador(Object usuario, int colaboradorId) {
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
     Colaborador colaborador = colaboradorDAO.getById(s, colaboradorId);

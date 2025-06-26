@@ -14,11 +14,19 @@
     <div
       class="mx-3 max-h-[85vh] overflow-y-auto bg-white rounded-2xl p-6 shadow-xl transform transition-all duration-300 max-w-7xl w-full"
       id="contenidoVerSolicitud">
-      <h2 class="text-2xl font-semibold text-blue-700 mb-4">Detalle de solicitud</h2>
+      
+      <div class="flex gap-2 items-center mb-4">
+        <div class="cursor-pointer w-[26px] hidden">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-semibold text-blue-700">Detalle de solicitud</h2>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div class="space-y-3 text-sm text-gray-700">
+        <div class="space-y-3 text-sm text-gray-700" id="contenedorIzquierdoVerSolicitud">
           <div>
             <span class="font-semibold text-[0.9rem]">Tipo de solicitud:</span>
             <span id="verTipoSolicitud">Error ps</span>
@@ -29,7 +37,7 @@
           </div>
           <div>
             <span class="font-semibold text-[0.9rem]">Título:</span>
-            <span id="verTituloSolicitud">Solicitud de prueba si te gusta bien, sino fue ps</span>
+            <span id="verTituloSolicitud">Solicitud de prueba</span>
           </div>
           <div>
             <span class="font-semibold text-[0.9rem]">Descripción:</span>
@@ -89,6 +97,16 @@
                 </div>
                 <div class="text-gray-500 text-sm">
                   Código: 12345
+                </div>
+              </div>
+              <div class="relative">
+                <div class="text-center w-5 cursor-pointer hover:bg-gray-200">
+                  :
+                </div>
+                <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-[200px] bg-white border border-gray-200 rounded shadow-md z-10">
+                  <button class="btn-ver-tareas block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver actividades</button>
+                  <button class="btn-asignar-coordinador block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-black-600">Asignar como coordinador</button>
+                  <button class="btn-eliminar-asignacion block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Desasignar colaborador</button>
                 </div>
               </div>
             </div>

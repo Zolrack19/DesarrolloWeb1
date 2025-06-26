@@ -20,7 +20,7 @@ export function init(datos) {
       abrirModal("modalVerSolicitud", "contenidoVerSolicitud")
     } else if (e.target.classList.contains("btn-eliminar")) {
       const fila = e.target.closest("tr");
-      if (!fila) return;
+      if (!fila || !confirm("¿Está seguro que quiere elimminar esta solicitud?")) return;
 
       await fetch("/" + contextPath + `/control/SolicitudServlet?id=${fila.dataset.id}`, {
         method: "DELETE"
@@ -93,7 +93,7 @@ export function actualizar(nodo) {
 
 
 function confModalForm() {
-  function popUpCoordinador(popUp, colaboradores) {
+  confTextSearch("txtCoordinador", "popupCoordinador", `/${contextPath}/control/ColaboradorServlet?action=1&`, (popUp, colaboradores) => {
     popUp.innerHTML = ""
     colaboradores.forEach(colaborador => {
       const li = document.createElement("li");
@@ -104,8 +104,8 @@ function confModalForm() {
       popUp.appendChild(li);
     });
     popUp.classList.remove("hidden")
-  }
-  function popUpCliente(popUp, clientes) {
+  })
+  confTextSearch("txtCliente", "popupCliente", `/${contextPath}/control/ClienteServlet?action=1&`, (popUp, clientes) => {
     popUp.innerHTML = ""
     clientes.forEach(cliente => {
       const li = document.createElement("li");
@@ -116,10 +116,7 @@ function confModalForm() {
       popUp.appendChild(li);
     });
     popUp.classList.remove("hidden")
-  }
-  confTextSearch("txtCoordinador", "popupCoordinador", `/${contextPath}/control/ColaboradorServlet?action=1&`, popUpCoordinador)
-  confTextSearch("txtCliente", "popupCliente", `/${contextPath}/control/ClienteServlet?action=1&`, popUpCliente)
-
+  })
 
   document.getElementById("formSolicitud").addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -246,13 +243,46 @@ function confVistaSolicitud() {
   const verCoordinador = document.getElementById("verCoordinador")
   const verCliente = document.getElementById("verCliente")
   const contenedorTarjetas = document.getElementById("contenedorTarjetas")
-  
+  let solicitudActual = null
+
+  contenedorTarjetas.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("btn-ver-tareas")) {
+      const tarjeta = e.target.closest("div.tarjetilla")
+      if (!tarjeta) return;
+    } else if (e.target.classList.contains("btn-asignar-coordinador")) {
+      const tarjeta = e.target.closest("div.tarjetilla")
+      if (!tarjeta || !confirm("¿Está seguro que quiere asignar como coordinador de la solicitud a este colaborador?")) return;
+      
+      
+    } else if (e.target.classList.contains("btn-eliminar-asignacion")) {
+      const tarjeta = e.target.closest("div.tarjetilla")
+      if (!tarjeta || !confirm("¿Está seguro que quiere quitar a este colaborador de la solicitud?")) return;
+
+      await fetch("/" + contextPath + `/control/AsignacionServlet?colaboradorId=${tarjeta.dataset.id}&solicitudId=${solicitudActual.id}`, {
+        method: "DELETE"
+      }).then(response => {
+        if (response.ok) {
+          // const index = solicitudes.findIndex(s => s.id == tarjeta.dataset.id);
+          // if (index !== -1) {
+          //   solicitudes.splice(index, 1);
+          // }
+          tarjeta.remove()
+        } else {
+          console.error("Error al eliminar asignación");
+        }
+      })
+
+    }
+  })
+
+
   document.getElementById("btnCerrarVerSolicitud").addEventListener("click", () => {
     contenedorTarjetas.innerHTML = ""
+    solicitudActual = null
     cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
   })
 
-  function prueba(popUp, colaboradores) {
+  confTextSearch("txtBuscarColaborador", "popupColaboradores", `/${contextPath}/control/ColaboradorServlet?action=1&`, (popUp, colaboradores) => {
     popUp.innerHTML = ""
     colaboradores.forEach(colaborador => {
       const li = document.createElement("li");
@@ -263,8 +293,63 @@ function confVistaSolicitud() {
       popUp.appendChild(li);
     });
     popUp.classList.remove("hidden")
+  })
+
+  const crearTarjetilla = (colaborador) => {
+    const tarjetilla = document.createElement("div")
+    tarjetilla.dataset.id = colaborador.id
+    tarjetilla.className = "tarjetilla flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
+    tarjetilla.innerHTML = `
+      <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+        </svg>
+      </div>
+      <div class="text-gray-800 text-sm flex-1 min-w-0">
+        <div class="font-medium truncate">
+          ${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}
+        </div>
+        <div class="text-gray-500 text-sm">
+          Código: ${colaborador.codigo}
+        </div>
+      </div>
+      <div class="relative">
+        <div class="popup-btn text-center w-5 cursor-pointer hover:bg-gray-200">
+          :
+        </div>
+        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-[200px] bg-white border border-gray-200 rounded shadow-md hidden z-10">
+          <button class="btn-ver-tareas block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver actividades</button>
+          <button class="btn-asignar-coordinador block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-black-600">Asignar como coordinador</button>
+          <button class="btn-eliminar-asignacion block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Desasignar colaborador</button>
+        </div>
+      </div>
+    `
+
+    const popupBtn = tarjetilla.querySelector('.popup-btn');
+    const popupMenu = tarjetilla.querySelector('.popup-menu');
+    
+    popupBtn.addEventListener('click', e => {
+      e.stopPropagation();
+    
+      document.querySelectorAll('.popup-menu').forEach(menu => {
+        if (menu !== popupMenu) {
+          menu.classList.add('hidden');
+        }
+      });
+      popupMenu.classList.remove('hidden');
+      popupMenu.focus();
+    });
+    
+    popupMenu.addEventListener('blur', () => {
+      popupMenu.classList.add('hidden');
+    });
+    
+    popupMenu.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    return tarjetilla
   }
-  confTextSearch("txtBuscarColaborador", "popupColaboradores", `/${contextPath}/control/ColaboradorServlet?action=1&`, prueba)
 
   document.getElementById("btnAsignarColaborador")?.addEventListener("click", async () => {
     const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
@@ -285,30 +370,12 @@ function confVistaSolicitud() {
       }
     })
     .then(colaborador => {
-      const tarjetilla = document.createElement("div")
-      tarjetilla.dataset.id = colaborador.id
-      tarjetilla.className = "flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
-      tarjetilla.innerHTML = `
-        <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
-        </div>
-        <div class="text-gray-800 text-sm flex-1 min-w-0">
-          <div class="font-medium truncate">
-            ${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}
-          </div>
-          <div class="text-gray-500 text-sm">
-            Código: ${colaborador.codigo}
-          </div>
-        </div>
-      `
-      contenedorTarjetas.appendChild(tarjetilla)
+      contenedorTarjetas.insertBefore(crearTarjetilla(colaborador), contenedorTarjetas.firstChild)
     })
   }) 
 
 
-  return function (solicitud) {
+  return (solicitud) => {
     setTimeout(async () => {
       await fetch(`/${contextPath}/control/ColaboradorServlet?action=2&solicitudId=${solicitud.id}`)
       .then(resp => {
@@ -317,26 +384,9 @@ function confVistaSolicitud() {
         }
       })
       .then(colaboradores => {
+        solicitudActual = solicitud
         colaboradores.forEach(colaborador => {
-          const tarjetilla = document.createElement("div")
-          tarjetilla.dataset.id = colaborador.id
-          tarjetilla.className = "flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
-          tarjetilla.innerHTML = `
-            <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-              </svg>
-            </div>
-            <div class="text-gray-800 text-sm flex-1 min-w-0">
-              <div class="font-medium truncate">
-                ${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}
-              </div>
-              <div class="text-gray-500 text-sm">
-                Código: ${colaborador.codigo}
-              </div>
-            </div>
-          `
-          contenedorTarjetas.appendChild(tarjetilla)
+          contenedorTarjetas.appendChild(crearTarjetilla(colaborador))
         });
       })
     }, 0);

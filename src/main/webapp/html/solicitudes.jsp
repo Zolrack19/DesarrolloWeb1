@@ -155,11 +155,19 @@
     <div
       class="mx-3 max-h-[85vh] overflow-y-auto bg-white rounded-2xl p-6 shadow-xl transform scale-95 opacity-0 transition-all duration-300 max-w-7xl w-full"
       id="contenidoVerSolicitud">
-      <h2 class="text-2xl font-semibold text-blue-700 mb-4">Detalle de solicitud</h2>
+
+      <div class="flex gap-2 items-center mb-4">
+        <div class="cursor-pointer w-[26px] hidden" id="vistaS-atras">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-semibold text-blue-700">Detalle de solicitud</h2>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div class="space-y-3 text-sm text-gray-700">
+        <div class="space-y-3 text-sm text-gray-700" id="contenedorIzquierdoVerSolicitud">
           <div>
             <span class="font-semibold text-[0.9rem]">Tipo de solicitud:</span>
             <span id="verTipoSolicitud">Error ps</span>

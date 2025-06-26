@@ -31,12 +31,8 @@ public class AsignacionDAO {
     s.close();
   }
 
-  public Asignacion getById(AsignacionId id) {
-    Session s = HibernateUtil.getSession().openSession();
-
+  public Asignacion getById(Session s, AsignacionId id) {
     Asignacion asignacion = s.find(Asignacion.class, id);
-
-    s.close();
     return asignacion;
   }
   
@@ -156,15 +152,9 @@ public class AsignacionDAO {
     s.close();
   }
 
-  public void eliminarAsignacion(Asignacion asignacion) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void eliminarAsignacion(Session s, Asignacion asignacion) {
     s.merge(asignacion);
     s.remove(asignacion);
-
-    s.getTransaction().commit();
-    s.close();
   }
 
   public List<Asignacion> buscarPorFiltros(int colaboradorId, int solicitudId, LocalDateTime fechaInicioAtencion, LocalDateTime fechaFinAtencion) {
