@@ -195,15 +195,15 @@ function confModalForm() {
 
   document.getElementById("btnCancelarSolicitud").addEventListener("click", () => {
     cbxTipoSolicitud.value = ""
-    txtCliente.value = ""
+    txtDescripcion.value = ""
+    txtTitulo.value = ""
+
     if (txtCoordinador !== null) {
       txtCoordinador.value = ""
       txtCliente.value = ""
       txtCoordinador.disabled = false
       txtCliente.disabled = false
     }
-    txtDescripcion.value = ""
-    txtTitulo.value = ""
 
     actualizar = false
     solicitudId = null
@@ -213,15 +213,15 @@ function confModalForm() {
 
   return (solicitud) => {
     cbxTipoSolicitud.value = ""
-    txtCliente.value = ""
+    txtDescripcion.value = solicitud.descripcion
+    txtTitulo.value = solicitud.titulo
+    
     if (txtCoordinador !== null) {
       txtCoordinador.value = solicitud.coordinador
       txtCliente.value = solicitud.cliente
       txtCoordinador.disabled = true
       txtCliente.disabled = true
     }
-    txtDescripcion.value = solicitud.descripcion
-    txtTitulo.value = solicitud.titulo
 
     actualizar = true
     solicitudId = solicitud.id

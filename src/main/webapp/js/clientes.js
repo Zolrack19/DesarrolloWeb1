@@ -307,6 +307,8 @@ function confModalForm() {
           clientes.push(data.cliente)
         }
         cerrarModal("modalCliente", "contenidoCliente");
+      } else {
+        alert(data.error)
       }
     }));
   })

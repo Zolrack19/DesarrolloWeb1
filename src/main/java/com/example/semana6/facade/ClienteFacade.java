@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 
+import com.example.semana6.ValidacionNegocioException;
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.SectorEconomicoDAO;
 import com.example.semana6.dao.TipoClienteDAO;
@@ -41,9 +42,22 @@ public class ClienteFacade {
     s.beginTransaction();
     try {
       Cliente cliente = clienteCrear.toCliente();
-      cliente.setTipoCliente(tipoClienteDAO.getById(s, clienteCrear.getTipoClienteId()));
-      cliente.setTipoDocumento(tipoDocumentoDAO.getById(s, clienteCrear.getTipoDocumentoId()));
-      cliente.setSectorEconomico(sectorEconomicoDAO.getById(s, clienteCrear.getSectorEconomicoId()));
+      TipoCliente tipoCliente = tipoClienteDAO.getById(s, clienteCrear.getTipoClienteId());
+      TipoDocumento tipoDocumento = tipoDocumentoDAO.getById(s, clienteCrear.getTipoDocumentoId());
+      SectorEconomico sectorEconomico = sectorEconomicoDAO.getById(s, clienteCrear.getSectorEconomicoId());
+      if (tipoCliente == null) {
+        throw new ValidacionNegocioException("Tipo de cliente inválido");
+      }
+      if (tipoDocumento == null) {
+        throw new ValidacionNegocioException("Tipo de documento inválido");
+      }
+      if (sectorEconomico == null) {
+        throw new ValidacionNegocioException("Sector económico inválido");
+      }
+      
+      cliente.setTipoCliente(tipoCliente);
+      cliente.setTipoDocumento(tipoDocumento);
+      cliente.setSectorEconomico(sectorEconomico);
       
       clienteDAO.crearCliente(s, cliente);
       
@@ -51,21 +65,26 @@ public class ClienteFacade {
       cliente.getTelefono(), cliente.getId(), cliente.getEmail(), cliente.getTipoDocumento().getNombre(), cliente.getTipoCliente().getNombre(),
       cliente.getSectorEconomico().getNombre());
 
-      if (clienteCrear instanceof PersonaConNegocioCrear) {
-        clienteVista = (PersonaConNegocioVista) clienteVista;
-        ((PersonaConNegocioVista) clienteVista).setNombre(((PersonaConNegocioCrear) clienteCrear).getNombre());
-        ((PersonaConNegocioVista) clienteVista).setApellidoPaterno(((PersonaConNegocioCrear) clienteCrear).getApellidoPaterno());
-        ((PersonaConNegocioVista) clienteVista).setApellidoMaterno(((PersonaConNegocioCrear) clienteCrear).getApellidoMaterno());
+      if (clienteCrear instanceof PersonaConNegocioCrear personaConNegocioCrear) {
+        PersonaConNegocioVista clienteVista1 = (PersonaConNegocioVista) clienteVista;
+        
+        clienteVista1.setNombre(personaConNegocioCrear.getNombre());
+        clienteVista1.setApellidoPaterno(personaConNegocioCrear.getApellidoPaterno());
+        clienteVista1.setApellidoMaterno(personaConNegocioCrear.getApellidoMaterno());
       }
       s.getTransaction().commit();
-      s.close();
       return clienteVista;
+    } catch (ValidacionNegocioException e) {
+      s.getTransaction().rollback();
+      e.printStackTrace();
+      throw e;
     } catch (Exception e) {
       s.getTransaction().rollback();
       e.printStackTrace();
+      throw e;
+    } finally {
+      s.close();
     }
-    s.close();
-    return null;
   }
 
   public List<ClienteVista> getClientes(String[] tokens) {

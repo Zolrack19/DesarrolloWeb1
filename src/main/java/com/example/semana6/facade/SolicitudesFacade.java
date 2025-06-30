@@ -89,23 +89,32 @@ public class SolicitudesFacade {
   }
 
   public List<SolicitudVista> getSolicitudes(Object usuario, int numPag) {
-    List<SolicitudVista> solicitudes = null;
-    if (usuario instanceof ClienteDTO) { 
-      solicitudes = solicitudDAO.getByClienteId(((ColaboradorVista) usuario).getId(), (numPag - 1)*10, 10);
-    } else if (usuario instanceof ColaboradorDTO) {
-      if (((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
-        solicitudes = solicitudDAO.getRangoVista((numPag - 1)*10, 10);
-      } else {
-        List<Asignacion> asignaciones = asignacionDAO.getByIdColaborador(((ColaboradorVista) usuario).getId(), (numPag - 1)*10, 10);
-        solicitudes = new LinkedList<>();
-        for (Asignacion asignacion : asignaciones) {
-          solicitudes.add(new SolicitudVista(asignacion.getSolicitud()));
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+
+    try {
+      List<SolicitudVista> solicitudes = null;
+      if (usuario instanceof ClienteDTO) { 
+        solicitudes = solicitudDAO.getByClienteId(s, ((ClienteVista) usuario).getId(), (numPag - 1)*10, 10);
+      } else if (usuario instanceof ColaboradorDTO) {
+        if (((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+          solicitudes = solicitudDAO.getRangoVista((numPag - 1)*10, 10);
+        } else {
+          List<Asignacion> asignaciones = asignacionDAO.getByIdColaborador(s, ((ColaboradorVista) usuario).getId(), (numPag - 1)*10, 10);
+          solicitudes = new LinkedList<>();
+          for (Asignacion asignacion : asignaciones) {
+            solicitudes.add(new SolicitudVista(asignacion.getSolicitud()));
+          }
         }
       }
+      s.close();
+      if (solicitudes.size() == 0) return null;
+      return solicitudes;
+    } catch (Exception e) {
+      s.close();
+      e.printStackTrace();
     }
-
-    if (solicitudes.size() == 0) return null;
-    return solicitudes;
+    return null;
   }
 
   public SolicitudVista actualizarSolicitud(Map<String, Object> campos, Object usuario) {
