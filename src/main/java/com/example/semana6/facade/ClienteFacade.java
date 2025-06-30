@@ -2,6 +2,7 @@ package com.example.semana6.facade;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 
@@ -18,6 +19,9 @@ import com.example.semana6.dto.colaborador.ColaboradorDTO;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.modelo.Cliente;
 import com.example.semana6.modelo.PersonaConNegocio;
+import com.example.semana6.modelo.SectorEconomico;
+import com.example.semana6.modelo.TipoCliente;
+import com.example.semana6.modelo.TipoDocumento;
 import com.example.semana6.singleton.HibernateUtil;
 
 public class ClienteFacade {
@@ -55,7 +59,7 @@ public class ClienteFacade {
       }
       s.getTransaction().commit();
       s.close();
-      return clienteVista;  
+      return clienteVista;
     } catch (Exception e) {
       s.getTransaction().rollback();
       e.printStackTrace();
@@ -108,6 +112,56 @@ public class ClienteFacade {
     });
     return clientesVista;
   }
+
+  public ClienteVista actualizarCliente(Map<String, Object> campos, Object usuario) {
+    if (!(usuario instanceof ColaboradorDTO) || !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")
+    || campos.get("id") == null) {
+      return null;
+    }
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    
+    Cliente cliente = clienteDAO.getById(s, (int) campos.get("id"));
+    if (cliente == null) {
+      s.close();
+      return null;
+    }
+    cliente.setNumeroDocumento((String) campos.get("documento"));
+    cliente.setRazonSocial((String) campos.get("razon"));
+    cliente.setContrasena((String) campos.get("contrasena"));
+    cliente.setTelefono((String) campos.get("telefono"));
+    if (cliente instanceof PersonaConNegocio personaConNegocio) {
+      personaConNegocio.setNombre((String) campos.get("nombre"));
+      personaConNegocio.setApellidoPaterno((String) campos.get("apellidoP"));
+      personaConNegocio.setApellidoMaterno((String) campos.get("apellidoM"));
+    }
+    if (cliente.getTipoDocumento().getId() != Short.parseShort((String) campos.get("tipoDocumentoId"))) {
+      TipoDocumento tipoDocumento = tipoDocumentoDAO.getById(s, Short.parseShort((String) campos.get("tipoDocumentoId")));
+      if (tipoDocumento != null) {
+        cliente.setTipoDocumento(tipoDocumento);
+      }
+    }
+    if (cliente.getTipoCliente().getId() != Short.parseShort((String) campos.get("tipoClienteId"))) {
+      TipoCliente tipoCliente = tipoClienteDAO.getById(s, Short.parseShort((String) campos.get("tipoClienteId")));
+      if (tipoCliente != null) {
+        cliente.setTipoCliente(tipoCliente);
+      }
+    }
+    if (cliente.getTipoCliente().getId() != Short.parseShort((String) campos.get("tipoSectorEconomicoId"))) {
+      SectorEconomico sectorEconomico = sectorEconomicoDAO.getById(s, Short.parseShort((String) campos.get("tipoSectorEconomicoId")));
+      if (sectorEconomico != null) {
+        cliente.setSectorEconomico(sectorEconomico);
+      }
+    }
+    
+    clienteDAO.actualizarCliente(s, cliente);
+    
+    s.getTransaction().commit();
+    s.close();
+
+    return new ClienteVista(cliente);
+  }
+
 
   public void eliminarCliente(Object usuario, int clienteId) {
     Session s = HibernateUtil.getSession().openSession();

@@ -140,14 +140,8 @@ public class ClienteDAO {
     return clientes;
   }
 
-  public void actualizarCliente(Cliente cliente) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void actualizarCliente(Session s, Cliente cliente) {
     s.merge(cliente);
-
-    s.getTransaction().commit();
-    s.close();
   }
 
   public void actualizarUnAtributo(Session s, String query, int id, Object valor) {

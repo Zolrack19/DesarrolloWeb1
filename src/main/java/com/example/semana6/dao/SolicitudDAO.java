@@ -220,14 +220,8 @@ public class SolicitudDAO {
   }
 
   
-  public void actualizarSolicitud(Solicitud solicitud) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-  
+  public void actualizarSolicitud(Session s, Solicitud solicitud) {
     s.merge(solicitud);
-  
-    s.getTransaction().commit();
-    s.close();
   }
   
   public void eliminarSolicitud(Session s, Solicitud solicitud) {

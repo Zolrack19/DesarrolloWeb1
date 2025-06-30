@@ -2,6 +2,7 @@ package com.example.semana6.facade;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 
@@ -20,6 +21,7 @@ import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Asignacion;
 import com.example.semana6.modelo.Colaborador;
 import com.example.semana6.modelo.Solicitud;
+import com.example.semana6.modelo.TipoSolicitud;
 import com.example.semana6.singleton.HibernateUtil;
 import com.example.semana6.singleton.ValorDefecto;
 
@@ -104,6 +106,46 @@ public class SolicitudesFacade {
 
     if (solicitudes.size() == 0) return null;
     return solicitudes;
+  }
+
+  public SolicitudVista actualizarSolicitud(Map<String, Object> campos, Object usuario) {
+    if (campos.get("id") == null || 
+      ((usuario instanceof ColaboradorDTO) && 
+      !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador"))
+    ) {
+      return null;
+    }
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    
+    Solicitud solicitud = solicitudDAO.getById(s, (int) campos.get("id"));
+    if (solicitud == null) {
+      s.close();
+      return null;
+    } else if (usuario instanceof ClienteDTO) {
+      if (solicitud.getId() != ((ClienteVista) usuario).getId()) {
+        System.out.println("Esta solicitud no pertenece al cliente actual, no se puede modificar");
+        s.close();
+        return null;
+      }
+    }
+
+    solicitud.setTitulo((String) campos.get("titulo"));
+    solicitud.setDescripcion((String) campos.get("descripcion"));
+
+    if (solicitud.getTipoSolicitud().getId() != Short.parseShort((String) campos.get("tipoSolicitudId"))) {
+      TipoSolicitud tipoSolicitud = tipoSolicitudDAO.getById(s, Short.parseShort((String) campos.get("tipoSolicitudId")));
+      if (tipoSolicitud != null) {
+        solicitud.setTipoSolicitud(tipoSolicitud);
+      }
+    }
+    
+    solicitudDAO.actualizarSolicitud(s, solicitud);
+    
+    s.getTransaction().commit();
+    s.close();
+
+    return new SolicitudVista(solicitud);
   }
 
   public void eliminarSolicitud(Object usuario, int solicitudId) {

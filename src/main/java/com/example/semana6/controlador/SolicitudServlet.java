@@ -84,9 +84,9 @@ public class SolicitudServlet extends HttpServlet {
 
   private void crearSolicitud(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     try {
-      short tipoSolicitudId = Short.valueOf(req.getParameter("cbxTipoSolicitud"));
-      String titulo = req.getParameter("txtTitulo");
-      String descripcion = req.getParameter("txtDescripcion");
+      short tipoSolicitudId = Short.valueOf(req.getParameter("tipoSolicitudId"));
+      String titulo = req.getParameter("titulo");
+      String descripcion = req.getParameter("descripcion");
   
       HttpSession session = req.getSession(false);
       Object usuario = (session != null) ? session.getAttribute("usuario") : null;
@@ -109,6 +109,29 @@ public class SolicitudServlet extends HttpServlet {
       json.put("ok", solicitudVista != null);
       json.put("solicitud", solicitudVista);
       new ObjectMapper().writeValue(resp.getWriter(), json);  
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    req.setCharacterEncoding("UTF-8");
+    
+    HttpSession session = req.getSession(false);
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+      SolicitudVista solicitudVista = solicitudesFacade.actualizarSolicitud(campos, session.getAttribute("usuario"));
+
+      Map<String, Object> json = new HashMap<>();
+      json.put("ok", solicitudVista != null);
+      json.put("solicitud", solicitudVista);
+      resp.setContentType("application/json");
+      resp.setCharacterEncoding("UTF-8");
+      new ObjectMapper().writeValue(resp.getWriter(), json);
+
     } catch (Exception e) {
       e.printStackTrace();
     }

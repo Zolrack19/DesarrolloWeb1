@@ -50,7 +50,9 @@ export function init(datos) {
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      llenarTabla(datos)
+      datos.forEach(cliente => {
+        tbody.appendChild(crearFila(cliente))
+      });
     }
   })
 
@@ -62,16 +64,18 @@ export function init(datos) {
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      llenarTabla(datos)
-    }   
+      datos.forEach(cliente => {
+        tbody.appendChild(crearFila(cliente))
+      });
+    }
   })
 
   if (datos) {
     clientes = datos
-    llenarTabla(datos)
-  } else {
-    llenarTabla(clientes)
   }
+  clientes.forEach(cliente => {
+    tbody.appendChild(crearFila(cliente))
+  });
 
   document.getElementById("btnNuevoCliente").addEventListener("click", () => {
     if (initModalForm) {
@@ -81,10 +85,6 @@ export function init(datos) {
     abrirModal("modalCliente", "contenidoCliente")
   })
   
-  document.getElementById("btnCancelarCliente").addEventListener("click", () => {
-    cerrarModal("modalCliente", "contenidoCliente")
-  })
-
 }
 
 export function actualizar(nodo) {
@@ -119,6 +119,8 @@ function confModalForm() {
   const ocultoTel = document.getElementById("ocultoTel")
   const txtTelefono = document.getElementById("telefono")
 
+  let actualizar = false
+  let clienteId = null
 
   cbxCliente.addEventListener("change", (e) => {
     switch (e.target.value) {
@@ -142,7 +144,7 @@ function confModalForm() {
     }
   })
 
-  cbxDoc.addEventListener("change", (e) => {
+  cbxDoc.addEventListener("change", e => {
     switch (e.target.value) {
       case "1": //dni
         ocultoDoc.innerHTML = "DNI debe tener 8 dígitos"
@@ -270,11 +272,16 @@ function confModalForm() {
     const email = txtEmail.value.trim()
 
     await fetch("/" + contextPath + "/control/ClienteServlet", {
-      method: "POST",
+      method: actualizar ? "PUT" : "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": actualizar ? "application/json" : "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
+      body: actualizar ?
+      JSON.stringify({
+      "id": clienteId, tipoDocumentoId, documento, tipoClienteId, tipoSectorEconomicoId, razon, contrasena, telefono,
+      nombre, apellidoP, apellidoM 
+      })  :
+      new URLSearchParams({
         tipoDocumentoId, documento, tipoClienteId, tipoSectorEconomicoId, razon, email, contrasena, telefono,
         nombre, apellidoP, apellidoM
       }),
@@ -282,24 +289,46 @@ function confModalForm() {
     .then(res => res.json()
     .then(data => {
       if (data.ok) {
-        const cliente = []
-        cliente.push(data.cliente)
-        llenarTabla(cliente, false)
-        if (clientes.length > 10) {
-          const ultimaFila = tbody.lastElementChild
-          const index = clientes.findIndex(s => s.id == ultimaFila.dataset.id);
-          if (index !== -1) {
-            clientes.splice(index, 1);
+        if (actualizar) {
+          const fila = tbody.querySelector(`tr[data-id='${clienteId}']`)
+          fila.replaceWith(crearFila(data.cliente))
+          const index = clientes.findIndex(s => s.id == clienteId);
+          clientes[index] = data.cliente
+        } else {
+          tbody.insertBefore(crearFila(data.cliente), tbody.firstChild)
+          if (clientes.length > 10) {
+            const ultimaFila = tbody.lastElementChild
+            const index = clientes.findIndex(s => s.id == ultimaFila.dataset.id);
+            if (index !== -1) {
+              clientes.splice(index, 1);
+            }
+            tbody.lastElementChild.remove()
           }
-          
-          tbody.lastElementChild.remove()
+          clientes.push(data.cliente)
         }
-        clientes.push(data.cliente)
-
         cerrarModal("modalCliente", "contenidoCliente");
       }
     }));
   })
+
+  document.getElementById("btnCancelarCliente").addEventListener("click", () => {
+    cbxDoc.value = ""
+    cbxCliente.value = ""
+    cbxSectorEco.value = ""
+    txtDocumento.value = ""
+    txtRazon.value = ""
+    txtTelefono.value = ""
+    txtEmail.disabled = false
+    txtEmail.value = ""
+    txtNombre.value = ""
+    txtApellidoP.value = ""
+    txtApellidoM.value = ""
+
+    actualizar = false
+    clienteId = null
+    cerrarModal("modalCliente", "contenidoCliente")
+  })
+
   return (cliente) => {
     cbxDoc.value = ""
     cbxCliente.value = ""
@@ -308,11 +337,15 @@ function confModalForm() {
     txtRazon.value = cliente.razonSocial
     txtTelefono.value = cliente.telefono
     txtEmail.value = cliente.email
+    txtEmail.disabled = true
+
     if (cliente.tipoCliente !== "Empresa") {
       txtNombre.value = cliente.nombre
       txtApellidoP.value = cliente.apellidoPaterno
       txtApellidoM.value = cliente.apellidoMaterno
     }
+    actualizar = true
+    clienteId = cliente.id
   }
 }
 
@@ -337,57 +370,50 @@ function cerrarModal(idModal, idContenido) {
   }, 200);
 }
 
-function llenarTabla(clientes, append = true) {
-  clientes.forEach((cliente) => {
-    const tr = document.createElement("tr");
-    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
-    tr.dataset.id = cliente.id
+function crearFila(cliente) {
+  const tr = document.createElement("tr");
+  tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
+  tr.dataset.id = cliente.id
 
-    tr.innerHTML = `
-      <td class="p-2">${cliente.razonSocial}</td>
-      <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
-      <td class="p-2">${cliente.tipoCliente}</td>
-      <td class="p-2">${cliente.tipoSectorEconomico}</td>
-      <td class="p-2">${cliente.telefono}</td>
-      <td class="p-2 text-right">
-        <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
-          ⋮
-        </button>
-        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
-          <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
-          <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
-        </div>
-      </td>
-    `;
+  tr.innerHTML = `
+    <td class="p-2">${cliente.razonSocial}</td>
+    <td class="p-2"><strong>${cliente.tipoDocumento}</strong> ${cliente.numeroDocumento}</td>
+    <td class="p-2">${cliente.tipoCliente}</td>
+    <td class="p-2">${cliente.tipoSectorEconomico}</td>
+    <td class="p-2">${cliente.telefono}</td>
+    <td class="p-2 text-right">
+      <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+        ⋮
+      </button>
+      <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
+        <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
+        <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+      </div>
+    </td>
+  `;
 
-    const popupBtn = tr.querySelector('.popup-btn');
-    const popupMenu = tr.querySelector('.popup-menu');
-    
-    popupBtn.addEventListener('click', e => {
-      e.stopPropagation();
-    
-      document.querySelectorAll('.popup-menu').forEach(menu => {
-        if (menu !== popupMenu) {
-          menu.classList.add('hidden');
-        }
-      });
-      popupMenu.classList.remove('hidden');
-      popupMenu.focus();
+  const popupBtn = tr.querySelector('.popup-btn');
+  const popupMenu = tr.querySelector('.popup-menu');
+  
+  popupBtn.addEventListener('click', e => {
+    e.stopPropagation();
+  
+    document.querySelectorAll('.popup-menu').forEach(menu => {
+      if (menu !== popupMenu) {
+        menu.classList.add('hidden');
+      }
     });
-    
-    popupMenu.addEventListener('blur', () => {
-      popupMenu.classList.add('hidden');
-    });
-    
-    popupMenu.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-    });
-
-
-    if (append) {
-      tbody.appendChild(tr);
-    } else {
-      tbody.insertBefore(tr, tbody.firstChild)
-    }
+    popupMenu.classList.remove('hidden');
+    popupMenu.focus();
   });
+  
+  popupMenu.addEventListener('blur', () => {
+    popupMenu.classList.add('hidden');
+  });
+  
+  popupMenu.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+  });
+
+  return tr
 }

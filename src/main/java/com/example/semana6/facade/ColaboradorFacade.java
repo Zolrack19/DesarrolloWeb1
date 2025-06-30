@@ -2,6 +2,7 @@ package com.example.semana6.facade;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 
@@ -106,6 +107,38 @@ public class ColaboradorFacade {
 
     s.close();
     return null;
+  }
+
+  public ColaboradorVista actualizarColaborador(Map<String, Object> campos, Object usuario) {
+    if (!(usuario instanceof ColaboradorDTO) || !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")
+    || campos.get("id") == null) {
+      return null;
+    }
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    
+    Colaborador colaborador = colaboradorDAO.getById(s, (int) campos.get("id"));
+    if (colaborador == null) {
+      s.close();
+      return null;
+    }
+    colaborador.setNombre((String) campos.get("nombre"));
+    colaborador.setApellidoPaterno((String) campos.get("apellidoP"));
+    colaborador.setApellidoMaterno((String) campos.get("apellidoM"));
+    colaborador.setNumeroDocumento((String) campos.get("documento"));
+    if (colaborador.getTipoDocumento().getId() != Short.parseShort((String) campos.get("tipoDocumentoId"))) {
+      colaborador.setTipoDocumento(tipoDocumentoDAO.getById(s, Short.parseShort((String) campos.get("tipoDocumentoId"))));
+    }
+    if (colaborador.getRolColaborador().getId() != Short.parseShort((String) campos.get("rolColaboradorId"))) {
+      colaborador.setRolColaborador(rolColaboradorDAO.getById(Short.parseShort((String) campos.get("rolColaboradorId"))));
+    }
+
+    colaboradorDAO.actualizarColaborador(s, colaborador);
+    
+    s.getTransaction().commit();
+    s.close();
+
+    return new ColaboradorVista(colaborador);
   }
 
   public void eliminarColaborador(Object usuario, int colaboradorId) {

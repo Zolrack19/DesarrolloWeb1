@@ -96,6 +96,30 @@ public class ColaboradorServlet extends HttpServlet {
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    req.setCharacterEncoding("UTF-8");
+    
+    HttpSession session = req.getSession(false);
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+      ColaboradorVista colaboradorVista = colaboradorFacade.actualizarColaborador(campos, session.getAttribute("usuario"));
+
+      Map<String, Object> json = new HashMap<>();
+      json.put("ok", colaboradorVista != null);
+      json.put("colaborador", colaboradorVista);
+      resp.setContentType("application/json");
+      resp.setCharacterEncoding("UTF-8");
+      new ObjectMapper().writeValue(resp.getWriter(), json);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     HttpSession session = req.getSession(false);

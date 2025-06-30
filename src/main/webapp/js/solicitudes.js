@@ -9,6 +9,7 @@ export function init(datos) {
   const pagFin = document.getElementById("pagFin")
   tbody = document.getElementById("tbodySolicitudes")
   let rellenarVista = null
+  let rellenarModal = null
   tbody.addEventListener("click", async (e) => {
     if (e.target.classList.contains("btn-ver-detalles")) {
       const fila = e.target.closest("tr");
@@ -16,8 +17,18 @@ export function init(datos) {
       if (!rellenarVista) {
         rellenarVista = confVistaSolicitud()
       }
-      rellenarVista(solicitudes.find((solicitud) => solicitud.id == fila.dataset.id))
+      rellenarVista(solicitudes.find(s => s.id == fila.dataset.id))
       abrirModal("modalVerSolicitud", "contenidoVerSolicitud")
+
+    } else if (e.target.classList.contains("btn-editar")) {
+      const fila = e.target.closest("tr");
+      if (!fila) return;
+      if (initModalForm) {
+        rellenarModal = confModalForm()
+        initModalForm = false
+      }
+      rellenarModal(solicitudes.find(s => s.id == fila.dataset.id))
+      abrirModal("modalSolicitud", "contenidoSolicitud")
     } else if (e.target.classList.contains("btn-eliminar")) {
       const fila = e.target.closest("tr");
       if (!fila || !confirm("¿Está seguro que quiere elimminar esta solicitud?")) return;
@@ -48,7 +59,9 @@ export function init(datos) {
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      llenarTabla(datos)
+      datos.forEach(solicitud => {
+        tbody.appendChild(crearFila(solicitud));
+      });
     }
   })
 
@@ -61,25 +74,26 @@ export function init(datos) {
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      llenarTabla(datos)
+      datos.forEach(solicitud => {
+        tbody.appendChild(crearFila(solicitud));
+      });
     }   
   })
 
   if (datos) {
     solicitudes = datos
-    llenarTabla(datos)
-  } else {
-    llenarTabla(solicitudes)
   }
+  solicitudes.forEach(solicitud => {
+    tbody.appendChild(crearFila(solicitud));
+  });
   
   document.getElementById("btnNuevaSolicitud").addEventListener("click", () => {
     if (initModalForm) {
-      confModalForm()
+      rellenarModal = confModalForm()
       initModalForm = false
     }
     abrirModal("modalSolicitud", "contenidoSolicitud")}
   )
-  document.getElementById("btnCancelarSolicitud").addEventListener("click", () => {cerrarModal("modalSolicitud", "contenidoSolicitud")})
   
 }
 
@@ -93,68 +107,125 @@ export function actualizar(nodo) {
 
 
 function confModalForm() {
-  confTextSearch("txtCoordinador", "popupCoordinador", `/${contextPath}/control/ColaboradorServlet?action=1&`, (popUp, colaboradores) => {
-    popUp.innerHTML = ""
+  let actualizar = false
+  let solicitudId = null
+
+  const cbxTipoSolicitud = document.getElementById("cbxTipoSolicitud")
+  const txtTitulo = document.getElementById("txtTitulo")
+  const txtDescripcion = document.getElementById("txtDescripcion")
+  
+  const txtCoordinador = document.getElementById("txtCoordinador")
+  const txtCliente = document.getElementById("txtCliente")
+
+  if (txtCoordinador !== null) {
+    const popupCoordinador = document.getElementById("popupCoordinador")
+    const popupCliente = document.getElementById("popupCliente")
+
+    confTextSearch(txtCoordinador, popupCoordinador, `/${contextPath}/control/ColaboradorServlet?action=1&`, (colaboradores) => {
+    popupCoordinador.innerHTML = ""
     colaboradores.forEach(colaborador => {
       const li = document.createElement("li");
       li.tabIndex = 0
       li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
       li.dataset.id = colaborador.id
       li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
-      popUp.appendChild(li);
+      popupCoordinador.appendChild(li);
     });
-    popUp.classList.remove("hidden")
-  })
-  confTextSearch("txtCliente", "popupCliente", `/${contextPath}/control/ClienteServlet?action=1&`, (popUp, clientes) => {
-    popUp.innerHTML = ""
+    popupCoordinador.classList.remove("hidden")
+    })
+
+    confTextSearch(txtCliente, popupCliente, `/${contextPath}/control/ClienteServlet?action=1&`, (clientes) => {
+    popupCliente.innerHTML = ""
     clientes.forEach(cliente => {
       const li = document.createElement("li");
       li.tabIndex = 0
       li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
       li.dataset.id = cliente.id
       li.innerHTML = `${cliente.razonSocial}`
-      popUp.appendChild(li);
+      popupCliente.appendChild(li);
     });
-    popUp.classList.remove("hidden")
-  })
+    popupCliente.classList.remove("hidden")
+    })
+  }
 
   document.getElementById("formSolicitud").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const formData = new FormData(document.getElementById("formSolicitud"))
+    const tipoSolicitudId = cbxTipoSolicitud.value
+    const titulo = txtTitulo.value.trim()
+    const descripcion = txtDescripcion.value.trim()
+    const campos = {"id": solicitudId, tipoSolicitudId, titulo, descripcion}
 
-    const txtCoordinador = document.getElementById("txtCoordinador")
     if (txtCoordinador !== null) {
       const txtCliente = document.getElementById("txtCliente")
-      formData.set("coordinadorId", txtCoordinador.dataset.id)
-      formData.set("clienteId", txtCliente.dataset.id)
+      campos.coordinadorId = txtCoordinador.dataset.id
+      campos.clienteId = txtCliente.dataset.id
     };
     await fetch(`/${contextPath}/control/SolicitudServlet?action=1`, {
-      method: "POST",
+      method: actualizar ? "PUT" : "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": actualizar ? "application/json" : "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams(formData)
+      body: actualizar ? JSON.stringify(campos) : new URLSearchParams(campos)
     })
     .then(resp => resp.json()
     .then(data => {
       if (data.ok) {
-        const solicitud = []
-        solicitud.push(data.solicitud)
-        llenarTabla(solicitud, false)
-        if (solicitudes.length > 10) {
-          const ultimaFila = tbody.lastElementChild
-          const index = solicitudes.findIndex(s => s.id == ultimaFila.dataset.id);
-          if (index !== -1) {
-            solicitudes.splice(index, 1);
+        if (actualizar) {
+          const fila = tbody.querySelector(`tr[data-id='${solicitudId}']`)
+          fila.replaceWith(crearFila(data.solicitud))
+          const index = solicitudes.findIndex(s => s.id == solicitudId);
+          solicitudes[index] = data.solicitud
+        } else {
+          tbody.insertBefore(crearFila(data.solicitud), tbody.firstChild)
+          if (solicitudes.length > 10) {
+            const ultimaFila = tbody.lastElementChild
+            const index = solicitudes.findIndex(s => s.id == ultimaFila.dataset.id);
+            if (index !== -1) {
+              solicitudes.splice(index, 1);
+            }
+            
+            tbody.lastElementChild.remove()
           }
-          
-          tbody.lastElementChild.remove()
+          solicitudes.push(data.solicitud)
         }
-        solicitudes.push(data.solicitud)
         cerrarModal("modalSolicitud", "contenidoSolicitud");
       }
     }));
   });
+
+  document.getElementById("btnCancelarSolicitud").addEventListener("click", () => {
+    cbxTipoSolicitud.value = ""
+    txtCliente.value = ""
+    if (txtCoordinador !== null) {
+      txtCoordinador.value = ""
+      txtCliente.value = ""
+      txtCoordinador.disabled = false
+      txtCliente.disabled = false
+    }
+    txtDescripcion.value = ""
+    txtTitulo.value = ""
+
+    actualizar = false
+    solicitudId = null
+
+    cerrarModal("modalSolicitud", "contenidoSolicitud")
+  })
+
+  return (solicitud) => {
+    cbxTipoSolicitud.value = ""
+    txtCliente.value = ""
+    if (txtCoordinador !== null) {
+      txtCoordinador.value = solicitud.coordinador
+      txtCliente.value = solicitud.cliente
+      txtCoordinador.disabled = true
+      txtCliente.disabled = true
+    }
+    txtDescripcion.value = solicitud.descripcion
+    txtTitulo.value = solicitud.titulo
+
+    actualizar = true
+    solicitudId = solicitud.id
+  }
 }
 
 function filtrarTokens(tokens) {
@@ -169,12 +240,9 @@ function filtrarTokens(tokens) {
   return params
 }
 
-function confTextSearch(idText, idPopup, fetchURL, funcPopup) {
-  const txtBuscar = document.getElementById(idText)
-  if (txtBuscar === null) return;
-  const popUp = document.getElementById(idPopup)
+function confTextSearch(txtBuscar, popUp, fetchURL, funcPopup) {
 
-  let taskColaborador = null
+  let task = null
 
   popUp.addEventListener('click', e => {
     if (e.target.tagName === 'LI') {
@@ -212,8 +280,8 @@ function confTextSearch(idText, idPopup, fetchURL, funcPopup) {
   })
 
   txtBuscar.addEventListener("input", e => {
-    clearTimeout(taskColaborador)
-    taskColaborador = setTimeout(async () => {
+    clearTimeout(task)
+    task = setTimeout(async () => {
       const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
       const params = filtrarTokens(tokens)
       if (!params || params.size === 0) return
@@ -229,7 +297,7 @@ function confTextSearch(idText, idPopup, fetchURL, funcPopup) {
           popUp.classList.add("hidden")
           return
         }
-        funcPopup(popUp, colaboradores)
+        funcPopup(colaboradores)
       })
     }, 400);
   })
@@ -282,18 +350,23 @@ function confVistaSolicitud() {
     cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
   })
 
-  confTextSearch("txtBuscarColaborador", "popupColaboradores", `/${contextPath}/control/ColaboradorServlet?action=1&`, (popUp, colaboradores) => {
-    popUp.innerHTML = ""
-    colaboradores.forEach(colaborador => {
-      const li = document.createElement("li");
-      li.tabIndex = 0
-      li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
-      li.dataset.id = colaborador.id
-      li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
-      popUp.appendChild(li);
-    });
-    popUp.classList.remove("hidden")
-  })
+  const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
+  if (txtBuscarColaborador !== null) {
+    const popupColaboradores = document.getElementById("popupColaboradores")
+  
+    confTextSearch(txtBuscarColaborador, popupColaboradores, `/${contextPath}/control/ColaboradorServlet?action=1&`, (colaboradores) => {
+      popupColaboradores.innerHTML = ""
+      colaboradores.forEach(colaborador => {
+        const li = document.createElement("li");
+        li.tabIndex = 0
+        li.className = "px-4 py-2 hover:bg-blue-100 focus:bg-blue-200 focus:outline-none cursor-pointer";
+        li.dataset.id = colaborador.id
+        li.innerHTML = `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`
+        popupColaboradores.appendChild(li);
+      });
+      popupColaboradores.classList.remove("hidden")
+    })
+  }
 
   const crearTarjetilla = (colaborador) => {
     const tarjetilla = document.createElement("div")
@@ -421,73 +494,67 @@ function cerrarModal(idModal, idContenido) {
   }, 300);
 }
 
-function llenarTabla(solicitudes, append = true) {
-  solicitudes.forEach((solicitud) => {
-    const tr = document.createElement("tr");
-    tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
-    tr.dataset.id = solicitud.id
+function crearFila(solicitud) {
+  const tr = document.createElement("tr");
+  tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
+  tr.dataset.id = solicitud.id
 
-    tr.innerHTML = `
-      <td class="p-2">${solicitud.id}</td>
-      <td class="p-2">${solicitud.titulo}</td>
-      <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
-      ${window.usuario?.rolColaborador == 'Administrador' ?
-        `<td class="p-2">${solicitud.cliente ?? "--- --- ---"}</td>`
-        : 
-        ""
-      }
-      <td class="p-2">${solicitud.fechaRegistro}</td>
-      <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
-      <td class="p-2">
-        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-          solicitud.estadoSolicitud === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' :
-          solicitud.estadoSolicitud === 'En proceso' ? 'bg-blue-100 text-blue-700' :
-          solicitud.estadoSolicitud === 'Asignada' ? 'bg-indigo-100 text-indigo-700' :
-          solicitud.estadoSolicitud === 'Atendida' ? 'bg-green-100 text-green-700' :
-          'bg-gray-100 text-gray-700'
-        }">
-          ${solicitud.estadoSolicitud}
-        </span>
-      </td>
-      <td class="p-2 text-right">
-        <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
-          ⋮
-        </button>
-        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
-          <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
-          <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
-        </div>
-      </td>
-    `;
-
-    const popupBtn = tr.querySelector('.popup-btn');
-    const popupMenu = tr.querySelector('.popup-menu');
-    
-    popupBtn.addEventListener('click', e => {
-      e.stopPropagation();
-    
-      document.querySelectorAll('.popup-menu').forEach(menu => {
-        if (menu !== popupMenu) {
-          menu.classList.add('hidden');
-        }
-      });
-      popupMenu.classList.remove('hidden');
-      popupMenu.focus();
-    });
-    
-    popupMenu.addEventListener('blur', () => {
-      popupMenu.classList.add('hidden');
-    });
-    
-    popupMenu.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-    });
-
-    if (append) {
-      tbody.appendChild(tr);
-    } else {
-      tbody.insertBefore(tr, tbody.firstChild)
+  tr.innerHTML = `
+    <td class="p-2">${solicitud.id}</td>
+    <td class="p-2">${solicitud.titulo}</td>
+    <td class="p-2">${solicitud.coordinador ?? "--- --- ---"}</td>
+    ${window.usuario?.rolColaborador == 'Administrador' ?
+      `<td class="p-2">${solicitud.cliente ?? "--- --- ---"}</td>`
+      : 
+      ""
     }
+    <td class="p-2">${solicitud.fechaRegistro}</td>
+    <td class="p-2">${solicitud.fechaFinalizacion ?? "-- -- --"}</td>
+    <td class="p-2">
+      <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+        solicitud.estadoSolicitud === 'Pendiente' ? 'bg-yellow-100 text-yellow-700' :
+        solicitud.estadoSolicitud === 'En proceso' ? 'bg-blue-100 text-blue-700' :
+        solicitud.estadoSolicitud === 'Asignada' ? 'bg-indigo-100 text-indigo-700' :
+        solicitud.estadoSolicitud === 'Atendida' ? 'bg-green-100 text-green-700' :
+        'bg-gray-100 text-gray-700'
+      }">
+        ${solicitud.estadoSolicitud}
+      </span>
+    </td>
+    <td class="p-2 text-right">
+      <button class="popup-btn cursor-pointer w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100">
+        ⋮
+      </button>
+      <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
+        <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
+        <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
+        <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+      </div>
+    </td>
+  `;
 
+  const popupBtn = tr.querySelector('.popup-btn');
+  const popupMenu = tr.querySelector('.popup-menu');
+  
+  popupBtn.addEventListener('click', e => {
+    e.stopPropagation();
+  
+    document.querySelectorAll('.popup-menu').forEach(menu => {
+      if (menu !== popupMenu) {
+        menu.classList.add('hidden');
+      }
+    });
+    popupMenu.classList.remove('hidden');
+    popupMenu.focus();
   });
+  
+  popupMenu.addEventListener('blur', () => {
+    popupMenu.classList.add('hidden');
+  });
+  
+  popupMenu.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+  });
+
+  return tr
 }

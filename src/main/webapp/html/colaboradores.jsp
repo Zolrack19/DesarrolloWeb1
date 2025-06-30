@@ -66,7 +66,7 @@
         <!-- Número de documento -->
         <div>
           <label for="documento" class="block text-sm font-medium text-gray-700">N° Documento</label>
-          <input type="text" id="documento" name="documento"
+          <input type="text" id="txtDocumento" name="documento" autocomplete="off"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
           <p id="ocultoDoc" class="hidden text-red-600 text-sm">h</p>
@@ -75,7 +75,7 @@
         <!-- Tipo de documento -->
         <div>
           <label for="tipoDocumentoId" class="block text-sm font-medium text-gray-700">Tipo de Documento</label>
-          <select id="tipoDocumentoId" name="tipoDocumentoId"
+          <select id="cbxTipoDocumento" name="tipoDocumentoId"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required>
             <option value="">Seleccione una alternativa</option>
@@ -89,7 +89,7 @@
         <!-- Nombre -->
         <div>
           <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-          <input type="text" id="nombre" name="nombre"
+          <input type="text" id="txtNombre" name="nombre" autocomplete="off"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
         </div>
@@ -97,7 +97,7 @@
         <!-- Apellido Paterno -->
         <div>
           <label for="apellidoP" class="block text-sm font-medium text-gray-700">Apellido Paterno</label>
-          <input type="text" id="apellidoP" name="apellidoP"
+          <input type="text" id="txtApellidoP" name="apellidoP" autocomplete="off"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
         </div>
@@ -105,7 +105,7 @@
         <!-- Apellido Materno -->
         <div>
           <label for="apellidoM" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
-          <input type="text" id="apellidoM" name="apellidoM"
+          <input type="text" id="txtApellidoM" name="apellidoM" autocomplete="off"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required />
         </div>
@@ -113,7 +113,7 @@
         <!-- Rol del colaborador -->
         <div>
           <label for="rolColaboradorId" class="block text-sm font-medium text-gray-700">Rol</label>
-          <select id="rolColaboradorId" name="rolColaboradorId"
+          <select id="cbxRolColaborador" name="rolColaboradorId"
             class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required>
             <option value="">Seleccione un rol</option>

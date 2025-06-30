@@ -76,7 +76,7 @@
           </div>
           <div>
             <label class="text-sm font-medium text-gray-700" for="documento" class="block text-sm font-medium text-gray-700">N° de documento</label>
-            <input type="text" id="documento" name="documento" required
+            <input autocomplete="off" type="text" id="documento" name="documento" required
               class="mt-1 w-full px-4 py-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <p id="ocultoDoc" class="hidden text-red-600 text-sm">DNI debe tener 8 dígitos</p>
           </div>
@@ -106,7 +106,7 @@
   
         <div>
           <label for="razon" class="block text-sm font-medium text-gray-700">Razón social</label>
-          <input type="text" id="razon" name="razon" required
+          <input autocomplete="off" type="text" id="razon" name="razon" required
             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
   
@@ -114,19 +114,19 @@
   
           <div id="divNombre" class="hidden">
             <label for="nombre" class="block text-sm font-medium text-gray-700">Nombres</label>
-            <input type="text" id="nombre" name="nombre"
+            <input autocomplete="off" type="text" id="nombre" name="nombre"
               class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
   
           <div id="divApellidoP" class="hidden">
             <label for="apellidoPaterno" class="block text-sm font-medium text-gray-700">Apellido paterno</label>
-            <input type="text" id="apellidoPaterno" name="apellidoPaterno"
+            <input autocomplete="off" type="text" id="apellidoPaterno" name="apellidoPaterno"
               class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
   
           <div id="divApellidoM" class="hidden">
             <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">Apellido materno</label>
-            <input type="text" id="apellidoMaterno" name="apellidoMaterno"
+            <input autocomplete="off" type="text" id="apellidoMaterno" name="apellidoMaterno"
               class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
   
