@@ -109,10 +109,10 @@ public class ColaboradorFacade {
         if (coordinadorId != -1 && coordinadorId == colaborador.getId()) {
           colaboradorVistas.addFirst(new ColaboradorVista(colaborador));
           coordinadorId = 0;
+          continue;
         }
         colaboradorVistas.add(new ColaboradorVista(colaborador));
       }
-      s.close();
       return colaboradorVistas;
     } catch (Exception e) {
       e.printStackTrace();

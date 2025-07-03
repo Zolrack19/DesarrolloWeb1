@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter//
+@Setter
 @Entity(name = "actividad_realizada")
 public class ActividadRealizada {
 

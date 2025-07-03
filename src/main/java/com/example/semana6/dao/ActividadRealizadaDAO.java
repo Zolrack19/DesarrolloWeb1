@@ -35,7 +35,7 @@ public class ActividadRealizadaDAO {
   public List<ActividadRealizada> getByIdSolicitud(int idSolicitud, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
 
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada a where a.solicitud.id = :id order by a.id", ActividadRealizada.class)
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.solicitud.id = :id order by a.id", ActividadRealizada.class)
     .setParameter("id", idSolicitud)
     .setFirstResult(inicio)
     .setMaxResults(fin)
@@ -48,7 +48,7 @@ public class ActividadRealizadaDAO {
   public List<ActividadRealizada> getByIdColaborador(int idColaborador, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
 
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada a where a.colaborador.id = :id order by a.id", ActividadRealizada.class)
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.colaborador.id = :id order by a.id", ActividadRealizada.class)
     .setParameter("id", idColaborador)
     .setFirstResult(inicio)
     .setMaxResults(fin)
@@ -58,24 +58,28 @@ public class ActividadRealizadaDAO {
     return actividades;
   }
 
-  public List<ActividadRealizada> getByIdColaboradorSolicitud(int idColaborador, int idSolicitud, int inicio, int fin) {
-    Session s =  HibernateUtil.getSession().openSession();
+  public List<ActividadRealizada> getByIdColaboradorSolicitud(Session s, int idColaborador, int idSolicitud) {
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.colaborador.id = :idC and a.solicitud.id = :idS order by a.id", ActividadRealizada.class)
+    .setParameter("idC", idColaborador)
+    .setParameter("idS", idSolicitud)
+    .list();
+    return actividades;
+  }
 
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada a where a.colaborador.id = :idC and a.solicitud.id = :idS order by a.id", ActividadRealizada.class)
+  public List<ActividadRealizada> getByIdColaboradorSolicitud(Session s, int idColaborador, int idSolicitud, int inicio, int fin) {
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.colaborador.id = :idC and a.solicitud.id = :idS order by a.id", ActividadRealizada.class)
     .setParameter("idC", idColaborador)
     .setParameter("idS", idSolicitud)
     .setFirstResult(inicio)
     .setMaxResults(fin)
     .list();
-
-    s.close();
     return actividades;
   }
 
   public List<ActividadRealizada> getRango(int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
 
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada order by id", ActividadRealizada.class)
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada order by id", ActividadRealizada.class)
     .setFirstResult(inicio)
     .setMaxResults(fin)
     .list();
@@ -87,7 +91,7 @@ public class ActividadRealizadaDAO {
   public List<ActividadRealizada> getRangoByFechaEmision(LocalDateTime fecha, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada a where a.fechaEmision = :fecha order by a.id"
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.fechaEmision = :fecha order by a.id"
     , ActividadRealizada.class)
     .setParameter("fecha", fecha)
     .setFirstResult(inicio)
@@ -101,7 +105,7 @@ public class ActividadRealizadaDAO {
   public List<ActividadRealizada> getRangoByFechaEmision(LocalDateTime fechaInicio, LocalDateTime fechaFin, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada a where a.fechaEmision between :inicio and :fin order by a.id"
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.fechaEmision between :inicio and :fin order by a.id"
     , ActividadRealizada.class)
     .setParameter("inicio", fechaInicio)
     .setParameter("fin", fechaFin)
@@ -116,7 +120,7 @@ public class ActividadRealizadaDAO {
   public List<ActividadRealizada> getRangoByFechaEmision(long id, LocalDateTime fechaInicio, LocalDateTime fechaFin, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     
-    List<ActividadRealizada> actividades = s.createQuery("from ActividadRealizada a where a.id = :id and a.fechaEmision between :inicio and :fin order by a.id"
+    List<ActividadRealizada> actividades = s.createQuery("from actividad_realizada a where a.id = :id and a.fechaEmision between :inicio and :fin order by a.id"
     , ActividadRealizada.class)
     .setParameter("id", id)
     .setParameter("inicio", fechaInicio)

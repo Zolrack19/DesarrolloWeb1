@@ -352,7 +352,9 @@ function confVistaSolicitud() {
       }
     }).then(data => {
       if (data.ok) {
-        console.log(data.actividad);
+        contenedorTarjetas2.insertBefore(crearTarjetilla(data.actividad.id, data.actividad.fechaEmision, `Id: ${data.actividad.id}`, false),
+          contenedorTarjetas2.firstChild
+        )
       } else {
         alert(data.error)
       }
@@ -368,23 +370,118 @@ function confVistaSolicitud() {
     caraFormActividad.classList.add("hidden")
     caraInfoSolicitud.classList.remove("hidden")
     miniFormDerecho.classList.remove("hidden")
+    txtDescripcionInforme.value = ""
+    txtHoraInicio.value = ""
+    txtHoraFin.value = ""
+    contenedorTarjetas2.innerHTML = "" // Para una rápida implementación
   })
 
+  const crearTarjetilla = (id, textoPrincipal, textSecundario, conPopUp) => {
+    const tarjetilla = document.createElement("div")
+    tarjetilla.dataset.id = id
+    tarjetilla.className = "tarjetilla flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
+    tarjetilla.innerHTML = `
+      <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
+        ${conPopUp ? `
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        `
+        : `
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+          </svg>
+        `
+        }
+        
+      </div>
+      <div class="text-gray-800 text-sm flex-1 min-w-0">
+        <div class="font-medium truncate">
+          ${textoPrincipal}
+        </div>
+        <div class="text-gray-500 text-sm">
+          ${textSecundario}
+        </div>
+      </div>
+      ${!conPopUp ? "" : 
+      `
+        <div class="relative">
+          <div class="popup-btn text-center w-5 cursor-pointer hover:bg-gray-200">
+            ⋮
+          </div>
+          <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-[200px] bg-white border border-gray-200 rounded shadow-md hidden z-10">
+            <button class="btn-ver-tareas block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver actividades</button>
+            <button class="btn-asignar-coordinador block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-black-600">Asignar como coordinador</button>
+            <button class="btn-eliminar-asignacion block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Desasignar colaborador</button>
+          </div>
+        </div>
+      `
+      }
+    `
+    if (!conPopUp) return tarjetilla
+
+    const popupBtn = tarjetilla.querySelector('.popup-btn');
+    const popupMenu = tarjetilla.querySelector('.popup-menu');
+    
+    popupBtn.addEventListener('click', e => {
+      e.stopPropagation();
+    
+      document.querySelectorAll('.popup-menu').forEach(menu => {
+        if (menu !== popupMenu) {
+          menu.classList.add('hidden');
+        }
+      });
+      popupMenu.classList.remove('hidden');
+      popupMenu.focus();
+    });
+    
+    popupMenu.addEventListener('blur', () => {
+      popupMenu.classList.add('hidden');
+    });
+    
+    popupMenu.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    return tarjetilla
+  }
 
   contenedorTarjetas.addEventListener("click", async (e) => {
     if (e.target.classList.contains("btn-ver-tareas")) {
       const tarjeta = e.target.closest("div.tarjetilla")
       if (!tarjeta) return;
 
-      caraInfoSolicitud.classList.add("hidden")
-      miniFormDerecho.classList.add("hidden")
-      vistaAtras.classList.remove("hidden")
-      caraFormActividad.classList.remove("hidden")
-      
-      colaboradorSeleccionadoId = tarjeta.dataset.id
+      setTimeout(async () => {
+        await fetch(`/${contextPath}/control/ActividadRealizadaServlet?solicitudId=${solicitudActual.id}&colaboradorId=${tarjeta.dataset.id}`)
+        .then(resp => {
+          if (resp.ok) {
+            return resp.json()
+          }
+        })
+        .then(data => {
 
-      tituloContenedorTarjetas.innerHTML = "Actividades realizadas"
-      contenedorTarjetas.replaceWith(contenedorTarjetas2)
+          if (data.ok) {
+            data.actividades.forEach(actividad => {
+              contenedorTarjetas2.appendChild(crearTarjetilla(actividad.id, actividad.fechaEmision, `Id: ${actividad.id}`, false))
+            });
+  
+            caraInfoSolicitud.classList.add("hidden")
+            miniFormDerecho.classList.add("hidden")
+            vistaAtras.classList.remove("hidden")
+            caraFormActividad.classList.remove("hidden")
+            
+            colaboradorSeleccionadoId = tarjeta.dataset.id
+      
+            tituloContenedorTarjetas.innerHTML = "Actividades realizadas"
+            contenedorTarjetas.replaceWith(contenedorTarjetas2)
+          } else {
+            alert(data.error)
+          }
+
+        })
+      }, 0);
+
+
 
     } else if (e.target.classList.contains("btn-asignar-coordinador")) {
       const tarjeta = e.target.closest("div.tarjetilla")
@@ -460,62 +557,6 @@ function confVistaSolicitud() {
     })
   }
 
-  const crearTarjetilla = (colaborador) => {
-    const tarjetilla = document.createElement("div")
-    tarjetilla.dataset.id = colaborador.id
-    tarjetilla.className = "tarjetilla flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
-    tarjetilla.innerHTML = `
-      <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-2">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-        </svg>
-      </div>
-      <div class="text-gray-800 text-sm flex-1 min-w-0">
-        <div class="font-medium truncate">
-          ${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}
-        </div>
-        <div class="text-gray-500 text-sm">
-          Código: ${colaborador.codigo}
-        </div>
-      </div>
-      <div class="relative">
-        <div class="popup-btn text-center w-5 cursor-pointer hover:bg-gray-200">
-          ⋮
-        </div>
-        <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-[200px] bg-white border border-gray-200 rounded shadow-md hidden z-10">
-          <button class="btn-ver-tareas block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver actividades</button>
-          <button class="btn-asignar-coordinador block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-black-600">Asignar como coordinador</button>
-          <button class="btn-eliminar-asignacion block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Desasignar colaborador</button>
-        </div>
-      </div>
-    `
-
-    const popupBtn = tarjetilla.querySelector('.popup-btn');
-    const popupMenu = tarjetilla.querySelector('.popup-menu');
-    
-    popupBtn.addEventListener('click', e => {
-      e.stopPropagation();
-    
-      document.querySelectorAll('.popup-menu').forEach(menu => {
-        if (menu !== popupMenu) {
-          menu.classList.add('hidden');
-        }
-      });
-      popupMenu.classList.remove('hidden');
-      popupMenu.focus();
-    });
-    
-    popupMenu.addEventListener('blur', () => {
-      popupMenu.classList.add('hidden');
-    });
-    
-    popupMenu.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-    });
-
-    return tarjetilla
-  }
-
   if (miniFormDerecho) {
     document.getElementById("btnAsignarColaborador").addEventListener("click", async () => {
       const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
@@ -536,7 +577,14 @@ function confVistaSolicitud() {
         }
       })
       .then(colaborador => {
-        contenedorTarjetas.insertBefore(crearTarjetilla(colaborador), contenedorTarjetas.firstChild)
+        
+
+        contenedorTarjetas.insertBefore(crearTarjetilla(
+            colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
+            `Código: ${colaborador.codigo}`, true
+          ),
+          contenedorTarjetas.firstChild
+        )
       })
     }) 
   }
@@ -554,12 +602,19 @@ function confVistaSolicitud() {
         solicitudActual = solicitud
         let tarjetaCoord;
         if (solicitudActual.coordinador !== null) {
-          tarjetaCoord = crearTarjetilla(colaboradores.splice(0, 1)[0])
+          const colaborador = colaboradores.splice(0, 1)[0]
+          tarjetaCoord = crearTarjetilla(
+            colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
+            `Código: ${colaborador.codigo}`, true
+          ),
           tarjetaCoord.className = estiloResaltante
           tarjetaCoord.dataset.coor = true
         }
         colaboradores.forEach(colaborador => {
-          contenedorTarjetas.appendChild(crearTarjetilla(colaborador))
+          contenedorTarjetas.appendChild(crearTarjetilla(
+            colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
+            `Código: ${colaborador.codigo}`, true
+          ),)
         });
 
         if (tarjetaCoord) {

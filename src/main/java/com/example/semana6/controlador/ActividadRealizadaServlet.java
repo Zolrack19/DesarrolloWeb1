@@ -3,6 +3,7 @@ package com.example.semana6.controlador;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.example.semana6.dto.actividadRealizada.ActividadRealizadaCrear;
@@ -15,12 +16,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ActividadRealizadaServlet", urlPatterns = {"/control/ActividadRealizadaServlet"})
 public class ActividadRealizadaServlet extends HttpServlet {
   
-  ActividadRealizadaF actividadRealizadaF;
-  StringBuilder mensajeError;
+  private ActividadRealizadaF actividadRealizadaF;
+  private StringBuilder mensajeError;
 
 
   @Override
@@ -31,7 +33,48 @@ public class ActividadRealizadaServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    req.setCharacterEncoding("UTF-8");
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    Map<String, Object> json = new HashMap<>();
+
+    try {
+      for (int i = 0; i < 1; i++) {
+        String solicitudId = req.getParameter("solicitudId");
+        String colaboradorId = req.getParameter("colaboradorId");
+
+        if (solicitudId == null || !solicitudId.matches("\\d+")) {
+          mensajeError.append("\nLa id: ").append(solicitudId).append(" de solicitud es inválida");
+        }
+        if (colaboradorId == null || !colaboradorId.matches("\\d+")) {
+          mensajeError.append("\nId: ").append(colaboradorId).append(" de colaborador es inválida");
+        }
+        if (!mensajeError.isEmpty()) break;
+
+        List<ActividadRealizadaVista> actividadesVista = actividadRealizadaF.getActividadesByAsignacion(Integer.parseInt(colaboradorId), Integer.parseInt(solicitudId), session.getAttribute("usuario"));
+        if (actividadesVista == null) {
+          json.put("ok", false);
+          json.put("error", "Error, solicitud no aceptada por el servidor");
+        } else {
+          json.put("ok", true);
+          json.put("actividades", actividadesVista);
+        }
+      }
+    } catch (Exception e) {
+      json.put("ok", false);
+      json.put("error", "Error inesperado en el servidor");
+      e.printStackTrace();
+    }
+
+
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
     
+    mensajeError.setLength(0);
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
   
   @Override
