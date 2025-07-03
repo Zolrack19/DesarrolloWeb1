@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.semana6.ValidacionNegocioException;
 import com.example.semana6.dto.cliente.ClienteCrear;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.cliente.PersonaConNegocioCrear;
@@ -22,10 +21,12 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "ClienteServlet", urlPatterns = { "/control/ClienteServlet" })
 public class ClienteServlet extends HttpServlet {
   private ClienteFacade clienteFacade;
+  private StringBuilder mensajeError;
 
   @Override
   public void init() throws ServletException {
     clienteFacade = new ClienteFacade();
+    mensajeError = new StringBuilder();
   }
 
   @Override
@@ -75,77 +76,84 @@ public class ClienteServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
 
     Map<String, Object> json = new HashMap<>();
-    System.out.println("hola");
 
     try {
-      // === Validaciones simples de parámetros ===
-      String docId = req.getParameter("tipoDocumentoId");
-      String tpClienteId = req.getParameter("tipoClienteId");
-      String tpSector = req.getParameter("tipoSectorEconomicoId");
-      String numeroDocumento = req.getParameter("documento");
-      String razon = req.getParameter("razon");
-      String email = req.getParameter("email");
-      String contrasena = req.getParameter("contrasena");
-      String telefono = req.getParameter("telefono");
+      for (int i = 0; i < 1; i++) {
+        String docId = req.getParameter("tipoDocumentoId");
+        String tpClienteId = req.getParameter("tipoClienteId");
+        String tpSector = req.getParameter("tipoSectorEconomicoId");
+        String numeroDocumento = req.getParameter("documento");
+        String razon = req.getParameter("razon");
+        String email = req.getParameter("email");
+        String contrasena = req.getParameter("contrasena");
+        String telefono = req.getParameter("telefono");
+  
+        if (telefono == null || !telefono.matches("^9\\d{8}$")) {
+          mensajeError.append("Teléfono inválido (debe comenzar con 9 y tener 9 dígitos)");
+        }
+        if (razon == null || razon.length() > 200) {
+          mensajeError.append("\nRazón social inválida (máximo 200 caracteres)");
+        }
+        if (email == null || email.length() > 100) {
+          mensajeError.append("\nEmail inválido (máximo 100 caracteres)");
+        }
+        if (contrasena == null || contrasena.length() < 8 || contrasena.length() > 50) {
+          mensajeError.append("\nContraseña inválida (debe tener entre 8 y 50 caracteres)");
+        }
+        if (docId == null || !docId.matches("\\d+")) {
+          mensajeError.append("\nTipo de documento no válido: ").append(docId);
+        }
+        if (tpClienteId == null || !tpClienteId.matches("\\d+")) {
+          mensajeError.append("\nTipo de cliente no válido: ").append(tpClienteId);
+        }
+        if (tpSector == null || !tpSector.matches("\\d+")) {
+          mensajeError.append("\nSector económico no válido: ").append(tpSector);
+        }
+  
+        if (!mensajeError.isEmpty()) break;
 
-      if (telefono == null || !telefono.matches("^9\\d{8}$")) {
-        throw new IllegalArgumentException("Teléfono inválido (debe comenzar con 9 y tener 9 dígitos)");
-      }
-      if (razon == null || razon.length() > 200) {
-        throw new IllegalArgumentException("Razón social inválida (máximo 200 caracteres)");
-      }
-      if (email == null || email.length() > 100) {
-        throw new IllegalArgumentException("Email inválido (máximo 100 caracteres)");
-      }
-      if (contrasena == null || contrasena.length() < 8 || contrasena.length() > 50) {
-        throw new IllegalArgumentException("Contraseña inválida (debe tener entre 8 y 50 caracteres)");
-      }
-      if (docId == null || !docId.matches("\\d+")) {
-        throw new IllegalArgumentException("Tipo de documento no válido");
-      }
-      if (tpClienteId == null || !tpClienteId.matches("\\d+")) {
-        throw new IllegalArgumentException("Tipo de cliente no válido");
-      }
-      if (tpSector == null || !tpSector.matches("\\d+")) {
-        throw new IllegalArgumentException("Sector económico no válido");
-      }
+        // === Conversión segura ===
+        short tipoDocumentoId = Short.parseShort(docId);
+        short tipoClienteId = Short.parseShort(tpClienteId);
+        short tipoSectorEconomicoId = Short.parseShort(tpSector);
+  
+        // === Creación del objeto ===
+        ClienteCrear clienteCrear;
+        if (tipoClienteId == 1) {
+          clienteCrear = new ClienteCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento,
+              email, contrasena, telefono);
+        } else {
+          String nombre = req.getParameter("nombre");
+          String apellidoP = req.getParameter("apellidoP");
+          String apellidoM = req.getParameter("apellidoM");
+          clienteCrear = new PersonaConNegocioCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon,
+            numeroDocumento, email, contrasena, telefono,
+            nombre, apellidoP, apellidoM);
+        }
+  
+        ClienteVista clienteVista = clienteFacade.crearCliente(clienteCrear);
+        if (clienteVista.getMensajeError() != null) {
+          json.put("ok", false);
+          json.put("error", clienteVista.getMensajeError());
+        } else {
+          json.put("ok", true);
+          json.put("cliente", clienteVista);
+        }
 
-      // === Conversión segura ===
-      short tipoDocumentoId = Short.parseShort(docId);
-      short tipoClienteId = Short.parseShort(tpClienteId);
-      short tipoSectorEconomicoId = Short.parseShort(tpSector);
-
-      // === Creación del objeto ===
-      ClienteCrear clienteCrear;
-      if (tipoClienteId == 1) {
-        clienteCrear = new ClienteCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento,
-            email, contrasena, telefono);
-      } else {
-        String nombre = req.getParameter("nombre");
-        String apellidoP = req.getParameter("apellidoP");
-        String apellidoM = req.getParameter("apellidoM");
-        clienteCrear = new PersonaConNegocioCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon,
-          numeroDocumento, email, contrasena, telefono,
-          nombre, apellidoP, apellidoM);
-      }
-
-      ClienteVista clienteVista = clienteFacade.crearCliente(clienteCrear);
-
-      json.put("ok", clienteVista != null);
-      json.put("cliente", clienteVista);
-
-    } catch (IllegalArgumentException e) {
-      json.put("ok", false);
-      json.put("error", e.getMessage());
-    } catch (ValidacionNegocioException e) {
-      json.put("ok", false);
-      json.put("error", e.getMessage());
+      }  
     } catch (Exception e) {
       json.put("ok", false);
       json.put("error", "Error inesperado en el servidor");
       e.printStackTrace();
     }
 
+
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
+
+    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 

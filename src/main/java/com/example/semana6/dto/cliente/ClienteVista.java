@@ -13,6 +13,12 @@ public class ClienteVista extends ClienteDTO {
   private String tipoDocumento;
   private String tipoCliente;
   private String tipoSectorEconomico;
+  private String mensajeError;
+
+  public ClienteVista(String mensajeError) {
+    super(null, null, null, null);
+    this.mensajeError = mensajeError;
+  }
   
   public ClienteVista(Cliente cliente) {
     super(cliente.getRazonSocial(), cliente.getNumeroDocumento(), cliente.getTelefono(), cliente.getEmail());

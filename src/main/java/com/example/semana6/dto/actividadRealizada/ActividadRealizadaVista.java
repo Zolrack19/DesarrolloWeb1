@@ -18,9 +18,22 @@ public class ActividadRealizadaVista {
   private String horaInicio;
   private String horaFin;
   private String fechaEmision;
+
+  private String mensajeError;
   
-  public ActividadRealizadaVista() {}
+  public ActividadRealizadaVista(String mensajeError) {
+    this.mensajeError = mensajeError;
+  }
   
+  public ActividadRealizadaVista(ActividadRealizada actividadRealizada) {
+    this.solicitud = actividadRealizada.getSolicitud().getTitulo();
+    this.colaborador = String.format("%s %s %s", actividadRealizada.getColaborador().getNombre(),
+    actividadRealizada.getColaborador().getApellidoPaterno(), actividadRealizada.getColaborador().getApellidoMaterno());
+    this.descripcion = actividadRealizada.getDescripcion();
+    this.horaInicio = actividadRealizada.getHoraInicio().toString();  
+    this.horaFin = actividadRealizada.getHoraFin().toString();  
+  }
+
   public ActividadRealizadaVista(String solicitud, String colaborador, String descripcion, String horaInicio,
   String horaFin, String fechaEmision) {
     this.solicitud = solicitud;

@@ -36,7 +36,7 @@
         <tr class="bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-300">
           <th class="p-2 max-w-[100px] min-w-[87px]">Id</th>
           <th class="p-2 max-w-[400px] min-w-[268px]">Título</th>
-          <th class="p-2 max-w-[400px] min-w-[268px]">Cordinador</th>
+          <th class="p-2 max-w-[400px] min-w-[268px]">Coordinador</th>
     
           <c:if test="${rol != 'cliente' && (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
             <th class="p-2 max-w-[400px] min-w-[268px]">Cliente</th>
@@ -157,7 +157,7 @@
       id="contenidoVerSolicitud">
 
       <div class="flex gap-2 items-center mb-4">
-        <div class="cursor-pointer w-[26px] hidden" id="vistaS-atras">
+        <div class="cursor-pointer w-[26px] hidden" id="vistaAtras">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -168,59 +168,96 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <div class="space-y-3 text-sm text-gray-700" id="contenedorIzquierdoVerSolicitud">
-          <div>
-            <span class="font-semibold text-[0.9rem]">Tipo de solicitud:</span>
-            <span id="verTipoSolicitud">Error ps</span>
+
+          <div id="caraInfoSolicitud" class="space-y-3 text-sm text-gray-700">
+            <div>
+              <span class="font-semibold text-[0.9rem]">Tipo de solicitud:</span>
+              <span id="verTipoSolicitud">Error ps</span>
+            </div>
+            <div>
+              <span class="font-semibold text-[0.9rem]">Estado:</span>
+              <span id="verEstadoSolicitud">Activo</span>
+            </div>
+            <div>
+              <span class="font-semibold text-[0.9rem]">Título:</span>
+              <span id="verTituloSolicitud">Solicitud de prueba si te gusta bien, sino fue ps</span>
+            </div>
+            <div>
+              <span class="font-semibold text-[0.9rem]">Descripción:</span>
+              <p id="verDescripcionSolicitud" class="max-h-[40vh] overflow-y-auto">
+                molestiae laudantium eveniet id obcaecati exercitationem placeat amet et, earum adipisci perferendis
+                vitae, corrupti aliquid? Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus ab iure beatae
+                expedita ut nostrum
+                molestiae laudantium eveniet id obcaecati exercitationem placeat amet et, earum adipisci perferendis
+                vitae, corrupti aliquid?
+              </p>
+            </div>
+            <div>
+              <span class="font-semibold text-[0.9rem]">Coordinador:</span>
+              <span id="verCoordinador">Cristofer yanpier polnaref</span>
+            </div>
+            <div>
+              <span class="font-semibold text-[0.9rem]">Cliente:</span>
+              <span id="verCliente">Debran espinoza</span>
+            </div>
           </div>
-          <div>
-            <span class="font-semibold text-[0.9rem]">Estado:</span>
-            <span id="verEstadoSolicitud">Activo</span>
-          </div>
-          <div>
-            <span class="font-semibold text-[0.9rem]">Título:</span>
-            <span id="verTituloSolicitud">Solicitud de prueba si te gusta bien, sino fue ps</span>
-          </div>
-          <div>
-            <span class="font-semibold text-[0.9rem]">Descripción:</span>
-            <p id="verDescripcionSolicitud" class="max-h-[40vh] overflow-y-auto">
-              molestiae laudantium eveniet id obcaecati exercitationem placeat amet et, earum adipisci perferendis
-              vitae, corrupti aliquid? Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus ab iure beatae
-              expedita ut nostrum
-              molestiae laudantium eveniet id obcaecati exercitationem placeat amet et, earum adipisci perferendis
-              vitae, corrupti aliquid?
-            </p>
-          </div>
-          <div>
-            <span class="font-semibold text-[0.9rem]">Coordinador:</span>
-            <span id="verCoordinador">Cristofer yanpier polnaref</span>
-          </div>
-          <div>
-            <span class="font-semibold text-[0.9rem]">Cliente:</span>
-            <span id="verCliente">Debran espinoza</span>
-          </div>
+
+          <form id="caraFormActividad" class="space-y-4 hidden">
+            <h3 class="font-semibold text-[1rem] mb-2 text-gray-800">Registrar informe de atención</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="horaInicio" class="block text-sm font-medium text-gray-700">Hora de inicio</label>
+                <input type="time" id="horaInicio"
+                  class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+            
+              <div>
+                <label for="horaFin" class="block text-sm font-medium text-gray-700">Hora de fin</label>
+                <input type="time" id="horaFin"
+                  class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+            </div>
+          
+            <div>
+              <label for="descripcionInforme" class="block text-sm font-medium text-gray-700">Descripción del informe</label>
+              <textarea id="descripcionInforme" rows="6" class="mt-1 w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+          
+            <div class="flex justify-start">
+              <button type="submit" id="btnGuardarActividad"
+                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-300">
+                Guardar actividad
+              </button>
+            </div>
+
+          </form>
+
         </div>
 
         <div id="contenedorDerechoVerSolicitud">
           <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
-            <span class="font-semibold text-[1.0rem]">Asignar nuevo colaborador</span>
-            <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 mt-2 mb-4">
-              <!-- Input de búsqueda -->
-              <div class="relative w-full">
-                <input type="text" id="txtBuscarColaborador" placeholder="Buscar colaborador..."
-                  class="w-full md:flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <ul id="popupColaboradores" tabindex="1" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md -40 overflow-y-auto hidden">
-                </ul>
+            <div id="miniFormDerecho">
+              <span class="font-semibold text-[1.0rem]">Asignar nuevo colaborador</span>
+              <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 mt-2 mb-4">
+                <!-- Input de búsqueda -->
+                <div class="relative w-full">
+                  <input type="text" id="txtBuscarColaborador" placeholder="Buscar colaborador..."
+                    class="w-full md:flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <ul id="popupColaboradores" tabindex="1" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md -40 overflow-y-auto hidden">
+                  </ul>
+                </div>
+                <!-- Botón -->
+                <button type="button"
+                  class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-300"
+                  id="btnAsignarColaborador">
+                  Asignar
+                </button>
               </div>
-              <!-- Botón -->
-              <button type="button"
-                class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-300"
-                id="btnAsignarColaborador">
-                Asignar
-              </button>
             </div>
           </c:if>
           <div>
-            <span class="font-semibold text-[1.0rem]">Colaboradores asignados</span>
+            <span class="font-semibold text-[1.0rem]" id="tituloContenedorTarjetas">Colaboradores asignados</span>
           </div>
           <div id="contenedorTarjetas"
             class="rounded-lg p-4 min-h-[40vh] max-h-[50vh] overflow-y-auto bg-gray-50">

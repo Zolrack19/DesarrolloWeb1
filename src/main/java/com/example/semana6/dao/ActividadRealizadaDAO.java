@@ -16,14 +16,11 @@ import jakarta.persistence.criteria.Root;
 
 public class ActividadRealizadaDAO {
   
-  public void crearActividad(ActividadRealizada actividad) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void crearActividad(Session s, ActividadRealizada actividad) {
     s.persist(actividad);
-
-    s.getTransaction().commit();
-    s.close();
+    s.flush();
+    s.refresh(actividad);
+    
   }
 
   public ActividadRealizada getById(long id) {

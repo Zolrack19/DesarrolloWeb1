@@ -1,5 +1,6 @@
 package com.example.semana6.facade;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,9 +48,9 @@ public class SolicitudesFacade {
       }
 
       if (solicitudCrear.getCoordinadorId() != ValorDefecto.VALOR_NULO.getValue()) {
-        solicitud.setCordinador(colaboradorDAO.getById(s, solicitudCrear.getCoordinadorId()));
+        solicitud.setCoordinador(colaboradorDAO.getById(s, solicitudCrear.getCoordinadorId()));
       }
-      solicitudDAO.crearSolicitud(solicitud);
+      solicitudDAO.crearSolicitud(s, solicitud);
       SolicitudVista solicitudVista = new SolicitudVista(solicitud);
       
       s.getTransaction().commit();
@@ -58,13 +59,40 @@ public class SolicitudesFacade {
     } catch (Exception e) {
       s.getTransaction().rollback();
       e.printStackTrace();
+
+    } finally {
+      s.close();
     }
-    s.close();
     return null;
   }
 
-  public void asignarCoordinadorASolicitud(int solicitudId, int colaboradorId) {
+  public SolicitudVista asignarCoordinadorASolicitud(HashMap<String, Object> campos, Object usuario) {
+    if (!campos.containsKey("solicitudId") || !campos.containsKey("colaboradorId")) return null;
+    if (usuario instanceof ClienteDTO || !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+      return null;
+    }
 
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+
+      Solicitud solicitud = solicitudDAO.getById(s, (int) campos.get("solicitudId"));
+      Colaborador colaborador = colaboradorDAO.getById(s, (int) campos.get("colaboradorId"));
+      if (solicitud == null || colaborador == null) {
+        System.out.println("solicitud o colaborador no existente");
+        return null;
+      }
+
+      solicitud.setCoordinador(colaborador);
+      s.getTransaction().commit();
+      return new SolicitudVista(solicitud);
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      e.printStackTrace();
+    } finally {
+      s.close();
+    }
+    return null;
   }
 
   public ColaboradorVista asignarColaboradorASolicitud(int solicitudId, int colaboradorId) {
@@ -132,7 +160,7 @@ public class SolicitudesFacade {
       s.close();
       return null;
     } else if (usuario instanceof ClienteDTO) {
-      if (solicitud.getId() != ((ClienteVista) usuario).getId()) {
+      if (solicitud.getCliente().getId() != ((ClienteVista) usuario).getId()) {
         System.out.println("Esta solicitud no pertenece al cliente actual, no se puede modificar");
         s.close();
         return null;

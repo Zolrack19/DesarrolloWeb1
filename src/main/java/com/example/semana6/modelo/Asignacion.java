@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -19,12 +20,12 @@ public class Asignacion {
   @EmbeddedId
   private AsignacionId id;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @MapsId("solicitudId")
   @JoinColumn(name = "solicitud_id", nullable = false)
   private Solicitud solicitud;
   
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @MapsId("colaboradorId")
   @JoinColumn(name = "colaborador_id", nullable = false)
   private Colaborador colaborador;

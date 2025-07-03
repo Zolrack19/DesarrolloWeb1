@@ -72,27 +72,27 @@ public class PerfilFacade {
         String apellidoPaterno = (String) campos.get("apellidoPaterno");
         String apellidoMaterno = (String) campos.get("apellidoMaterno");
 
-        if (usuario instanceof PersonaConNegocioVista) {
+        if (usuario instanceof PersonaConNegocioVista personaConNegocioVista) {
           PersonaConNegocio cliente = personaConNegocioDAO.getById(((PersonaConNegocioVista) usuario).getId());
           if (cliente == null) return false;
           cliente.setNombre(nombre);
           cliente.setApellidoPaterno(apellidoPaterno);
           cliente.setApellidoMaterno(apellidoMaterno);
           personaConNegocioDAO.actualizarPersonaConNegocio(cliente);
-          ((PersonaConNegocioVista) usuario).setNombre(nombre);
-          ((PersonaConNegocioVista) usuario).setApellidoPaterno(apellidoPaterno);
-          ((PersonaConNegocioVista) usuario).setApellidoMaterno(apellidoMaterno);
+          personaConNegocioVista.setNombre(nombre);
+          personaConNegocioVista.setApellidoPaterno(apellidoPaterno);
+          personaConNegocioVista.setApellidoMaterno(apellidoMaterno);
   
-        } else if (usuario instanceof ColaboradorVista) {
+        } else if (usuario instanceof ColaboradorVista colaboradorVista) {
           Colaborador colaborador = colaboradorDAO.getById(s, ((ColaboradorVista) usuario).getId());
           if (colaborador == null) return false;
           colaborador.setNombre(nombre);
           colaborador.setApellidoPaterno(apellidoPaterno);
           colaborador.setApellidoMaterno(apellidoMaterno);
           colaboradorDAO.actualizarColaborador(s, colaborador);
-          ((ColaboradorVista) usuario).setNombre(nombre);
-          ((ColaboradorVista) usuario).setApellidoPaterno(apellidoPaterno);
-          ((ColaboradorVista) usuario).setApellidoMaterno(apellidoMaterno);
+          colaboradorVista.setNombre(nombre);
+          colaboradorVista.setApellidoPaterno(apellidoPaterno);
+          colaboradorVista.setApellidoMaterno(apellidoMaterno);
         }
       }
       s.getTransaction().commit();

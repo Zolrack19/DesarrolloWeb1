@@ -27,14 +27,14 @@ public class ColaboradorFacade {
   private AsignacionDAO asignacionDAO = new AsignacionDAO();
   private StringBuilder query = new StringBuilder();
   
-  public ColaboradorVista crearColaborador(ColaboradorCrear colaboradorcCrear) {
+  public ColaboradorVista crearColaborador(ColaboradorCrear colaboradorCrear) {
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
     try {
 
-      Colaborador colaborador = colaboradorcCrear.toColaborador();
-      colaborador.setTipoDocumento(tipoDocumentoDAO.getById(s, colaboradorcCrear.getTipoDocumentoId()));
-      colaborador.setRolColaborador(rolColaboradorDAO.getById(colaboradorcCrear.getRolColaboradorId()));
+      Colaborador colaborador = colaboradorCrear.toColaborador();
+      colaborador.setTipoDocumento(tipoDocumentoDAO.getById(s, colaboradorCrear.getTipoDocumentoId()));
+      colaborador.setRolColaborador(rolColaboradorDAO.getById(colaboradorCrear.getRolColaboradorId()));
       colaboradorDAO.crearColaborador(colaborador);
       ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador);
       s.getTransaction().commit();
@@ -94,18 +94,32 @@ public class ColaboradorFacade {
           if (asignacionDAO.getById(s, new AsignacionId(solicitudId, ((ColaboradorVista) usuario).getId())) == null) return null;
         }
       }
-      List<Asignacion> asignaciones = asignacionDAO.getByIdSolicitud(solicitudId);
+      List<Asignacion> asignaciones = asignacionDAO.getByIdSolicitud(s, solicitudId);
+      if (asignaciones != null && asignaciones.size() == 0) return null;
+      
       List<ColaboradorVista> colaboradorVistas = new LinkedList<>();
+      // si hay coordinador, será el primera de la lista
+      int coordinadorId = -1;
+      if (asignaciones.get(0).getSolicitud().getCoordinador() != null) {
+        coordinadorId = asignaciones.get(0).getSolicitud().getCoordinador().getId();
+      }
+
       for (Asignacion asignacion : asignaciones) {
-        colaboradorVistas.add(new ColaboradorVista(asignacion.getColaborador()));
+        Colaborador colaborador = asignacion.getColaborador();
+        if (coordinadorId != -1 && coordinadorId == colaborador.getId()) {
+          colaboradorVistas.addFirst(new ColaboradorVista(colaborador));
+          coordinadorId = 0;
+        }
+        colaboradorVistas.add(new ColaboradorVista(colaborador));
       }
       s.close();
       return colaboradorVistas;
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      s.close();
     }
 
-    s.close();
     return null;
   }
 

@@ -304,36 +304,127 @@ function confTextSearch(txtBuscar, popUp, fetchURL, funcPopup) {
 }
 
 function confVistaSolicitud() {
-  const verTipoSolicitud = document.getElementById("verTipoSolicitud")
-  const verEstadoSolicitud = document.getElementById("verEstadoSolicitud")
-  const verTituloSolicitud = document.getElementById("verTituloSolicitud")
-  const verDescripcionSolicitud = document.getElementById("verDescripcionSolicitud")
-  const verCoordinador = document.getElementById("verCoordinador")
-  const verCliente = document.getElementById("verCliente")
+
+  const caraInfoSolicitud = document.getElementById("caraInfoSolicitud") 
+  const vistaAtras = document.getElementById("vistaAtras") 
+  
+  const verTipoSolicitud = caraInfoSolicitud.querySelector("span[id='verTipoSolicitud']")
+  const verEstadoSolicitud = caraInfoSolicitud.querySelector("span[id='verEstadoSolicitud']")
+  const verTituloSolicitud = caraInfoSolicitud.querySelector("span[id='verTituloSolicitud']")
+  const verDescripcionSolicitud = caraInfoSolicitud.querySelector("p[id='verDescripcionSolicitud']")
+  const verCoordinador = caraInfoSolicitud.querySelector("span[id='verCoordinador']")
+  const verCliente = caraInfoSolicitud.querySelector("span[id='verCliente']")
+
+  
+  const caraFormActividad = document.getElementById("caraFormActividad")
+  const txtHoraInicio = caraFormActividad.querySelector("input[id='horaInicio']")
+  const txtHoraFin = caraFormActividad.querySelector("input[id='horaFin']")
+  const txtDescripcionInforme = caraFormActividad.querySelector("textarea[id='descripcionInforme']")
+
+
+  const miniFormDerecho = document.getElementById("miniFormDerecho")
   const contenedorTarjetas = document.getElementById("contenedorTarjetas")
+  const tituloContenedorTarjetas = document.getElementById("tituloContenedorTarjetas")
+  const contenedorTarjetas2 = document.createElement("div")
+  contenedorTarjetas2.className = "rounded-lg p-4 min-h-[40vh] max-h-[50vh] overflow-y-auto bg-gray-50"
+
+  const estiloSimple = "tarjetilla flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm mb-2"
+  const estiloResaltante = "tarjetilla flex items-center gap-3 p-3 bg-yellow-100 border border-yellow-400 shadow-md rounded-lg p-3 mb-2"
+
   let solicitudActual = null
+  let colaboradorSeleccionadoId = null
+
+  caraFormActividad.addEventListener("submit", async (e) => {
+    e.preventDefault()
+    const horaInicio = txtHoraInicio.value
+    const horaFin = txtHoraFin.value
+    const descripcion = txtDescripcionInforme.value
+    
+    await fetch(`/${contextPath}/control/ActividadRealizadaServlet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({"solicitudId": solicitudActual.id, "colaboradorId": colaboradorSeleccionadoId, horaInicio, horaFin, descripcion})
+    }).then(resp => {
+      if (resp.ok) {
+        return resp.json()
+      }
+    }).then(data => {
+      if (data.ok) {
+        console.log(data.actividad);
+      } else {
+        alert(data.error)
+      }
+    })
+  })
+
+
+  vistaAtras.addEventListener("click", () => {
+    tituloContenedorTarjetas.innerHTML = "Colaboradores asignados"
+    contenedorTarjetas2.replaceWith(contenedorTarjetas)
+
+    vistaAtras.classList.add("hidden")
+    caraFormActividad.classList.add("hidden")
+    caraInfoSolicitud.classList.remove("hidden")
+    miniFormDerecho.classList.remove("hidden")
+  })
+
 
   contenedorTarjetas.addEventListener("click", async (e) => {
     if (e.target.classList.contains("btn-ver-tareas")) {
       const tarjeta = e.target.closest("div.tarjetilla")
       if (!tarjeta) return;
+
+      caraInfoSolicitud.classList.add("hidden")
+      miniFormDerecho.classList.add("hidden")
+      vistaAtras.classList.remove("hidden")
+      caraFormActividad.classList.remove("hidden")
+      
+      colaboradorSeleccionadoId = tarjeta.dataset.id
+
+      tituloContenedorTarjetas.innerHTML = "Actividades realizadas"
+      contenedorTarjetas.replaceWith(contenedorTarjetas2)
+
     } else if (e.target.classList.contains("btn-asignar-coordinador")) {
       const tarjeta = e.target.closest("div.tarjetilla")
       if (!tarjeta || !confirm("¿Está seguro que quiere asignar como coordinador de la solicitud a este colaborador?")) return;
       
+      await fetch(`/${contextPath}/control/SolicitudServlet`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({"solicitudId": solicitudActual.id, "colaboradorId": Number.parseInt(tarjeta.dataset.id)})
+      }).then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+      }).then(data => {
+        if (data.ok) {
+          const index = solicitudes.findIndex(s => s.id = data.solicitud.id)
+          solicitudes[index] = data.solicitud
+          verCoordinador.innerHTML = data.solicitud.coordinador
+          
+          const antiguo = contenedorTarjetas.querySelector("div.tarjetilla[data-coor='true']")
+          if (antiguo) {
+            antiguo.classList = estiloSimple
+            antiguo.removeAttribute("data-coor")
+          }
+          tarjeta.dataset.coor = true
+          tarjeta.className = estiloResaltante
+        }
+      })
       
+
     } else if (e.target.classList.contains("btn-eliminar-asignacion")) {
       const tarjeta = e.target.closest("div.tarjetilla")
       if (!tarjeta || !confirm("¿Está seguro que quiere quitar a este colaborador de la solicitud?")) return;
 
-      await fetch("/" + contextPath + `/control/AsignacionServlet?colaboradorId=${tarjeta.dataset.id}&solicitudId=${solicitudActual.id}`, {
+      await fetch(`/${contextPath}/control/AsignacionServlet?colaboradorId=${tarjeta.dataset.id}&solicitudId=${solicitudActual.id}`, {
         method: "DELETE"
       }).then(response => {
         if (response.ok) {
-          // const index = solicitudes.findIndex(s => s.id == tarjeta.dataset.id);
-          // if (index !== -1) {
-          //   solicitudes.splice(index, 1);
-          // }
           tarjeta.remove()
         } else {
           console.error("Error al eliminar asignación");
@@ -347,6 +438,7 @@ function confVistaSolicitud() {
   document.getElementById("btnCerrarVerSolicitud").addEventListener("click", () => {
     contenedorTarjetas.innerHTML = ""
     solicitudActual = null
+    colaboradorSeleccionadoId = null
     cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
   })
 
@@ -388,7 +480,7 @@ function confVistaSolicitud() {
       </div>
       <div class="relative">
         <div class="popup-btn text-center w-5 cursor-pointer hover:bg-gray-200">
-          :
+          ⋮
         </div>
         <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-[200px] bg-white border border-gray-200 rounded shadow-md hidden z-10">
           <button class="btn-ver-tareas block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver actividades</button>
@@ -424,28 +516,30 @@ function confVistaSolicitud() {
     return tarjetilla
   }
 
-  document.getElementById("btnAsignarColaborador")?.addEventListener("click", async () => {
-    const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
-    
-    if (!txtBuscarColaborador.value.trim()) return
-    const colaboradorId = txtBuscarColaborador.dataset.id
-    const solicitudId = verTipoSolicitud.dataset.id
-    await fetch(`/${contextPath}/control/SolicitudServlet?action=2`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({colaboradorId, solicitudId})
-    })
-    .then(resp => {
-      if (resp.ok) {
-        return resp.json()
-      }
-    })
-    .then(colaborador => {
-      contenedorTarjetas.insertBefore(crearTarjetilla(colaborador), contenedorTarjetas.firstChild)
-    })
-  }) 
+  if (miniFormDerecho) {
+    document.getElementById("btnAsignarColaborador").addEventListener("click", async () => {
+      const txtBuscarColaborador = document.getElementById("txtBuscarColaborador")
+      
+      if (!txtBuscarColaborador.value.trim()) return
+      const colaboradorId = txtBuscarColaborador.dataset.id
+      const solicitudId = verTipoSolicitud.dataset.id
+      await fetch(`/${contextPath}/control/SolicitudServlet?action=2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({colaboradorId, solicitudId})
+      })
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+      })
+      .then(colaborador => {
+        contenedorTarjetas.insertBefore(crearTarjetilla(colaborador), contenedorTarjetas.firstChild)
+      })
+    }) 
+  }
 
 
   return (solicitud) => {
@@ -458,9 +552,19 @@ function confVistaSolicitud() {
       })
       .then(colaboradores => {
         solicitudActual = solicitud
+        let tarjetaCoord;
+        if (solicitudActual.coordinador !== null) {
+          tarjetaCoord = crearTarjetilla(colaboradores.splice(0, 1)[0])
+          tarjetaCoord.className = estiloResaltante
+          tarjetaCoord.dataset.coor = true
+        }
         colaboradores.forEach(colaborador => {
           contenedorTarjetas.appendChild(crearTarjetilla(colaborador))
         });
+
+        if (tarjetaCoord) {
+          contenedorTarjetas.insertBefore(tarjetaCoord, contenedorTarjetas.firstChild)
+        }
       })
     }, 0);
     verTipoSolicitud.innerHTML = solicitud.tipoSolicitud

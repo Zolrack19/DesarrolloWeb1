@@ -55,8 +55,8 @@ public class Colaborador extends Usuario {
   @Column(name = "solicitudes_activas")
   private short solicitudesActivas;
 
-  @OneToMany(mappedBy = "cordinador", fetch = FetchType.LAZY)
-  private List<Solicitud> solicitudesCordinador;
+  @OneToMany(mappedBy = "coordinador", fetch = FetchType.LAZY)
+  private List<Solicitud> solicitudesCoordinador;
 
   @OneToMany(mappedBy = "colaborador", fetch = FetchType.LAZY)
   private List<ActividadRealizada> actividadesRealizadas;

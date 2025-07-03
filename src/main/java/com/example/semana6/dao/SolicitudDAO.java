@@ -19,16 +19,10 @@ import jakarta.persistence.criteria.Root;
 
 public class SolicitudDAO {
   
-  public void crearSolicitud(Solicitud solicitud) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
+  public void crearSolicitud(Session s, Solicitud solicitud) {
     s.persist(solicitud);
     s.flush();
     s.refresh(solicitud);
-
-    s.getTransaction().commit();
-    s.close();
   }
 
   public Solicitud getById(Session s, int id) {
@@ -119,11 +113,11 @@ public class SolicitudDAO {
     return solicitudes;
   }
   
-  public List<Solicitud> getByCordinadorId(int colaboradorId, int inicio, int fin) {
+  public List<Solicitud> getByCoordinadorId(int colaboradorId, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
 
-    List<Solicitud> solicitudes = s.createQuery("from Solicitud s where s.cordinador.id = :idC order by s.id", Solicitud.class)
+    List<Solicitud> solicitudes = s.createQuery("from Solicitud s where s.coordinador.id = :idC order by s.id", Solicitud.class)
     .setParameter("idC", colaboradorId)
     .setFirstResult(inicio)
     .setMaxResults(fin)
@@ -240,7 +234,7 @@ public class SolicitudDAO {
     }
 
     if (colaboradorId != 0) {
-      predicates.add(cb.equal(root.get("cordinador").get("id"), colaboradorId));
+      predicates.add(cb.equal(root.get("coordinador").get("id"), colaboradorId));
     }
     
     if (clienteId != 0) {

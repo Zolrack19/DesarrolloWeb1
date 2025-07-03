@@ -114,6 +114,37 @@ public class SolicitudServlet extends HttpServlet {
     }
   }
 
+  @Override //PATCH
+  public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    if ("PATCH".equalsIgnoreCase(req.getMethod())) {
+      doPatch(req, resp);
+    } else {
+      super.service(req, resp);
+    }
+  }
+
+  // solo para asignar coordinador a la solicitud
+  @SuppressWarnings("unchecked")
+  protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    Object usuario = session.getAttribute("usuario");
+    
+    ObjectMapper mapper = new ObjectMapper();
+    HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+    
+    SolicitudVista solicitudVista = solicitudesFacade.asignarCoordinadorASolicitud(campos, usuario);
+
+    Map<String, Object> json = new HashMap<>();
+    json.put("ok", solicitudVista != null);
+    json.put("solicitud", solicitudVista);
+
+    
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    new ObjectMapper().writeValue(resp.getWriter(), json);
+  }
+
+
   @SuppressWarnings("unchecked")
   @Override
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -142,12 +173,5 @@ public class SolicitudServlet extends HttpServlet {
     HttpSession session = req.getSession(false);
     int solicitudId =  Integer.parseInt(req.getParameter("id"));
     solicitudesFacade.eliminarSolicitud(session.getAttribute("usuario"), solicitudId);
-    
-    // Map<String, Object> json = new HashMap<>();
-    // json.put("ok", exito);
-    // json.put("redirect", req.getContextPath() + "/index.html");
-    // resp.setContentType("application/json");
-    // resp.setCharacterEncoding("UTF-8");
-    // new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 }

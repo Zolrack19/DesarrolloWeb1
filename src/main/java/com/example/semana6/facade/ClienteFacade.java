@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.hibernate.Session;
 
-import com.example.semana6.ValidacionNegocioException;
 import com.example.semana6.dao.ClienteDAO;
 import com.example.semana6.dao.SectorEconomicoDAO;
 import com.example.semana6.dao.TipoClienteDAO;
@@ -43,16 +42,16 @@ public class ClienteFacade {
     try {
       Cliente cliente = clienteCrear.toCliente();
       TipoCliente tipoCliente = tipoClienteDAO.getById(s, clienteCrear.getTipoClienteId());
-      TipoDocumento tipoDocumento = tipoDocumentoDAO.getById(s, clienteCrear.getTipoDocumentoId());
-      SectorEconomico sectorEconomico = sectorEconomicoDAO.getById(s, clienteCrear.getSectorEconomicoId());
       if (tipoCliente == null) {
-        throw new ValidacionNegocioException("Tipo de cliente inválido");
+        return new ClienteVista("Tipo de cliente inválido");
       }
+      TipoDocumento tipoDocumento = tipoDocumentoDAO.getById(s, clienteCrear.getTipoDocumentoId());
       if (tipoDocumento == null) {
-        throw new ValidacionNegocioException("Tipo de documento inválido");
+        return new ClienteVista("Tipo de documento inválido");
       }
+      SectorEconomico sectorEconomico = sectorEconomicoDAO.getById(s, clienteCrear.getSectorEconomicoId());
       if (sectorEconomico == null) {
-        throw new ValidacionNegocioException("Sector económico inválido");
+        return new ClienteVista("Entidad sector económico inválido");
       }
       
       cliente.setTipoCliente(tipoCliente);
@@ -74,10 +73,6 @@ public class ClienteFacade {
       }
       s.getTransaction().commit();
       return clienteVista;
-    } catch (ValidacionNegocioException e) {
-      s.getTransaction().rollback();
-      e.printStackTrace();
-      throw e;
     } catch (Exception e) {
       s.getTransaction().rollback();
       e.printStackTrace();

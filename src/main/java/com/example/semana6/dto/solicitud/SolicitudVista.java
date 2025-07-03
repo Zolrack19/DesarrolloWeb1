@@ -34,8 +34,8 @@ public class SolicitudVista implements Serializable {
     this.tipoSolicitud = solicitud.getTipoSolicitud().getNombre();
     this.titulo = solicitud.getTitulo();
     this.descripcion = solicitud.getDescripcion();
-    if (solicitud.getCordinador() != null) {
-      this.coordinador = String.format("%s %s %s", solicitud.getCordinador().getNombre(), solicitud.getCordinador().getApellidoPaterno(), solicitud.getCordinador().getApellidoMaterno());
+    if (solicitud.getCoordinador() != null) {
+      this.coordinador = String.format("%s %s %s", solicitud.getCoordinador().getNombre(), solicitud.getCoordinador().getApellidoPaterno(), solicitud.getCoordinador().getApellidoMaterno());
     }
     if (solicitud.getCliente() != null) {
       this.cliente = solicitud.getCliente().getRazonSocial();

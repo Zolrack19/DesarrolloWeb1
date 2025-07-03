@@ -50,7 +50,7 @@ public class Solicitud {
   
   @ManyToOne
   @JoinColumn(name = "coordinador_id")
-  private Colaborador cordinador;
+  private Colaborador coordinador;
 
   @ManyToOne
   @JoinColumn(name = "cliente_id")
