@@ -95,7 +95,7 @@ public class SolicitudesFacade {
     return null;
   }
 
-  public ColaboradorVista asignarColaboradorASolicitud(int solicitudId, int colaboradorId) {
+  public ColaboradorVista s(int solicitudId, int colaboradorId) {
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
 

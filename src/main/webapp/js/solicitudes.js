@@ -160,7 +160,7 @@ function confModalForm() {
       campos.coordinadorId = txtCoordinador.dataset.id
       campos.clienteId = txtCliente.dataset.id
     };
-    await fetch(`/${contextPath}/control/SolicitudServlet?action=1`, {
+    await fetch(`/${contextPath}/control/SolicitudServlet`, {
       method: actualizar ? "PUT" : "POST",
       headers: {
         "Content-Type": actualizar ? "application/json" : "application/x-www-form-urlencoded",
@@ -564,7 +564,7 @@ function confVistaSolicitud() {
       if (!txtBuscarColaborador.value.trim()) return
       const colaboradorId = txtBuscarColaborador.dataset.id
       const solicitudId = verTipoSolicitud.dataset.id
-      await fetch(`/${contextPath}/control/SolicitudServlet?action=2`, {
+      await fetch(`/${contextPath}/control/AsignacionServlet`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -576,15 +576,17 @@ function confVistaSolicitud() {
           return resp.json()
         }
       })
-      .then(colaborador => {
-        
-
-        contenedorTarjetas.insertBefore(crearTarjetilla(
-            colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
-            `Código: ${colaborador.codigo}`, true
-          ),
-          contenedorTarjetas.firstChild
-        )
+      .then(data => {
+        if (data.ok) {
+          contenedorTarjetas.insertBefore(crearTarjetilla(
+            data.colaborador.id, `${data.colaborador.nombre} ${data.colaborador.apellidoPaterno} ${data.colaborador.apellidoMaterno}`,
+              `Código: ${data.colaborador.codigo}`, true
+            ),
+            contenedorTarjetas.firstChild
+          )
+        } else {
+          alert(data.error)
+        }
       })
     }) 
   }

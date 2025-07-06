@@ -19,6 +19,13 @@ public class ColaboradorVista extends ColaboradorDTO implements Serializable {
   
   private short solicitudesActivas;
 
+  private String mensajeError;
+
+  public ColaboradorVista(String mensajeError) {
+    super(null, null, null, null);
+    this.mensajeError = mensajeError;
+  }
+
   public ColaboradorVista(Colaborador colaborador) {
     super(colaborador.getNumeroDocumento(), colaborador.getNombre(), colaborador.getApellidoPaterno(), colaborador.getApellidoMaterno());
     this.id = colaborador.getId();

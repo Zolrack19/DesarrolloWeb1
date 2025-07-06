@@ -61,7 +61,7 @@ public class ActividadRealizadaF {
         if (asignacion == null || asignacion.getSolicitud().getCliente().getId() != clienteVista.getId()) return null;
         
       } else if (usuario instanceof ColaboradorVista colaboradorVista) { // Colaborador no pertenece en la solicitud
-        if (!((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+        if (!colaboradorVista.getRolColaborador().equals("Administrador")) {
           if (asignacionDAO.getById(s, new AsignacionId(solicitudId, colaboradorVista.getId())) == null) return null;
         }
       }

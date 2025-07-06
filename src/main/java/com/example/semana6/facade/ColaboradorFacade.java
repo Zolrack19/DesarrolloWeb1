@@ -2,13 +2,12 @@ package com.example.semana6.facade;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import org.hibernate.Session;
 
 import com.example.semana6.dao.AsignacionDAO;
 import com.example.semana6.dao.ColaboradorDAO;
 import com.example.semana6.dao.RolColaboradorDAO;
+import com.example.semana6.dao.SolicitudDAO;
 import com.example.semana6.dao.TipoDocumentoDAO;
 import com.example.semana6.dto.cliente.ClienteDTO;
 import com.example.semana6.dto.cliente.ClienteVista;
@@ -18,6 +17,9 @@ import com.example.semana6.dto.colaborador.ColaboradorVista;
 import com.example.semana6.modelo.Asignacion;
 import com.example.semana6.modelo.AsignacionId;
 import com.example.semana6.modelo.Colaborador;
+import com.example.semana6.modelo.RolColaborador;
+import com.example.semana6.modelo.Solicitud;
+import com.example.semana6.modelo.TipoDocumento;
 import com.example.semana6.singleton.HibernateUtil;
 
 public class ColaboradorFacade {
@@ -25,6 +27,7 @@ public class ColaboradorFacade {
   private TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
   private RolColaboradorDAO rolColaboradorDAO = new RolColaboradorDAO();
   private AsignacionDAO asignacionDAO = new AsignacionDAO();
+  private final SolicitudDAO solicitudDAO = new SolicitudDAO();
   private StringBuilder query = new StringBuilder();
   
   public ColaboradorVista crearColaborador(ColaboradorCrear colaboradorCrear) {
@@ -33,26 +36,35 @@ public class ColaboradorFacade {
     try {
 
       Colaborador colaborador = colaboradorCrear.toColaborador();
-      colaborador.setTipoDocumento(tipoDocumentoDAO.getById(s, colaboradorCrear.getTipoDocumentoId()));
-      colaborador.setRolColaborador(rolColaboradorDAO.getById(colaboradorCrear.getRolColaboradorId()));
+      TipoDocumento tipoDocumento = tipoDocumentoDAO.getById(s, colaboradorCrear.getTipoDocumentoId());
+      if (tipoDocumento == null) {
+        return new ColaboradorVista("Error, tipo de documento no es válido");
+      }
+      RolColaborador rolColaborador = rolColaboradorDAO.getById(colaboradorCrear.getRolColaboradorId());
+      if (rolColaborador == null) {
+        return new ColaboradorVista("Error, el tipo rol de colaborador no es válido");
+      }
+
+      colaborador.setTipoDocumento(tipoDocumento);
+      colaborador.setRolColaborador(rolColaborador);
       colaboradorDAO.crearColaborador(colaborador);
+
       ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador);
       s.getTransaction().commit();
-      s.close();
       return colaboradorVista;
     } catch (Exception e) {
       s.getTransaction().rollback();
-      e.printStackTrace();
+      throw e;
+    } finally {
+      s.close();
     }
-    s.close();
-    return null;
   }
 
   public List<ColaboradorVista> getColaboradores(String[] tokens) {
     if (tokens.length == 0) return null;
     query.append("""
-      SELECT c.*
-      FROM colaboradordto_vista c WHERE 
+    SELECT c.*
+    FROM colaboradordto_vista c WHERE c.solicitudes_activas < 5 and (
     """);
 
     for (int i = 0; i < Math.min(tokens.length, 5); i++) {
@@ -68,9 +80,9 @@ public class ColaboradorFacade {
         query.append("c.apellido_paterno ILIKE unaccent('%").append(token).append("%') OR \n"); 
         query.append("c.apellido_materno ILIKE unaccent('%").append(token).append("%')"); 
       }
-      query.append(" and c.solicitudes_activas < 5 )\n");
+      query.append("\n)\n");
     }
-    query.append("limit 5");
+    query.append(") limit 5");
     List<ColaboradorVista> colaboradores = colaboradorDAO.getClientesByQuery(query.toString());
     query.delete(0, query.length());
     return colaboradores;
@@ -87,17 +99,20 @@ public class ColaboradorFacade {
     s.beginTransaction();
     
     try {
-      if (usuario instanceof ClienteDTO) {
-        if (asignacionDAO.getById(s, new AsignacionId(solicitudId, ((ClienteVista) usuario).getId())) == null) return null;
-      } else if (usuario instanceof ColaboradorDTO) {
+      if (usuario instanceof ClienteVista clienteVista) { // solicitud no pertenece al cliente
+        Solicitud solicitud = solicitudDAO.getById(s, solicitudId);
+        if (solicitud == null || solicitud.getId() != clienteVista.getId()) return null;
+
+      } else if (usuario instanceof ColaboradorVista colaboradorVista) {// Colaborador no pertenece en la solicitud
         if (!((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
-          if (asignacionDAO.getById(s, new AsignacionId(solicitudId, ((ColaboradorVista) usuario).getId())) == null) return null;
+          if (asignacionDAO.getById(s, new AsignacionId(solicitudId, colaboradorVista.getId())) == null) return null;
         }
       }
       List<Asignacion> asignaciones = asignacionDAO.getByIdSolicitud(s, solicitudId);
-      if (asignaciones != null && asignaciones.size() == 0) return null;
+      if (asignaciones == null) return null;
       
       List<ColaboradorVista> colaboradorVistas = new LinkedList<>();
+      if (asignaciones.size() == 0) return colaboradorVistas; // se devuelve un array sin elementos
       // si hay coordinador, será el primera de la lista
       int coordinadorId = -1;
       if (asignaciones.get(0).getSolicitud().getCoordinador() != null) {
@@ -116,43 +131,55 @@ public class ColaboradorFacade {
       return colaboradorVistas;
     } catch (Exception e) {
       e.printStackTrace();
+      throw e;
     } finally {
       s.close();
     }
-
-    return null;
   }
 
-  public ColaboradorVista actualizarColaborador(Map<String, Object> campos, Object usuario) {
-    if (!(usuario instanceof ColaboradorDTO) || !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")
-    || campos.get("id") == null) {
-      return null;
+  public ColaboradorVista actualizarColaborador(ColaboradorCrear colaboradorCrear, Object usuario) {
+    if (!(usuario instanceof ColaboradorDTO) || !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+      return new ColaboradorVista("Error, no cuenta con permisos para actualizar atributos de los colaboradores.");
     }
+
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
     
-    Colaborador colaborador = colaboradorDAO.getById(s, (int) campos.get("id"));
-    if (colaborador == null) {
+    try {
+      Colaborador colaborador = colaboradorDAO.getById(s, colaboradorCrear.getId());
+      if (colaborador == null) {
+        return new ColaboradorVista("Error, el colaborador que intenta actualizar no existe");
+      }
+      colaborador.setNombre(colaboradorCrear.getNombre());
+      colaborador.setApellidoPaterno(colaboradorCrear.getApellidoPaterno());
+      colaborador.setApellidoMaterno(colaboradorCrear.getApellidoMaterno());
+      colaborador.setNumeroDocumento(colaboradorCrear.getNumeroDocumento());
+      if (colaborador.getTipoDocumento().getId() != colaboradorCrear.getTipoDocumentoId()) {
+        TipoDocumento tipoDocumento = tipoDocumentoDAO.getById(s, colaboradorCrear.getTipoDocumentoId());
+        if (tipoDocumento == null) {
+          return new ColaboradorVista("Error, tipo de documento no válido");
+        }
+        colaborador.setTipoDocumento(tipoDocumento);
+      }
+      if (colaborador.getRolColaborador().getId() != colaboradorCrear.getRolColaboradorId()) {
+        RolColaborador rolColaborador = rolColaboradorDAO.getById(colaboradorCrear.getRolColaboradorId());
+        if (rolColaborador == null) {
+          return new ColaboradorVista("Error, rol de colaborador no válido");
+        }
+        colaborador.setRolColaborador(rolColaborador);
+      }
+  
+      colaboradorDAO.actualizarColaborador(s, colaborador);
+      ColaboradorVista colaboradorVista = new ColaboradorVista(colaborador);
+
+      s.getTransaction().commit();
+      return colaboradorVista;
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      throw e;
+    } finally {
       s.close();
-      return null;
     }
-    colaborador.setNombre((String) campos.get("nombre"));
-    colaborador.setApellidoPaterno((String) campos.get("apellidoP"));
-    colaborador.setApellidoMaterno((String) campos.get("apellidoM"));
-    colaborador.setNumeroDocumento((String) campos.get("documento"));
-    if (colaborador.getTipoDocumento().getId() != Short.parseShort((String) campos.get("tipoDocumentoId"))) {
-      colaborador.setTipoDocumento(tipoDocumentoDAO.getById(s, Short.parseShort((String) campos.get("tipoDocumentoId"))));
-    }
-    if (colaborador.getRolColaborador().getId() != Short.parseShort((String) campos.get("rolColaboradorId"))) {
-      colaborador.setRolColaborador(rolColaboradorDAO.getById(Short.parseShort((String) campos.get("rolColaboradorId"))));
-    }
-
-    colaboradorDAO.actualizarColaborador(s, colaborador);
-    
-    s.getTransaction().commit();
-    s.close();
-
-    return new ColaboradorVista(colaborador);
   }
 
   public void eliminarColaborador(Object usuario, int colaboradorId) {

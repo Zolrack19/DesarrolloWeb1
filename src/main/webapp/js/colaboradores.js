@@ -20,6 +20,12 @@ export function init(datos) {
       }
       rellenarModal(colaboradores.find((colaborador) => colaborador.id == fila.dataset.id))
       abrirModal("modalColaborador", "contenidoColaborador")
+
+    } else if (e.target.classList.contains("btn-ver-solicitudes")) {
+      const fila = e.target.closest("tr");
+      if (!fila) return;
+      console.log("lógica para ir a solicitudes, pero solo de este usuario");
+
     } else if (e.target.classList.contains("btn-eliminar")) {
       const fila = e.target.closest("tr");
       if (!fila || !confirm("¿Está seguro que quiere elimminar este colaborador?")) return;
@@ -315,6 +321,7 @@ function crearFila(colaborador) {
       </button>
       <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
         <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
+        <button class="btn-ver-solicitudes block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver solicitues</button>
         <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
       </div>
     </td>

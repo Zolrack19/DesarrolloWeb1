@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "ColaboradorServlet", urlPatterns = { "/control/ColaboradorServlet" })
 public class ColaboradorServlet extends HttpServlet {
   private ColaboradorFacade colaboradorFacade = new ColaboradorFacade();
+  private StringBuilder mensajeError = new StringBuilder();
 
 
   @Override
@@ -78,21 +79,76 @@ public class ColaboradorServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     req.setCharacterEncoding("UTF-8");
-    short tipoDocumentoId = Short.valueOf(req.getParameter("tipoDocumentoId"));
-    String numeroDocumento = req.getParameter("documento");
-    short rolColaboradorId = Short.valueOf(req.getParameter("rolColaboradorId"));
-    String nombre = req.getParameter("nombre");
-    String apellidoP = req.getParameter("apellidoP");
-    String apellidoM = req.getParameter("apellidoM");
-
-    ColaboradorCrear colaboradorCrear = new ColaboradorCrear(rolColaboradorId, tipoDocumentoId, numeroDocumento, nombre, apellidoP, apellidoM);
-    ColaboradorVista colaboradorVista = colaboradorFacade.crearColaborador(colaboradorCrear);
-
-    Map<String, Object> json = new HashMap<>();
-    json.put("ok", colaboradorVista != null);
-    json.put("colaborador", colaboradorVista);
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
+    Map<String, Object> json = new HashMap<>();
+
+    try {
+      for (int i = 0; i < 1; i++) {
+        
+        String numeroDocumento = req.getParameter("documento");
+        String docId = req.getParameter("tipoDocumentoId");
+        String rolColabId = req.getParameter("rolColaboradorId");
+        String nombre = req.getParameter("nombre");
+        String apellidoP = req.getParameter("apellidoP");
+        String apellidoM = req.getParameter("apellidoM");
+
+        if (docId == null || !docId.matches("\\d+")) { // solo números
+          mensajeError.append("Tipo de documento no válido: ").append(docId);
+          break;
+        }
+        if (rolColabId == null || !rolColabId.matches("\\d+")) {
+          mensajeError.append("Rol de colaborador inválido: ").append(rolColabId);
+          break;
+        }
+        if (nombre == null) {
+          mensajeError.append("\nNombre no puede ser nulo");
+        } else {
+          nombre = nombre.trim();
+          if (nombre.isEmpty() || nombre.length() > 100) {
+            mensajeError.append("\nNombre inválido (máximo 100 caracteres)");
+          }
+        }
+        if (apellidoP == null || apellidoM == null) {
+          mensajeError.append("\nApellidos no pueden estar en nulo");
+        } else {
+          apellidoP = apellidoP.trim();
+          apellidoM = apellidoM.trim();
+          if ((apellidoP.isEmpty() || apellidoM.isEmpty()) || (apellidoP.length() > 50 || apellidoM.length() > 50)) {
+            mensajeError.append("\nApellidos inválidos (máximo 50 caracteres por apellido)");
+          }
+        }
+        if (numeroDocumento == null || numeroDocumento.isEmpty()) { // esto mejorar
+          mensajeError.append("\nNúmero de documento inválido: ").append(numeroDocumento);
+        }
+
+        if (!mensajeError.isEmpty()) break;
+        
+        short tipoDocumentoId = Short.valueOf(docId);
+        short rolColaboradorId = Short.valueOf(rolColabId);
+
+        ColaboradorCrear colaboradorCrear = new ColaboradorCrear(rolColaboradorId, tipoDocumentoId, numeroDocumento, nombre, apellidoP, apellidoM);
+        ColaboradorVista colaboradorVista = colaboradorFacade.crearColaborador(colaboradorCrear);
+        if (colaboradorVista.getMensajeError() != null) {
+          json.put("ok", false);
+          json.put("error", colaboradorVista.getMensajeError());
+        } else {
+          json.put("ok", true);
+          json.put("colaborador", colaboradorVista);
+        }
+      }
+    } catch (Exception e) {
+      json.put("ok", false);
+      json.put("error", "Error inesperado en el servidor");
+      e.printStackTrace();
+    }
+    
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
+
+    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
@@ -101,23 +157,79 @@ public class ColaboradorServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     req.setCharacterEncoding("UTF-8");
-    
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    Map<String, Object> json = new HashMap<>();
     HttpSession session = req.getSession(false);
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
-      ColaboradorVista colaboradorVista = colaboradorFacade.actualizarColaborador(campos, session.getAttribute("usuario"));
 
-      Map<String, Object> json = new HashMap<>();
-      json.put("ok", colaboradorVista != null);
-      json.put("colaborador", colaboradorVista);
-      resp.setContentType("application/json");
-      resp.setCharacterEncoding("UTF-8");
-      new ObjectMapper().writeValue(resp.getWriter(), json);
+    try {
+      for (int i = 0; i < 1; i++) {
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+        
+        int id = -1;
+        short docId = -1;
+        short rolColabId = -1;
+        String numeroDocumento = null;
+        String nombre = null;
+        String apellidoP = null;
+        String apellidoM = null;
+
+        if (campos.get("id") instanceof Integer) {
+          id = (int) campos.get("id");
+        } else {
+          mensajeError.append("\nError, no se proporcionó una id del colaborador");
+          break;          
+        }
+        if (campos.get("documento") instanceof String) {
+          numeroDocumento = ((String) campos.get("documento")).trim();
+        } else {
+          mensajeError.append("\nError en el tipo de dato del número de documento");
+          break;          
+        }
+        if (campos.get("tipoDocumentoId") instanceof Short) {
+          docId = (short) campos.get("tipoDocumentoId");
+        } else {
+          mensajeError.append("\nError en el tipo de documento");
+          break; 
+        }
+        if (campos.get("rolColaboradorId") instanceof Short) {
+          rolColabId = (short) campos.get("rolColaboradorId");
+        } else {
+          mensajeError.append("\nError en el tipo de documento");
+          break; 
+        }
+        if (campos.get("nombre") instanceof String) {
+          nombre = ((String) campos.get("nombre")).trim();
+        } else {
+          mensajeError.append("\nError en el dato del nombre");
+          break;
+        }
+        if (campos.get("apellidoP") instanceof String) {
+          apellidoP = ((String) campos.get("apellidoP")).trim();
+        } else {
+          mensajeError.append("\nError de dato en el apellido parteno");
+          break;
+        }
+        if (campos.get("apellidoM") instanceof String) {
+          apellidoM = ((String) campos.get("apellidoP")).trim();
+        } else {
+          mensajeError.append("\nError de dato en el apellido marteno");
+          break;
+        }
+
+        ColaboradorCrear colaboradorCrear = new ColaboradorCrear(rolColabId, docId, numeroDocumento, nombre, apellidoP, apellidoM);
+        colaboradorCrear.setId(id);
+        ColaboradorVista colaboradorVista = colaboradorFacade.actualizarColaborador(colaboradorCrear, session.getAttribute("usuario"));
+  
+        json.put("ok", colaboradorVista != null);
+        json.put("colaborador", colaboradorVista);
+      }
 
     } catch (Exception e) {
       e.printStackTrace();
     }
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   @Override

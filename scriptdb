@@ -46,7 +46,7 @@ CREATE TABLE colaborador (
   nombre varchar(100) NOT NULL,
   apellido_paterno varchar(50) NOT NULL,
   apellido_materno varchar(50) NOT NULL,
-  numero_solicitud_activa SMALLINT CHECK (numero_solicitud_activa BETWEEN 0 AND 5) DEFAULT 0,
+  solicitudes_activas SMALLINT CHECK (solicitudes_activas BETWEEN 0 AND 5) DEFAULT 0,
   CONSTRAINT fk_rol_colaborador FOREIGN KEY (rol_colaborador_id) REFERENCES rol_colaborador(id),
   CONSTRAINT fk_tipo_documento FOREIGN KEY (tipo_documento_id) REFERENCES tipo_documento(id)
 );
@@ -85,13 +85,13 @@ CREATE TABLE solicitud (
   tipo_solicitud_id SMALLINT NOT NULL,
   titulo varchar(200) NOT NULL,
   descripcion text NOT NULL,
-  id_cordinador INTEGER NOT NULL,
+  coordinador_id INTEGER NOT NULL,
   cliente_id INTEGER NOT NULL,
   fecha_registro TIMESTAMP DEFAULT current_timestamp NOT NULL,
   fecha_finalizacion TIMESTAMP,
   estado_id SMALLINT NOT NULL,
   CONSTRAINT fk_tipo_solicitud FOREIGN KEY (tipo_solicitud_id) REFERENCES tipo_solicitud(id),
-  CONSTRAINT fk_cordinador FOREIGN KEY (id_cordinador) REFERENCES colaborador(id),
+  CONSTRAINT fk_cordinador FOREIGN KEY (coordinador_id) REFERENCES colaborador(id),
   CONSTRAINT fk_cliente FOREIGN KEY (cliente_id) REFERENCES cliente(id),
   CONSTRAINT fk_estado_solicitud FOREIGN KEY (estado_id) REFERENCES estado_solicitud(id)
 );
@@ -181,6 +181,91 @@ EXECUTE FUNCTION generar_codigo_por_rol();
 
 
 
+CREATE OR REPLACE FUNCTION actualizar_solicitudes_activas__solicitud()
+RETURNS trigger AS $$
+BEGIN
+
+  IF TG_OP = 'INSERT' THEN
+    -- Nueva solicitud con coordinador
+    IF NEW.coordinador_id IS NOT NULL THEN
+      UPDATE colaborador
+      SET solicitudes_activas = solicitudes_activas + 1
+      WHERE id = NEW.coordinador_id;
+      
+      INSERT INTO asignacion(colaborador_id, solicitud_id) values (NEW.coordinador_id, NEW.id);
+    END IF;
+    RETURN NEW;
+
+  ELSIF TG_OP = 'UPDATE' THEN
+    -- Cambió el coordinador
+    IF NEW.coordinador_id IS DISTINCT FROM OLD.coordinador_id THEN
+      IF OLD.coordinador_id IS NOT NULL THEN
+        UPDATE colaborador
+        SET solicitudes_activas = solicitudes_activas - 1
+        WHERE id = OLD.coordinador_id;
+      END IF;
+      IF NOT EXISTS (
+        SELECT 1 FROM asignacion
+        WHERE solicitud_id = NEW.id
+        AND colaborador_id = NEW.coordinador_id
+      ) THEN
+        INSERT INTO asignacion(colaborador_id, solicitud_id) VALUES (NEW.coordinador_id, NEW.id);
+      END IF;
+    END IF;
+    RETURN NEW;
+  
+  ELSIF TG_OP = 'DELETE' THEN
+    IF OLD.coordinador_id IS NOT NULL THEN
+      UPDATE colaborador
+      SET solicitudes_activas = solicitudes_activas - 1
+      WHERE id = OLD.coordinador_id;
+    END IF;
+    RETURN OLD;
+  END IF;
+  
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_solicitud_modificacion
+AFTER INSERT OR UPDATE OR DELETE ON solicitud
+FOR EACH ROW
+EXECUTE FUNCTION actualizar_solicitudes_activas__solicitud();
+
+
+
+CREATE OR REPLACE FUNCTION actualizar_solicitudes_activas__asignacion()
+RETURNS trigger AS $$
+BEGIN
+
+  IF TG_OP = 'INSERT' THEN
+    UPDATE colaborador
+    SET solicitudes_activas = solicitudes_activas + 1
+    WHERE id = NEW.colaborador_id;
+    RETURN NEW;
+
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE colaborador
+    SET solicitudes_activas = solicitudes_activas - 1
+    WHERE id = OLD.colaborador_id;
+    RETURN OLD;
+  END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_asignacion_insert
+BEFORE INSERT ON asignacion
+FOR EACH ROW
+EXECUTE FUNCTION actualizar_solicitudes_activas__asignacion();
+
+CREATE TRIGGER trg_asignacion_delete
+BEFORE DELETE ON asignacion
+FOR EACH ROW
+EXECUTE FUNCTION actualizar_solicitudes_activas__asignacion();
+
+
+
+
 --índices
 CREATE INDEX idx_colaborador_nombre_apellido
 ON colaborador (nombre, apellido_paterno, apellido_materno);
@@ -194,8 +279,5 @@ ON persona_con_negocio (nombre, apellido_paterno, apellido_materno);
 
 CREATE INDEX idx_persona_con_negocio_apellido
 ON persona_con_negocio (apellido_paterno, apellido_materno);
-
-
-
 
 

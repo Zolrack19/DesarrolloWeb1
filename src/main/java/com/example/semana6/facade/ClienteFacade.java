@@ -31,9 +31,9 @@ public class ClienteFacade {
   private final SectorEconomicoDAO sectorEconomicoDAO = new SectorEconomicoDAO();
 
   private StringBuilder query = new StringBuilder("""
-    SELECT c.*, p.*,
-    CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END AS clazz_
-    FROM cliente c LEFT JOIN persona_con_negocio p ON p.id = c.id WHERE 
+  SELECT c.*, p.*,
+  CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END AS clazz_
+  FROM cliente c LEFT JOIN persona_con_negocio p ON p.id = c.id WHERE 
   """);
   
   public ClienteVista crearCliente(ClienteCrear clienteCrear) {

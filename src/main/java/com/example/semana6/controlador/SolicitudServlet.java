@@ -62,27 +62,6 @@ public class SolicitudServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String action = req.getParameter("action");
-    switch (action) {
-      case "1" -> {
-        crearSolicitud(req, resp);
-      }
-      case "2" -> {
-        asignarColaborador(req, resp);
-      }
-      default -> {
-      }
-    }
-  }
-
-  private void asignarColaborador(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    int solicitudId = Integer.valueOf(req.getParameter("solicitudId"));
-    int colaboradorId = Integer.valueOf(req.getParameter("colaboradorId"));
-    ColaboradorVista colaboradorVista = solicitudesFacade.asignarColaboradorASolicitud(solicitudId, colaboradorId);
-    new ObjectMapper().writeValue(resp.getWriter(), colaboradorVista);  
-  }
-
-  private void crearSolicitud(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     try {
       short tipoSolicitudId = Short.valueOf(req.getParameter("tipoSolicitudId"));
       String titulo = req.getParameter("titulo");

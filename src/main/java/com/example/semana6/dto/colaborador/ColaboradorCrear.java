@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class ColaboradorCrear extends ColaboradorDTO implements Serializable {
   
+  private int id;
   private short rolColaboradorId;
   private short tipoDocumentoId;
 
