@@ -30,15 +30,32 @@ export function init(datos, appContexto = null) {
     } else if (e.target.classList.contains("btn-ver-solicitudes")) {
       const fila = e.target.closest("tr");
       if (!fila) return;
-      const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=1`)
-      datos = await res.json()
-      console.log("lógica para ir a solicitudes, pero solo de este usuario");
+      if (app.vistasCache["solicitudes"]) {
+        await fetch(`/${contextPath}/control/SolicitudServlet?colaboradorId=${fila.dataset.id}&action=1&numPag=1`)
+        .then(resp => {
+          if (resp.ok) {
+            return resp.json()
+          }
+        }).then(data => {
+          if (data.ok) {
+            history.pushState({nombre: "solicitudes"}, '', `/${contextPath}/html/menu/solicitudes`);
+            app.vistasCache["solicitudes"].modulo?.actualizar?.(app.vistasCache["solicitudes"].nodo); 
+            app.contenido.innerHTML = app.vistasCache["solicitudes"].nodo.innerHTML;
+            app.vistasCache["solicitudes"].modulo?.init?.(data.solicitudes);
+          } else {
+            alert(data.error)
+          }
+        })
 
+      } else {
+        history.pushState({nombre: "solicitudes"}, '', `/${contextPath}/html/menu/solicitudes`);
+        app.initVista("solicitudes", `/${contextPath}/control/SolicitudServlet?colaboradorId=${fila.dataset.id}&action=1&numPag=1`)
+      }
     } else if (e.target.classList.contains("btn-eliminar")) {
       const fila = e.target.closest("tr");
       if (!fila || !confirm("¿Está seguro que quiere elimminar este colaborador?")) return;
 
-      await fetch("/" + contextPath + `/control/ColaboradorServlet?id=${fila.dataset.id}`, {
+      await fetch(`/${contextPath}/control/ColaboradorServlet?id=${fila.dataset.id}`, {
         method: "DELETE"
       }).then(response => {
         if (response.ok) {

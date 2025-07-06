@@ -30,6 +30,8 @@ btnPerfil.addEventListener(("click"), () => {cargarContenido("perfil")})
 btnPerfil.addEventListener(("click"), cerrarSesion)
 
 
+const contenido = document.getElementById("contenido");
+
 const contextPath = window.location.pathname.split("/")[1];
 let vistasCache = {};
 let paginaActual = ""
@@ -39,8 +41,7 @@ async function init() {
   if (!respuesta.ok) throw new Error("No se pudo cargar la vista.");
   
   const html = await respuesta.text();
-  
-  document.getElementById("contenido").innerHTML = html;
+  contenido.innerHTML = html;
   const divContenedor = document.createElement("div")
   divContenedor.innerHTML = html
 
@@ -56,7 +57,6 @@ async function init() {
 
 
 async function cargarContenido(nombre, acutalizarURL = true) {
-  const contenedor = document.getElementById("contenido");
   if (paginaActual === nombre) return
   
   paginaActual = nombre;
@@ -66,53 +66,50 @@ async function cargarContenido(nombre, acutalizarURL = true) {
   
   if (vistasCache[nombre]) {
     vistasCache[nombre].modulo?.actualizar?.(vistasCache[nombre].nodo); 
-    contenedor.innerHTML = vistasCache[nombre].nodo.innerHTML;
+    contenido.innerHTML = vistasCache[nombre].nodo.innerHTML;
     vistasCache[nombre].modulo?.init?.();
     return;
   }
 
-  // try {
-    const rutaJS = `/${contextPath}/js/${nombre}.js`;
-    const respuesta = await fetch(`/${contextPath}/control/EvaluarJSP?vista=${nombre}.jsp`);
-    if (!respuesta.ok) throw new Error("No se pudo cargar la vista.");
+  initVista(nombre, `/${contextPath}/control/${servlets[nombre]}?numPag=1`)
+}
 
-    const html = await respuesta.text();
-    
-    const divContenedor = document.createElement("div")
-    divContenedor.innerHTML = html
+async function initVista(nombre, fetchURL) {
+  const rutaJS = `/${contextPath}/js/${nombre}.js`;
+  const respuesta = await fetch(`/${contextPath}/control/EvaluarJSP?vista=${nombre}.jsp`);
+  if (!respuesta.ok) throw new Error("No se pudo cargar la vista.");
 
-    let datos = null
-    if (servlets[nombre]) {
-      contenedor.innerHTML = carga;
-      const resp = await fetch(`/${contextPath}/control/${servlets[nombre]}?numPag=1`)
-      if (resp.ok) {
-        const data = await resp.json()
-        if (data.ok) {
-          datos = data[nombre]
-          console.log("todo bien: ");
-          console.log(datos);
-        } else {
-          alert("error en cargar la vista: " + nombre)
-          return
-        }
+  const html = await respuesta.text();
+  
+  const divContenedor = document.createElement("div")
+  divContenedor.innerHTML = html
+
+  let datos = null
+  if (servlets[nombre]) {
+    contenido.innerHTML = carga;
+    const resp = await fetch(fetchURL)
+    if (resp.ok) {
+      const data = await resp.json()
+      if (data.ok) {
+        datos = data[nombre]
       } else {
-        alert("Error en petición http")
+        alert("error en cargar la vista: " + nombre)
         return
       }
+    } else {
+      alert("Error en petición http")
+      return
     }
+  }
 
-    const modulo = await import(rutaJS);
-    contenedor.innerHTML = html;
-    modulo?.init?.(datos, {vistasCache, cargarContenido});
+  const modulo = await import(rutaJS);
+  contenido.innerHTML = html;
+  modulo?.init?.(datos, {vistasCache, cargarContenido, contenido, initVista});
 
-    vistasCache[nombre] = {
-      nodo: divContenedor,
-      modulo
-    };
-
-  // } catch (error) {
-  //   console.error(error);
-  // }
+  vistasCache[nombre] = {
+    nodo: divContenedor,
+    modulo
+  };
 }
 
 function cerrarSesion() {

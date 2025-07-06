@@ -145,6 +145,58 @@ public class SolicitudesFacade {
     return null;
   }
 
+  public List<SolicitudVista> getSolicitudesByCliente(Object usuario, int clienteId, int numPag) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+      if (usuario instanceof ClienteVista) {
+        return null; //no tiene permisos
+      }
+      if (usuario instanceof ColaboradorVista colaboradorVista) { 
+        if (!colaboradorVista.getRolColaborador().equals("Administrador")) {
+          return null; //no tiene permiso de administrador
+        }
+      }
+
+      List<SolicitudVista> solicitudes = solicitudDAO.getByClienteId(s, clienteId, (numPag - 1)*10, 10);
+      s.getTransaction().commit();
+      return solicitudes;
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      throw e;
+    } finally {
+      s.close();
+    }
+  }
+  public List<SolicitudVista> getSolicitudesByColaborador(Object usuario, int colaboradorId, int numPag) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+      if (usuario instanceof ClienteVista) {
+        return null; //no tiene permisos
+      }
+      if (usuario instanceof ColaboradorVista colaboradorVista) { 
+        if (!colaboradorVista.getRolColaborador().equals("Administrador")) {
+          return null; //no tiene permiso de administrador
+        }
+      }
+
+      List<Asignacion> asignaciones = asignacionDAO.getByIdColaborador(s, colaboradorId, (numPag - 1)*10, 10);
+      LinkedList<SolicitudVista> solicitudes = new LinkedList<>();
+      for (Asignacion asignacion : asignaciones) {
+        solicitudes.add(new SolicitudVista(asignacion.getSolicitud()));
+      }
+      
+      s.getTransaction().commit();
+      return solicitudes;
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      throw e;
+    } finally {
+      s.close();
+    }
+  }
+
   public SolicitudVista actualizarSolicitud(Map<String, Object> campos, Object usuario) {
     if (campos.get("id") == null || 
       ((usuario instanceof ColaboradorDTO) && 

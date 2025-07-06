@@ -17,7 +17,7 @@ export function init(datos, appContexto = null) {
   let rellenarModal = null
   tbody.addEventListener("click", async (e) => {
     if (e.target.classList.contains("btn-ver-detalles")) {
-      const fila = e.target.closest("tr");inn
+      const fila = e.target.closest("tr");
       if (!fila) return;
       if (!rellenarVista) {
         rellenarVista = confVistaSolicitud()

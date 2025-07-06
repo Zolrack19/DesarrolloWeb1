@@ -31,7 +31,27 @@ export function init(datos, appContexto = null) {
     } else if (e.target.classList.contains("btn-ver-solicitudes")) {
       const fila = e.target.closest("tr");
       if (!fila) return;
-      console.log("lógica para ir a solicitudes, pero solo de este usuario");
+      
+      if (app.vistasCache["solicitudes"]) {
+        await fetch(`/${contextPath}/control/SolicitudServlet?clienteId=${fila.dataset.id}&action=2&numPag=1`)
+        .then(resp => {
+          if (resp.ok) {
+            return resp.json()
+          }
+        }).then(data => {
+          if (data.ok) {
+            app.vistasCache["solicitudes"].modulo?.actualizar?.(app.vistasCache["solicitudes"].nodo); 
+            app.contenido.innerHTML = app.vistasCache["solicitudes"].nodo.innerHTML;
+            app.vistasCache["solicitudes"].modulo?.init?.(data.solicitudes);
+            history.pushState({nombre: "solicitudes"}, '', `/${contextPath}/html/menu/solicitudes`);
+          } else {
+            alert(data.error)
+          }
+        })
+      } else {
+        app.initVista("solicitudes", `/${contextPath}/control/SolicitudServlet?clienteId=${fila.dataset.id}&action=2&numPag=1`)
+        history.pushState({nombre: "solicitudes"}, '', `/${contextPath}/html/menu/solicitudes`);
+      }
 
     } else if (e.target.classList.contains("btn-eliminar")) {
       const fila = e.target.closest("tr");

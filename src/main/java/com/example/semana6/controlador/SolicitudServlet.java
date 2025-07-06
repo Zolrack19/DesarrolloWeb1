@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "SolicitudServlet", urlPatterns = {"/control/SolicitudServlet"})
 public class SolicitudServlet extends HttpServlet {
   private SolicitudesFacade solicitudesFacade;
+  private StringBuilder mensajeError = new StringBuilder();
   
   @Override
   public void init() throws ServletException {
@@ -41,11 +42,117 @@ public class SolicitudServlet extends HttpServlet {
     switch (action) {
       case null -> {cargarSolicitudes(req, resp, json);}
       case "1" -> {
-        
+        solicitudesDeColaborador(req, resp, json);
+      }
+      case "2" -> {
+        solicitudesDeCliente(req, resp, json);
       }
       default -> {}
     }
+  }
 
+  private void solicitudesDeCliente(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    Object usuario = session.getAttribute("usuario");
+    
+    try {
+      while (true) {
+        if (usuario == null) {
+          mensajeError.append("No hay sesión activa, no puede ejecutar ninguna operación hasta volver a inicar sesión");
+          break;
+        }
+        String numP = req.getParameter("numPag");
+        String clientId = req.getParameter("clienteId");
+
+        if (numP == null || !numP.matches("\\d+")) {
+          mensajeError.append("\nNúmero de página debe ser de tipo entero: ").append(numP);
+          break;
+        }
+        if (clientId == null || !clientId.matches("\\d+")) {
+          mensajeError.append("\nId de cliente no es válida: ").append(clientId);
+          break;
+        }
+
+        int numPag = Integer.parseInt(numP);
+        if (numPag < 0) {
+          mensajeError.append("\nNúmero de página no puede ser un negativo: ").append(numP);
+        }
+        int clienteId = Integer.parseInt(clientId);
+
+        if (!mensajeError.isEmpty()) break;
+
+        List<SolicitudVista> solicitudVistas = solicitudesFacade.getSolicitudesByCliente(usuario, clienteId, numPag);
+        
+        json.put("ok", true);
+        json.put("solicitudes", solicitudVistas);
+        break;
+      }
+    } catch (Exception e) {
+      json.put("ok", false);
+      json.put("error", "Error inesperado en el servidor");
+      e.printStackTrace();
+    }
+
+    
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
+
+    mensajeError.setLength(0);
+    new ObjectMapper().writeValue(resp.getWriter(), json);
+  }
+
+  private void solicitudesDeColaborador(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    Object usuario = session.getAttribute("usuario");
+    
+    try {
+      while (true) {
+        if (usuario == null) {
+          mensajeError.append("No hay sesión activa, no puedes ejecutar ninguna operación hasta volver a inicar sesión");
+          break;
+        }
+        String numP = req.getParameter("numPag");
+        String colabId = req.getParameter("colaboradorId");
+
+        if (numP == null || !numP.matches("\\d+")) {
+          mensajeError.append("\nNúmero de página debe ser de tipo entero: ").append(numP);
+          break;
+        }
+        if (colabId == null || !colabId.matches("\\d+")) {
+          mensajeError.append("\nId de colaborador no es válida: ").append(colabId);
+          break;
+        }
+
+        int numPag = Integer.parseInt(numP);
+        if (numPag < 0) {
+          mensajeError.append("\nNúmero de página no puede ser un negativo: ").append(numP);
+        }
+        int colaboradorId = Integer.parseInt(colabId);
+
+        if (!mensajeError.isEmpty()) break;
+
+        List<SolicitudVista> solicitudVistas = solicitudesFacade.getSolicitudesByColaborador(usuario, colaboradorId, numPag);
+        
+        json.put("ok", true);
+        json.put("solicitudes", solicitudVistas);
+        break;
+      }
+    } catch (Exception e) {
+      json.put("ok", false);
+      json.put("error", "Error inesperado en el servidor");
+      e.printStackTrace();
+    }
+
+    
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
+
+    mensajeError.setLength(0);
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   private void cargarSolicitudes(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {

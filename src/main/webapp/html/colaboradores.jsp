@@ -9,7 +9,7 @@
         <span>Colaboradores</span>
       </p>
       <button id="btnReinicarTabla" class="text-pink-600 round rounded-2xl border border-pink-600 px-2 hidden">
-        Reiniciar solicitudes
+        Reiniciar colaboradores
       </button>
     </nav>
     <div class="flex items-center gap-4">
