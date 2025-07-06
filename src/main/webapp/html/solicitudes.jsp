@@ -15,6 +15,9 @@
           </c:otherwise>
         </c:choose>
       </p>
+      <button id="btnReinicarTabla" class="text-pink-600 round rounded-2xl border border-pink-600 px-2 hidden">
+        Reiniciar solicitudes
+      </button>
     </nav>
     <div class="flex items-center gap-4">
       <button id="btnNuevaSolicitud" class="bg-red-600 text-white px-4 py-2 rounded-full shadow hover:bg-red-700 transition-colors">

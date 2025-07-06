@@ -4,8 +4,14 @@ let colaboradores = []
 let numPag = 1
 let tbody
 let initModalForm = true
+let confReinicioTabla = false
+let app = null
 
-export function init(datos) {
+export function init(datos, appContexto = null) {
+  if (app === null && appContexto !== null) {
+    app = appContexto
+  }
+
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
   tbody = document.getElementById("tbodyColaboradores")
@@ -24,6 +30,8 @@ export function init(datos) {
     } else if (e.target.classList.contains("btn-ver-solicitudes")) {
       const fila = e.target.closest("tr");
       if (!fila) return;
+      const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=1`)
+      datos = await res.json()
       console.log("lógica para ir a solicitudes, pero solo de este usuario");
 
     } else if (e.target.classList.contains("btn-eliminar")) {
@@ -90,14 +98,43 @@ export function init(datos) {
     abrirModal("modalColaborador", "contenidoColaborador")
   })
   
+  if (confReinicioTabla) {
+    const btnReinicarTabla = document.getElementById("btnReinicarTabla")
+    btnReinicarTabla.addEventListener("click", async () => {
+      fetch(`/${contextPath}/control/ColaboradorServlet?numPag=1`)
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+      }).then(data => {
+        if (data.ok) {
+          colaboradores = data.colaboradores
+          tbody.innerHTML = ""
+          colaboradores.forEach(colaborador => {
+            tbody.appendChild(crearFila(colaborador));
+          });
+        } else {
+          alert(data.error)
+        }
+      })
+      
+      btnReinicarTabla.classList.add("hidden")
+    })
+    confReinicioTabla = false
+  }
 }
 
 export function actualizar(nodo) {
+  if (!confReinicioTabla) {
+    nodo.querySelector("button[id='btnReinicarTabla']").classList.remove("hidden")
+    confReinicioTabla = true
+  }
   if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
     nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
     nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
   }
   initModalForm = true
+  tbody = null
 }
 
 function confModalForm() {

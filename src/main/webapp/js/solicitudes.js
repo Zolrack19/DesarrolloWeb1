@@ -3,8 +3,13 @@ let solicitudes = []
 let numPag = 1
 let tbody
 let initModalForm = true
+let confReinicioTabla = false
+let app = null
 
-export function init(datos) {
+export function init(datos, appContexto = null) {
+  if (app === null && appContexto !== null) {
+    app = appContexto
+  }
   const pagInicio = document.getElementById("pagInicio")
   const pagFin = document.getElementById("pagFin")
   tbody = document.getElementById("tbodySolicitudes")
@@ -12,7 +17,7 @@ export function init(datos) {
   let rellenarModal = null
   tbody.addEventListener("click", async (e) => {
     if (e.target.classList.contains("btn-ver-detalles")) {
-      const fila = e.target.closest("tr");
+      const fila = e.target.closest("tr");inn
       if (!fila) return;
       if (!rellenarVista) {
         rellenarVista = confVistaSolicitud()
@@ -79,7 +84,7 @@ export function init(datos) {
       });
     }   
   })
-
+  
   if (datos) {
     solicitudes = datos
   }
@@ -94,15 +99,44 @@ export function init(datos) {
     }
     abrirModal("modalSolicitud", "contenidoSolicitud")}
   )
-  
+
+  if (confReinicioTabla) {
+    const btnReinicarTabla = document.getElementById("btnReinicarTabla")
+    btnReinicarTabla.addEventListener("click", async () => {
+      fetch(`/${contextPath}/control/SolicitudServlet?numPag=1`)
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+      }).then(data => {
+        if (data.ok) {
+          solicitudes = data.solicitudes
+          tbody.innerHTML = ""
+          solicitudes.forEach(solicitud => {
+            tbody.appendChild(crearFila(solicitud));
+          });
+        } else {
+          alert(data.error)
+        }
+      })
+      
+      btnReinicarTabla.classList.add("hidden")
+    })
+    confReinicioTabla = false
+  }
 }
 
 export function actualizar(nodo) {
+  if (!confReinicioTabla) {
+    nodo.querySelector("button[id='btnReinicarTabla']").classList.remove("hidden")
+    confReinicioTabla = true
+  }
   if (nodo.querySelector("span[id='pagFin']").innerHTML !== numPag*10) {
     nodo.querySelector("span[id='pagInicio']").innerHTML = (numPag - 1)*10 + 1
     nodo.querySelector("span[id='pagFin']").innerHTML = numPag*10
   }
   initModalForm = true
+  tbody = null
 }
 
 

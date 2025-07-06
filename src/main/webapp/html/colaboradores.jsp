@@ -5,7 +5,12 @@
   
   <header class="flex justify-between items-center px-6 py-4 border-b">
     <nav class="flex gap-6">
-      <a href="#" class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">Colaboradores</a>
+      <p id="" class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">
+        <span>Colaboradores</span>
+      </p>
+      <button id="btnReinicarTabla" class="text-pink-600 round rounded-2xl border border-pink-600 px-2 hidden">
+        Reiniciar solicitudes
+      </button>
     </nav>
     <div class="flex items-center gap-4">
       <button id="btnNuevoColaborador" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700">Nuevo Colaborador</button>

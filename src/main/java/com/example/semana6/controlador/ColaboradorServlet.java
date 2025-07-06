@@ -25,9 +25,13 @@ public class ColaboradorServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    Map<String, Object> json = new HashMap<>();
+
     String action = req.getParameter("action");
     switch (action) {
-      case null -> {cargarColaboradores(req, resp);}
+      case null -> {cargarColaboradores(req, resp, json);}
       case "1" -> {
         buscarColaboradoresPorTokens(req, resp);
       }
@@ -63,17 +67,18 @@ public class ColaboradorServlet extends HttpServlet {
     resp.getWriter().write(json);
   }
 
-  private void cargarColaboradores(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  private void cargarColaboradores(HttpServletRequest req, HttpServletResponse resp,  Map<String, Object> json) throws ServletException, IOException {
     int numPag = Integer.parseInt(req.getParameter("numPag"));
     List<ColaboradorVista> colaboradoresVista = null;
     if (numPag > 0) {
       colaboradoresVista = colaboradorFacade.getColaboradores(numPag);
     }
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(colaboradoresVista);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-    resp.getWriter().write(json);
+
+    json.put("ok", colaboradoresVista != null);
+    json.put("colaboradores", colaboradoresVista);
+
+    
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   @Override

@@ -31,10 +31,15 @@ public class ClienteServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+
+    Map<String, Object> json = new HashMap<>();
+
     String action = req.getParameter("action");
     switch (action) {
       case null -> {
-        cargarClientes(req, resp);
+        cargarClientes(req, resp, json);
       }
       case "1" -> {
         buscarClientesPorTokens(req, resp);
@@ -56,17 +61,18 @@ public class ClienteServlet extends HttpServlet {
     resp.getWriter().write(json);
   }
 
-  private void cargarClientes(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  private void cargarClientes(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
     int numPag = Integer.parseInt(req.getParameter("numPag"));
     List<ClienteVista> clientesVista = null;
     if (numPag > 0) {
       clientesVista = clienteFacade.getClientes(numPag);
     }
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(clientesVista);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-    resp.getWriter().write(json);
+
+    json.put("ok", clientesVista != null);
+    json.put("clientes", clientesVista);
+
+    
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   @Override

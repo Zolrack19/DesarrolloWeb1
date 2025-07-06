@@ -33,9 +33,13 @@ public class SolicitudServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    Map<String, Object> json = new HashMap<>();
+
     String action = req.getParameter("action");
     switch (action) {
-      case null -> {cargarSolicitudes(req, resp);}
+      case null -> {cargarSolicitudes(req, resp, json);}
       case "1" -> {
         
       }
@@ -44,7 +48,7 @@ public class SolicitudServlet extends HttpServlet {
 
   }
 
-  private void cargarSolicitudes(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  private void cargarSolicitudes(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
     int numPag = Integer.parseInt(req.getParameter("numPag"));
     HttpSession session = req.getSession(false);
     Object usuario = (session != null) ? session.getAttribute("usuario") : null;
@@ -53,11 +57,11 @@ public class SolicitudServlet extends HttpServlet {
     if (numPag > 0) { 
       solicitudVistas = solicitudesFacade.getSolicitudes(usuario, numPag);
     }
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(solicitudVistas);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-    resp.getWriter().write(json);
+    
+    json.put("ok", solicitudVistas != null);
+    json.put("solicitudes", solicitudVistas);
+
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   @Override

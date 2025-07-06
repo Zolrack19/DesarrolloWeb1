@@ -12,6 +12,24 @@ const servlets = {
   "colaboradores": "ColaboradorServlet",
 }
 
+const btnInicio = document.getElementById("pnl-inicio") 
+const btnSolicitudes = document.getElementById("pnl-solicitudes") 
+const btnClientes = document.getElementById("pnl-clientes") 
+const btnColaboradores = document.getElementById("pnl-colaboradores") 
+const btnEstadisticas = document.getElementById("pnl-estadisticas") 
+const btnPerfil = document.getElementById("pnl-perfil") 
+const btnCerrarSesion = document.getElementById("btn-cerrarSesion") 
+
+btnInicio.addEventListener(("click"), () => {cargarContenido("inicio")})
+btnSolicitudes.addEventListener(("click"), () => {cargarContenido("solicitudes")})
+btnClientes.addEventListener(("click"), () => {cargarContenido("clientes")})
+btnColaboradores.addEventListener(("click"), () => {cargarContenido("colaboradores")})
+btnEstadisticas.addEventListener(("click"), () => {cargarContenido("estadisticas")})
+btnPerfil.addEventListener(("click"), () => {cargarContenido("perfil")})
+
+btnPerfil.addEventListener(("click"), cerrarSesion)
+
+
 const contextPath = window.location.pathname.split("/")[1];
 let vistasCache = {};
 let paginaActual = ""
@@ -29,7 +47,7 @@ async function init() {
   history.replaceState({ nombre: "inicio" }, '', '/semana6-1.0-SNAPSHOT/html/menu/inicio');
 
   const modulo = await import(`/${contextPath}/js/inicio.js`);
-  modulo?.init?.();
+  modulo?.init?.(cargarContenido);
   vistasCache["inicio"] = {
     nodo: divContenedor,
     modulo
@@ -49,7 +67,7 @@ async function cargarContenido(nombre, acutalizarURL = true) {
   if (vistasCache[nombre]) {
     vistasCache[nombre].modulo?.actualizar?.(vistasCache[nombre].nodo); 
     contenedor.innerHTML = vistasCache[nombre].nodo.innerHTML;
-    vistasCache[nombre].modulo?.init?.(); 
+    vistasCache[nombre].modulo?.init?.();
     return;
   }
 
@@ -66,13 +84,26 @@ async function cargarContenido(nombre, acutalizarURL = true) {
     let datos = null
     if (servlets[nombre]) {
       contenedor.innerHTML = carga;
-      const res = await fetch(`/${contextPath}/control/${servlets[nombre]}?numPag=1`)
-      datos = await res.json()
+      const resp = await fetch(`/${contextPath}/control/${servlets[nombre]}?numPag=1`)
+      if (resp.ok) {
+        const data = await resp.json()
+        if (data.ok) {
+          datos = data[nombre]
+          console.log("todo bien: ");
+          console.log(datos);
+        } else {
+          alert("error en cargar la vista: " + nombre)
+          return
+        }
+      } else {
+        alert("Error en petición http")
+        return
+      }
     }
 
     const modulo = await import(rutaJS);
     contenedor.innerHTML = html;
-    modulo?.init?.(datos);
+    modulo?.init?.(datos, {vistasCache, cargarContenido});
 
     vistasCache[nombre] = {
       nodo: divContenedor,

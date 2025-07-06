@@ -16,14 +16,14 @@
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div onclick="cargarContenido('solicitudes')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
+      <div id="btnSolicitudes" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
         <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">📌 Solicitudes</h2>
         <p class="text-gray-700">
           Visualiza, clasifica y da seguimiento a cada solicitud ingresada. Controla cada etapa del proceso de atención.
         </p>
       </div>
 
-      <div onclick="cargarContenido('estadisticas')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
+      <div id="btnEstadisticas" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
         <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">📈 Reportes</h2>
         <p class="text-gray-700">
           Accede a estadísticas claras sobre el rendimiento del equipo, tiempos de respuesta y áreas más consultadas.
@@ -31,7 +31,7 @@
       </div>
     
       <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
-        <div onclick="cargarContenido('colaboradores')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
+        <div id="btnColaboradores" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
           <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">👥 Colaboradores</h2>
           <p class="text-gray-700">
             Administra roles, asigna tareas y monitorea el trabajo diario de tu equipo técnico con trazabilidad completa.
@@ -40,7 +40,7 @@
       </c:if>
 
       <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
-        <div onclick="cargarContenido('clientes')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
+        <div id="btnClientes" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
           <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">👥 Clientes</h2>
           <p class="text-gray-700">
             Administra roles, asigna tareas y monitorea el trabajo diario de tu equipo técnico con trazabilidad completa.
@@ -48,7 +48,7 @@
         </div>
       </c:if>
 
-      <div onclick="cargarContenido('perfil')" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
+      <div id="btnPerfil" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
         <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">👥 Perfil de usuario</h2>
         <p class="text-gray-700">
           Visualiza y actualiza propiedades de tu perfil aquí.
