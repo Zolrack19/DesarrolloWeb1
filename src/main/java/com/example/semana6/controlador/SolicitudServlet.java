@@ -47,8 +47,13 @@ public class SolicitudServlet extends HttpServlet {
       case "2" -> {
         solicitudesDeCliente(req, resp, json);
       }
+      case "3" -> {
+        solicitudesRagoFechasPorEntidad(req, resp, json); //cliente o colaborador
+      }
       default -> {}
     }
+  }
+  private void solicitudesRagoFechasPorEntidad(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
   }
 
   private void solicitudesDeCliente(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {

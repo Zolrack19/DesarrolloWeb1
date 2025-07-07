@@ -155,7 +155,7 @@ function confModalForm() {
     const popupCoordinador = document.getElementById("popupCoordinador")
     const popupCliente = document.getElementById("popupCliente")
 
-    confTextSearch(txtCoordinador, popupCoordinador, `/${contextPath}/control/ColaboradorServlet?action=1&`, (colaboradores) => {
+    confTextSearch(txtCoordinador, popupCoordinador, `/${contextPath}/control/ColaboradorServlet?action=1&estricto=true&`, (colaboradores) => {
     popupCoordinador.innerHTML = ""
     colaboradores.forEach(colaborador => {
       const li = document.createElement("li");
@@ -262,18 +262,6 @@ function confModalForm() {
   }
 }
 
-function filtrarTokens(tokens) {
-  if (tokens.length === 0) return null
-  const params = new URLSearchParams();
-  for (let i = 0; i < tokens.length; i++) {
-    if (params.size > 4) break
-    if (tokens[i].length > 3) {
-      params.append("token", tokens[i])
-    }
-  }
-  return params
-}
-
 function confTextSearch(txtBuscar, popUp, fetchURL, funcPopup) {
 
   let task = null
@@ -316,22 +304,32 @@ function confTextSearch(txtBuscar, popUp, fetchURL, funcPopup) {
   txtBuscar.addEventListener("input", e => {
     clearTimeout(task)
     task = setTimeout(async () => {
-      const tokens = e.target.value.trim().replace(/\s+/g, ' ').split(" ")
-      const params = filtrarTokens(tokens)
-      if (!params || params.size === 0) return
+      const txtTokens = e.target.value.trim().replace(/\s+/g, ' ')
+      // const params = filtrarTokens(tokens)
+      if (!txtTokens || txtTokens.length === 0) return
       
-      await fetch(`${fetchURL}${params.toString()}`)
+      await fetch(`${fetchURL}txtTokens=${encodeURIComponent(txtTokens)}`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()
         }
       })
-      .then(colaboradores => {
-        if (colaboradores === null) {
-          popUp.classList.add("hidden")
-          return
+      .then(data => {
+        if (data.ok) {
+          let resultados
+          if (data?.colaboradores) {
+            resultados = data.colaboradores
+          } else {
+            resultados = data.clientes
+          }
+          if (resultados === null) {
+            popUp.classList.add("hidden")
+            return
+          }
+          funcPopup(resultados)
+        } else {
+          alert(data.error)
         }
-        funcPopup(colaboradores)
       })
     }, 400);
   })

@@ -42,23 +42,51 @@ public class ClienteServlet extends HttpServlet {
         cargarClientes(req, resp, json);
       }
       case "1" -> {
-        buscarClientesPorTokens(req, resp);
+        buscarClientesPorTokens(req, resp, json);
       }
       default -> {
       }
     }
   }
 
-  private void buscarClientesPorTokens(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    String[] tokens = req.getParameterValues("token");
-    List<ClienteVista> clientesVista = clienteFacade.getClientes(tokens);
+  private void buscarClientesPorTokens(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
+    try {
+      while (true) {
+        String txtTokens = req.getParameter("txtTokens");
+        if (txtTokens == null || txtTokens.length() == 0) {
+          mensajeError.append("Texto de búsqueda inválido: " + txtTokens);
+          break;
+        }
+        
+        String dummy[] = txtTokens.split(" ");
+        String[] tokens = new String[5];
+        int j = 0;
+        for (int i = 0; i < dummy.length; i++) {
+          if (dummy[i].length() > 3) {
+            tokens[j] = dummy[i];
+            j++;
+            if (j >= 5) break;
+          }
+        }
 
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(clientesVista);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-    resp.getWriter().write(json);
+        List<ClienteVista> clientesVista = clienteFacade.getClientes(tokens);
+        json.put("ok", true);
+        json.put("clientes", clientesVista);        
+        break;
+      }
+    } catch (Exception e) {
+      json.put("ok", false);
+      json.put("error", "Error inesperado en el servidor");
+      e.printStackTrace();
+    }
+
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
+
+    mensajeError.setLength(0);
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   private void cargarClientes(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {

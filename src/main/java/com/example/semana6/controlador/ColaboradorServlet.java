@@ -25,6 +25,7 @@ public class ColaboradorServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    req.setCharacterEncoding("UTF-8");
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
     Map<String, Object> json = new HashMap<>();
@@ -33,7 +34,7 @@ public class ColaboradorServlet extends HttpServlet {
     switch (action) {
       case null -> {cargarColaboradores(req, resp, json);}
       case "1" -> {
-        buscarColaboradoresPorTokens(req, resp);
+        buscarColaboradoresPorTokens(req, resp, json);
       }
       case "2" -> {
         colaboradoresDeSolicitud(req, resp);
@@ -56,15 +57,56 @@ public class ColaboradorServlet extends HttpServlet {
     resp.getWriter().write(json);
   }
 
-  private void buscarColaboradoresPorTokens(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String[] tokens = req.getParameterValues("token");
-    List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getColaboradores(tokens);
+  private void buscarColaboradoresPorTokens(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
+    try {
+      while (true) {
+        String txtTokens = req.getParameter("txtTokens");
+        String estri = req.getParameter("estricto"); 
+        
+        if (estri == null) {
+          mensajeError.append("Parámetro 'solicitudesActivas' no especificado");
+          break;
+        }
+        if (!"true".equalsIgnoreCase(estri) && !"false".equalsIgnoreCase(estri)) {
+          mensajeError.append("Parámetro 'solicitudesActivas' no puede ser otro mas que booleano: " + estri);
+          break;
+        }
+        if (txtTokens == null || txtTokens.length() == 0) {
+          mensajeError.append("Texto de búsqueda inválido: " + txtTokens);
+          break;
+        }
+        // if (!mensajeError.isEmpty()) break;
 
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(colaboradorVistas);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-    resp.getWriter().write(json);
+        boolean estricto = Boolean.parseBoolean(estri);
+        String dummy[] = txtTokens.split(" ");
+        String[] tokens = new String[5];
+        int j = 0;
+        for (int i = 0; i < dummy.length; i++) {
+          if (dummy[i].length() > 3) {
+            tokens[j] = dummy[i];
+            j++;
+            if (j >= 5) break;
+          }
+        }
+        
+        List<ColaboradorVista> colaboradorVista = colaboradorFacade.getColaboradores(tokens, estricto);
+        json.put("ok", true);
+        json.put("colaboradores", colaboradorVista);
+        break;
+      }
+    } catch (Exception e) {
+      json.put("ok", false);
+      json.put("error", "Error inesperado en el servidor");
+      e.printStackTrace();
+    }
+
+    if (!mensajeError.isEmpty()) {
+      json.put("ok", false);
+      json.put("error", mensajeError.toString());
+    }
+
+    mensajeError.setLength(0);
+    new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
   private void cargarColaboradores(HttpServletRequest req, HttpServletResponse resp,  Map<String, Object> json) throws ServletException, IOException {

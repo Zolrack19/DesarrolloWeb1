@@ -30,11 +30,7 @@ public class ClienteFacade {
   private final TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
   private final SectorEconomicoDAO sectorEconomicoDAO = new SectorEconomicoDAO();
 
-  private StringBuilder query = new StringBuilder("""
-  SELECT c.*, p.*,
-  CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END AS clazz_
-  FROM cliente c LEFT JOIN persona_con_negocio p ON p.id = c.id WHERE 
-  """);
+  private StringBuilder query = new StringBuilder();
   
   public ClienteVista crearCliente(ClienteCrear clienteCrear) {
     Session s = HibernateUtil.getSession().openSession();
@@ -84,33 +80,49 @@ public class ClienteFacade {
 
   public List<ClienteVista> getClientes(String[] tokens) {
     if (tokens.length == 0) return null;
+    query.append("""
+    SELECT c.*, p.*,
+    CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END AS clazz_
+    FROM cliente c LEFT JOIN persona_con_negocio p ON p.id = c.id WHERE 
+    """);
     // System.out.println(query.length());
-    query.delete(146, query.length());
 
-    for (int i = 0; i < tokens.length; i++) {
-      String token = tokens[i];
-      if (i != 0) {
-        query.append(" OR ");
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+      
+      int i = 0;
+      while (i < 5 && tokens[i] != null) {
+        String token = tokens[i];
+        if (i != 0) {
+          query.append(" OR ");
+        }
+        query.append("(\n");
+        query.append("c.razon_social ILIKE unaccent('%").append(token); 
+        query.append("%') OR \n");
+        query.append("c.numero_documento LIKE ('").append(token); 
+        query.append("%')");
+        query.append(")\n");
+        i++;
       }
-      query.append("(\n");
-      query.append("c.razon_social ILIKE unaccent('%").append(token); 
-      query.append("%') OR \n");
-      query.append("c.numero_documento LIKE ('").append(token); 
-      query.append("%')");
-      query.append(")\n");
-    }
-    query.append("limit 5");
-    List<Cliente> clientes = clienteDAO.getClientesByQuery(query.toString());
-    if (clientes.size() == 0) return null;
-    List<ClienteVista> clientesVista = new LinkedList<>();
-    for (Cliente cliente : clientes) {
-      if (cliente instanceof PersonaConNegocio) {
-        clientesVista.add(new PersonaConNegocioVista((PersonaConNegocio) cliente));
-      } else {
-        clientesVista.add(new ClienteVista(cliente));
+      query.append("limit 5");
+      List<Cliente> clientes = clienteDAO.getClientesByQuery(s, query.toString());
+      if (clientes.size() == 0) return null;
+      List<ClienteVista> clientesVista = new LinkedList<>();
+      for (Cliente cliente : clientes) {
+        if (cliente instanceof PersonaConNegocio) {
+          clientesVista.add(new PersonaConNegocioVista((PersonaConNegocio) cliente));
+        } else {
+          clientesVista.add(new ClienteVista(cliente));
+        }
       }
+      return clientesVista;
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      s.close();
+      query.setLength(0);
     }
-    return clientesVista;
   }
 
   public List<ClienteVista> getClientes(int numPag) {

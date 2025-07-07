@@ -60,32 +60,47 @@ public class ColaboradorFacade {
     }
   }
 
-  public List<ColaboradorVista> getColaboradores(String[] tokens) {
+  public List<ColaboradorVista> getColaboradores(String[] tokens, boolean estricto) {
     if (tokens.length == 0) return null;
     query.append("""
     SELECT c.*
-    FROM colaboradordto_vista c WHERE c.solicitudes_activas < 5 and (
+    FROM colaboradordto_vista c WHERE
     """);
-
-    for (int i = 0; i < Math.min(tokens.length, 5); i++) {
-      String token = tokens[i];
-      if (i != 0) {
-        query.append(" OR ");
-      }
-      query.append("(\n");
-      if (token.matches("\\d+")) {
-        query.append("c.numero_documento LIKE ('").append(token).append("%')");
-      } else {
-        query.append("c.nombre ILIKE unaccent('%").append(token).append("%') OR \n"); 
-        query.append("c.apellido_paterno ILIKE unaccent('%").append(token).append("%') OR \n"); 
-        query.append("c.apellido_materno ILIKE unaccent('%").append(token).append("%')"); 
-      }
-      query.append("\n)\n");
+    if (estricto) {
+      query.append("c.solicitudes_activas < 5 and");
     }
-    query.append(") limit 5");
-    List<ColaboradorVista> colaboradores = colaboradorDAO.getClientesByQuery(query.toString());
-    query.delete(0, query.length());
-    return colaboradores;
+    query.append(" (");
+
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+      int i = 0;
+      while (i < 5 && tokens[i] != null) {
+        String token = tokens[i];
+        if (i != 0) {
+          query.append(" OR ");
+        }
+        query.append("(\n");
+        if (token.matches("\\d+")) {
+          query.append("c.numero_documento LIKE ('").append(token).append("%')");
+        } else {
+          query.append("c.nombre ILIKE unaccent('%").append(token).append("%') OR \n"); 
+          query.append("c.apellido_paterno ILIKE unaccent('%").append(token).append("%') OR \n"); 
+          query.append("c.apellido_materno ILIKE unaccent('%").append(token).append("%')"); 
+        }
+        query.append("\n)\n");
+        i++;
+      }
+      query.append(") limit 5");
+      List<ColaboradorVista> colaboradores = colaboradorDAO.getClientesByQuery(s, query.toString());
+      return colaboradores;
+
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      s.close();
+      query.setLength(0);
+    }
   }
 
   public List<ColaboradorVista> getColaboradores(int numPag) {
@@ -113,7 +128,7 @@ public class ColaboradorFacade {
       
       List<ColaboradorVista> colaboradorVistas = new LinkedList<>();
       if (asignaciones.size() == 0) return colaboradorVistas; // se devuelve un array sin elementos
-      // si hay coordinador, será el primera de la lista
+      // si hay coordinador, será el primero de la lista
       int coordinadorId = -1;
       if (asignaciones.get(0).getSolicitud().getCoordinador() != null) {
         coordinadorId = asignaciones.get(0).getSolicitud().getCoordinador().getId();

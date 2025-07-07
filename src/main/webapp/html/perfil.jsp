@@ -3,7 +3,7 @@
 
 <body class="container bg-gray-50 p-8 text-gray-800 font-sans">
 
-  <div class="container mx-auto :hover">
+  <div class="container mx-auto ">
     <h2 class="text-2xl font-semibold flex items-center gap-2 mb-4">
       <span>🧍</span> Perfil
     </h2>

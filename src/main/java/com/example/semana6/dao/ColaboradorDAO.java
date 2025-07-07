@@ -68,13 +68,9 @@ public class ColaboradorDAO {
   }
 
   @SuppressWarnings("unchecked")
-  public List<ColaboradorVista> getClientesByQuery(String query) {
-    Session s = HibernateUtil.getSession().openSession();
-    
+  public List<ColaboradorVista> getClientesByQuery(Session s, String query) {
     List<ColaboradorVista> colaboradores = s.createNativeQuery(query, "ColaboradorVistaMapping")
     .getResultList();
-
-    s.close();
     return colaboradores;
   }
 
