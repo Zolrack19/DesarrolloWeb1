@@ -21,12 +21,10 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "ClienteServlet", urlPatterns = { "/control/ClienteServlet" })
 public class ClienteServlet extends HttpServlet {
   private ClienteFacade clienteFacade;
-  private StringBuilder mensajeError;
 
   @Override
   public void init() throws ServletException {
     clienteFacade = new ClienteFacade();
-    mensajeError = new StringBuilder();
   }
 
   @Override
@@ -35,72 +33,62 @@ public class ClienteServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
 
     Map<String, Object> json = new HashMap<>();
+    json.put("ok", false);
 
     String action = req.getParameter("action");
-    switch (action) {
-      case null -> {
-        cargarClientes(req, resp, json);
-      }
-      case "1" -> {
-        buscarClientesPorTokens(req, resp, json);
-      }
-      default -> {
-      }
-    }
-  }
-
-  private void buscarClientesPorTokens(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
     try {
-      while (true) {
-        String txtTokens = req.getParameter("txtTokens");
-        if (txtTokens == null || txtTokens.length() == 0) {
-          mensajeError.append("Texto de búsqueda inválido: " + txtTokens);
-          break;
+      switch (action) {
+        case null -> {
+          cargarClientes(req, resp, json);
         }
-        
-        String dummy[] = txtTokens.split(" ");
-        String[] tokens = new String[5];
-        int j = 0;
-        for (int i = 0; i < dummy.length; i++) {
-          if (dummy[i].length() > 3) {
-            tokens[j] = dummy[i];
-            j++;
-            if (j >= 5) break;
-          }
+        case "1" -> {
+          buscarClientesPorTokens(req, resp, json);
         }
-
-        List<ClienteVista> clientesVista = clienteFacade.getClientes(tokens);
-        json.put("ok", true);
-        json.put("clientes", clientesVista);        
-        break;
+        default -> {
+        }
       }
     } catch (Exception e) {
-      json.put("ok", false);
       json.put("error", "Error inesperado en el servidor");
       e.printStackTrace();
     }
-
-    if (!mensajeError.isEmpty()) {
-      json.put("ok", false);
-      json.put("error", mensajeError.toString());
-    }
-
-    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
+  private void buscarClientesPorTokens(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
+    do {
+      String txtTokens = req.getParameter("txtTokens");
+      if (txtTokens == null || txtTokens.length() == 0) {
+        json.put("error", "Texto de búsqueda inválido: " + txtTokens); break;
+      }
+      
+      String dummy[] = txtTokens.split(" ");
+      String[] tokens = new String[5];
+      int j = 0;
+      for (int i = 0; i < dummy.length; i++) {
+        if (dummy[i].length() > 3) {
+          tokens[j] = dummy[i];
+          j++;
+          if (j >= 5) break;
+        }
+      }
+      List<ClienteVista> clientesVista = clienteFacade.getClientes(tokens);
+      json.put("ok", true);
+      json.put("clientes", clientesVista);        
+    } while (false);
+
+  }
+
   private void cargarClientes(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
-    int numPag = Integer.parseInt(req.getParameter("numPag"));
-    List<ClienteVista> clientesVista = null;
-    if (numPag > 0) {
-      clientesVista = clienteFacade.getClientes(numPag);
-    }
+    do {
+      int numPag = Integer.parseInt(req.getParameter("numPag"));
+      List<ClienteVista> clientesVista = null;
+      if (numPag > 0) {
+        clientesVista = clienteFacade.getClientes(numPag);
+      }
 
-    json.put("ok", clientesVista != null);
-    json.put("clientes", clientesVista);
-
-    
-    new ObjectMapper().writeValue(resp.getWriter(), json);
+      json.put("ok", true);
+      json.put("clientes", clientesVista);
+    } while (false);
   }
 
   @Override
@@ -110,9 +98,10 @@ public class ClienteServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
 
     Map<String, Object> json = new HashMap<>();
+    json.put("ok", false);
 
     try {
-      for (int i = 0; i < 1; i++) {
+      do {
         String docId = req.getParameter("tipoDocumentoId");
         String tpClienteId = req.getParameter("tipoClienteId");
         String tpSector = req.getParameter("tipoSectorEconomicoId");
@@ -123,28 +112,27 @@ public class ClienteServlet extends HttpServlet {
         String telefono = req.getParameter("telefono");
   
         if (telefono == null || !telefono.matches("^9\\d{8}$")) {
-          mensajeError.append("Teléfono inválido (debe comenzar con 9 y tener 9 dígitos)");
+          json.put("error","Teléfono inválido (debe comenzar con 9 y tener 9 dígitos)"); break;
         }
         if (razon == null || razon.length() > 200) {
-          mensajeError.append("\nRazón social inválida (máximo 200 caracteres)");
+          json.put("error", "Razón social inválida (máximo 200 caracteres)"); break;
         }
         if (email == null || email.length() > 100) {
-          mensajeError.append("\nEmail inválido (máximo 100 caracteres)");
+          json.put("error", "Email inválido (máximo 100 caracteres)"); break;
         }
         if (contrasena == null || contrasena.length() < 8 || contrasena.length() > 50) {
-          mensajeError.append("\nContraseña inválida (debe tener entre 8 y 50 caracteres)");
+          json.put("error", "Contraseña inválida (debe tener entre 8 y 50 caracteres)"); break;
         }
         if (docId == null || !docId.matches("\\d+")) {
-          mensajeError.append("\nTipo de documento no válido: ").append(docId);
+          json.put("error", "Tipo de documento no válido: " + docId); break;
         }
         if (tpClienteId == null || !tpClienteId.matches("\\d+")) {
-          mensajeError.append("\nTipo de cliente no válido: ").append(tpClienteId);
+          json.put("error", "Tipo de cliente no válido: " + tpClienteId); break;
         }
         if (tpSector == null || !tpSector.matches("\\d+")) {
-          mensajeError.append("\nSector económico no válido: ").append(tpSector);
+          json.put("error", "Sector económico no válido: " + tpSector); break;
         }
-  
-        if (!mensajeError.isEmpty()) break;
+
 
         // === Conversión segura ===
         short tipoDocumentoId = Short.parseShort(docId);
@@ -155,7 +143,7 @@ public class ClienteServlet extends HttpServlet {
         ClienteCrear clienteCrear;
         if (tipoClienteId == 1) {
           clienteCrear = new ClienteCrear(tipoDocumentoId, tipoClienteId, tipoSectorEconomicoId, razon, numeroDocumento,
-              email, contrasena, telefono);
+          email, contrasena, telefono);
         } else {
           String nombre = req.getParameter("nombre");
           String apellidoP = req.getParameter("apellidoP");
@@ -167,27 +155,18 @@ public class ClienteServlet extends HttpServlet {
   
         ClienteVista clienteVista = clienteFacade.crearCliente(clienteCrear);
         if (clienteVista.getMensajeError() != null) {
-          json.put("ok", false);
           json.put("error", clienteVista.getMensajeError());
         } else {
           json.put("ok", true);
           json.put("cliente", clienteVista);
         }
 
-      }  
+      } while (false);
     } catch (Exception e) {
-      json.put("ok", false);
       json.put("error", "Error inesperado en el servidor");
       e.printStackTrace();
     }
 
-
-    if (!mensajeError.isEmpty()) {
-      json.put("ok", false);
-      json.put("error", mensajeError.toString());
-    }
-
-    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
@@ -195,7 +174,9 @@ public class ClienteServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     req.setCharacterEncoding("UTF-8");
-
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    
     HttpSession session = req.getSession(false);
     try {
       ObjectMapper mapper = new ObjectMapper();
@@ -205,8 +186,7 @@ public class ClienteServlet extends HttpServlet {
       Map<String, Object> json = new HashMap<>();
       json.put("ok", clienteVista != null);
       json.put("cliente", clienteVista);
-      resp.setContentType("application/json");
-      resp.setCharacterEncoding("UTF-8");
+
       new ObjectMapper().writeValue(resp.getWriter(), json);
 
     } catch (Exception e) {

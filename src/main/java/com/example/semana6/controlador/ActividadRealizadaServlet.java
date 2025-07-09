@@ -22,13 +22,11 @@ import jakarta.servlet.http.HttpSession;
 public class ActividadRealizadaServlet extends HttpServlet {
   
   private ActividadRealizadaF actividadRealizadaF;
-  private StringBuilder mensajeError;
 
 
   @Override
   public void init() throws ServletException {
     actividadRealizadaF = new ActividadRealizadaF();
-    mensajeError = new StringBuilder();
   }
 
   @Override
@@ -38,42 +36,33 @@ public class ActividadRealizadaServlet extends HttpServlet {
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
     Map<String, Object> json = new HashMap<>();
+    json.put("ok", false);
 
     try {
-      for (int i = 0; i < 1; i++) {
+      do {
         String solicitudId = req.getParameter("solicitudId");
         String colaboradorId = req.getParameter("colaboradorId");
 
         if (solicitudId == null || !solicitudId.matches("\\d+")) {
-          mensajeError.append("\nLa id: ").append(solicitudId).append(" de solicitud es inválida");
+          json.put("error", "Id de solicitud inválida: " + solicitudId); break;
         }
         if (colaboradorId == null || !colaboradorId.matches("\\d+")) {
-          mensajeError.append("\nId: ").append(colaboradorId).append(" de colaborador es inválida");
+          json.put("error", "Id de colaborador inválida: " + colaboradorId); break;
         }
-        if (!mensajeError.isEmpty()) break;
 
         List<ActividadRealizadaVista> actividadesVista = actividadRealizadaF.getActividadesByAsignacion(Integer.parseInt(colaboradorId), Integer.parseInt(solicitudId), session.getAttribute("usuario"));
         if (actividadesVista == null) {
-          json.put("ok", false);
           json.put("error", "Error, solicitud no aceptada por el servidor");
         } else {
           json.put("ok", true);
           json.put("actividades", actividadesVista);
         }
-      }
+      } while (false);
     } catch (Exception e) {
-      json.put("ok", false);
       json.put("error", "Error inesperado en el servidor");
       e.printStackTrace();
     }
 
-
-    if (!mensajeError.isEmpty()) {
-      json.put("ok", false);
-      json.put("error", mensajeError.toString());
-    }
-    
-    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
   
@@ -83,9 +72,10 @@ public class ActividadRealizadaServlet extends HttpServlet {
     resp.setContentType("application/json");
     resp.setCharacterEncoding("UTF-8");
     Map<String, Object> json = new HashMap<>();
+    json.put("ok", false);
 
     try {
-      for (int i = 0; i < 1; i++) {
+      do {
         String solicitudId = req.getParameter("solicitudId");
         String colaboradorId = req.getParameter("colaboradorId");
         String horaInicio = req.getParameter("horaInicio");
@@ -93,49 +83,37 @@ public class ActividadRealizadaServlet extends HttpServlet {
         String descripcion = req.getParameter("descripcion");
 
         if (horaInicio == null || !horaInicio.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
-          mensajeError.append("Hora de inicio inválida: ").append(horaInicio);
-          break;
+          json.put("error", "Hora de inicio inválida: " + horaInicio); break;
         }
         if (horaFin == null || !horaFin.matches("^([01]\\d|2[0-3]):[0-5]\\d$")) {
-          mensajeError.append("Hora de fin inválida: ").append(horaFin);
-          break;
+          json.put("error", "Hora de fin inválida: " + horaFin); break;
         }
         if (LocalTime.parse(horaInicio).isAfter(LocalTime.parse(horaFin))) {
-          mensajeError.append("La hora de inicio no puede ser mayor a la de fin");
+          json.put("error", "La hora de inicio no puede ser mayor a la de fin"); break;
         }
         if (descripcion == null || descripcion.trim().isEmpty()) {
-          mensajeError.append("\nLa descripción no puede estar vacía");
+          json.put("error", "La descripción no puede estar vacía"); break;
         }
         if (solicitudId == null || !solicitudId.matches("\\d+")) {
-          mensajeError.append("\nLa id: ").append(solicitudId).append(" de solicitud es inválida");
+          json.put("error", "Id de solicitud inválida: " + solicitudId); break;
         }
         if (colaboradorId == null || !colaboradorId.matches("\\d+")) {
-          mensajeError.append("\nId: ").append(colaboradorId).append(" de colaborador es inválida");
+          json.put("error", "Id de colaborador inválida: " + colaboradorId); break;
         }
-
-        if (!mensajeError.isEmpty()) break;
 
         ActividadRealizadaVista actividadRealizadaVista = actividadRealizadaF.crearActividad(new ActividadRealizadaCrear(Integer.parseInt(solicitudId), Integer.parseInt(colaboradorId), descripcion, horaInicio, horaFin));
         if (actividadRealizadaVista.getMensajeError() != null) {
-          json.put("ok", false);
           json.put("error", actividadRealizadaVista.getMensajeError());
         } else {
           json.put("ok", true);
           json.put("actividad", actividadRealizadaVista);
         }
-      }
+      } while (false);
     } catch (Exception e) {
-      json.put("ok", false);
       json.put("error", "Error inesperado en el servidor");
       e.printStackTrace();
     }
 
-    if (!mensajeError.isEmpty()) {
-      json.put("ok", false);
-      json.put("error", mensajeError.toString());
-    }
-    
-    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 }

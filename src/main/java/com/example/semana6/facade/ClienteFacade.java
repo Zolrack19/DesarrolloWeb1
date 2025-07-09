@@ -127,7 +127,7 @@ public class ClienteFacade {
 
   public List<ClienteVista> getClientes(int numPag) {
     List<Cliente> clientes = clienteDAO.getRango((numPag - 1)*10, 10);
-    if (clientes.size() == 0) return null;
+    // if (clientes.size() == 0) return null;
     List<ClienteVista> clientesVista = new LinkedList<>();
     clientes.forEach((cliente) -> {
       if (cliente instanceof PersonaConNegocio) {

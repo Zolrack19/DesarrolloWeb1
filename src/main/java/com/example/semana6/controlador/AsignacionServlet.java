@@ -19,12 +19,10 @@ import jakarta.servlet.http.HttpSession;
 public class AsignacionServlet extends HttpServlet {
 
   private AsignacionFacade asignacionFacade;
-  private StringBuilder mensajeError;
 
   @Override
   public void init() throws ServletException {
     asignacionFacade = new AsignacionFacade();
-    mensajeError = new StringBuilder();
   }
 
   @Override
@@ -34,45 +32,34 @@ public class AsignacionServlet extends HttpServlet {
     resp.setCharacterEncoding("UTF-8");
 
     Map<String, Object> json = new HashMap<>();
+    json.put("ok", false);
 
     try {
-      while (true) {
+      do {
         String solicId = req.getParameter("solicitudId");
         String colabId = req.getParameter("colaboradorId");
         if (solicId == null || !solicId.matches("\\d+")) {
-          mensajeError.append("\nId de solicitud no válido: ").append(solicId);
+          json.put("error", "Id de solicitud no válido: " + solicId); break;
         }
         if (colabId == null || !colabId.matches("\\d+")) {
-          mensajeError.append("\nId de colaborador no válido: ").append(colabId);
+          json.put("error", "Id de colaborador no válido: " + colabId); break;
         }
-
-        if (!mensajeError.isEmpty()) break;
 
         int solicitudId = Integer.parseInt(solicId);
         int colaboradorId = Integer.parseInt(colabId);
         ColaboradorVista colaboradorVista = asignacionFacade.crearAsignacion(solicitudId, colaboradorId);
         if (colaboradorVista.getMensajeError() != null) {
-          json.put("ok", false);
           json.put("error", colaboradorVista.getMensajeError());
         } else {
           json.put("ok", true);
           json.put("colaborador", colaboradorVista);
         }
-        break;
-      }
+      } while (false);
     } catch (Exception e) {
-      json.put("ok", false);
       json.put("error", "Error inesperado en el servidor");
       e.printStackTrace();
     }
 
-
-    if (!mensajeError.isEmpty()) {
-      json.put("ok", false);
-      json.put("error", mensajeError.toString());
-    }
-
-    mensajeError.setLength(0);
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 

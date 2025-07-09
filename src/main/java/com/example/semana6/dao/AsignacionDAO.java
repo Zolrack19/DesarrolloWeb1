@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.example.semana6.dto.solicitud.SolicitudCrudo;
+import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Asignacion;
 import com.example.semana6.modelo.AsignacionId;
 import com.example.semana6.singleton.HibernateUtil;
@@ -57,6 +59,16 @@ public class AsignacionDAO {
     return asignaciones;
   }
   
+  public List<Asignacion> getByIdColaborador(Session s, int colaboradorId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+    List<Asignacion> asignaciones = s.createQuery("from Asignacion a where a.colaborador.id = :id and a.solicitud.fechaRegistro between :fIni and :fFin",
+    Asignacion.class)
+    .setParameter("id", colaboradorId)
+    .setParameter("fIni", fechaInicio)
+    .setParameter("fFin", fechaFin)
+    .list();
+    return asignaciones;
+  }
+
   public List<Asignacion> getByIdSolicitud(Session s, int solicitudId) {
     List<Asignacion> asignaciones = s.createQuery("from Asignacion a where a.solicitud.id = :id order by a.id.solicitudId, a.id.colaboradorId", Asignacion.class)
     .setParameter("id", solicitudId)
@@ -65,6 +77,23 @@ public class AsignacionDAO {
     return asignaciones;
   }
 
+  // excepción para solicitudes
+  @SuppressWarnings("unchecked")
+  public List<SolicitudCrudo> getSolicitudCrudoByFechaRegistro(Session s, int colaboradorId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+    List<SolicitudCrudo> solicitudes = s.createNativeQuery("""
+      select s.* from asignacion a 
+      inner join colaborador c on a.colaborador_id = c.id
+      inner join solicitud s on a.solicitud_id = s.id
+      where c.id = :id and s.fecha_registro between :fIni and :fFin
+    """,
+      "SolicitudCrudoMapping")
+    .setParameter("id", colaboradorId)
+    .setParameter("fIni", fechaInicio)
+    .setParameter("fFin", fechaFin)
+    .list();
+    return solicitudes;
+  }
+  
   //TODO: esto cambiar por un enum para decidir si >=, <= o =
   public List<Asignacion> getRangoByFechaInicioAtencion(LocalDateTime fecha, int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();

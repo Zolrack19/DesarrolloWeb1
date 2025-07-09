@@ -28,9 +28,6 @@ public class LoginServlet extends HttpServlet {
     autenticacion = new AutenticacionFacade();
   }
   
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-  }
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

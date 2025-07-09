@@ -3,6 +3,7 @@ package com.example.semana6.modelo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.semana6.dto.solicitud.SolicitudCrudo;
 import com.example.semana6.dto.solicitud.SolicitudVista;
 
 import jakarta.persistence.Column;
@@ -32,6 +33,20 @@ import lombok.Setter;
     @ColumnResult(name = "fecha_registro", type = LocalDateTime.class),
     @ColumnResult(name = "fecha_finalizacion", type = LocalDateTime.class),
     @ColumnResult(name = "estado_solicitud", type = String.class),
+  }
+))
+@SqlResultSetMapping(name = "SolicitudCrudoMapping", classes = @ConstructorResult(
+  targetClass = SolicitudCrudo.class,
+  columns = {
+    @ColumnResult(name = "id", type = Integer.class),
+    @ColumnResult(name = "tipo_solicitud_id", type = Short.class),
+    @ColumnResult(name = "estado_solicitud_id", type = Short.class),
+    @ColumnResult(name = "titulo", type = String.class),
+    @ColumnResult(name = "descripcion", type = String.class),
+    @ColumnResult(name = "coordinador_id", type = Integer.class),
+    @ColumnResult(name = "cliente_id", type = Integer.class),
+    @ColumnResult(name = "fecha_registro", type = LocalDateTime.class),
+    @ColumnResult(name = "fecha_finalizacion", type = LocalDateTime.class),
   }
 ))
 @Getter

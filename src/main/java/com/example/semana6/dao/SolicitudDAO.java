@@ -2,15 +2,14 @@ package com.example.semana6.dao;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
 
+import com.example.semana6.dto.solicitud.SolicitudCrudo;
 import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Solicitud;
 import com.example.semana6.singleton.HibernateUtil;
-import com.example.semana6.singleton.ValorDefecto;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -41,36 +40,6 @@ public class SolicitudDAO {
     return solicitud;
   }
 
-  public List<Solicitud> getRangoDescendiente(int idLimite, int maxResultados, boolean paginaSiguiente) {
-    Session s = HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-    List<Solicitud> solicitudes = null;
-
-    if (idLimite == ValorDefecto.VALOR_NULO.getValue()) {
-      solicitudes = s.createQuery("from Solicitud s order by s.id desc", Solicitud.class)
-      .setMaxResults(maxResultados)
-      .list();
-  
-    } else if (paginaSiguiente) {
-      solicitudes = s.createQuery("from Solicitud s where s.id < :idLimite order by s.id desc", Solicitud.class)
-      .setParameter("idLimite", idLimite)
-      .setMaxResults(maxResultados)
-      .list();
-  
-    } else {
-      solicitudes = s.createQuery("from Solicitud s where s.id > :idLimite order by s.id", Solicitud.class)
-      .setParameter("idLimite", idLimite)
-      .setMaxResults(maxResultados)
-      .list();
-
-      Collections.reverse(solicitudes);
-    }
-
-    s.getTransaction().commit();
-    s.close();
-    return solicitudes;
-  }
-
   @SuppressWarnings("unchecked")
   public List<SolicitudVista> getRangoVista(int inicio, int fin) {
     Session s =  HibernateUtil.getSession().openSession();
@@ -92,6 +61,27 @@ public class SolicitudDAO {
     .setParameter("id", clienteId)
     .setFirstResult(inicio)
     .setMaxResults(fin)
+    .list();
+
+    return solicitudes;
+  }
+  public List<SolicitudVista> getVistaByClienteId(Session s, int clienteId, LocalDateTime inicio, LocalDateTime fin) {
+    List<SolicitudVista> solicitudes = s.createNativeQuery("select * from solicituddto_vista s where s.cliente_id = :id and s.fecha_registro between :fIni and :fFin",
+    "SolicitudVistaMapping")
+    .setParameter("id", clienteId)
+    .setParameter("fIni", inicio)
+    .setParameter("fFin", fin)
+    .list();
+
+    return solicitudes;
+  }
+
+  public List<SolicitudCrudo> getCrudoByClienteId(Session s, int clienteId, LocalDateTime inicio, LocalDateTime fin) {
+    List<SolicitudCrudo> solicitudes = s.createNativeQuery("select * from solicitud s where s.cliente_id = :id and s.fecha_registro between :fIni and :fFin",
+    "SolicitudCrudoMapping")
+    .setParameter("id", clienteId)
+    .setParameter("fIni", inicio)
+    .setParameter("fFin", fin)
     .list();
 
     return solicitudes;
@@ -145,18 +135,13 @@ public class SolicitudDAO {
   }
   
   // TODO: = > <
-  public List<Solicitud> getByFechaRegistro(LocalDateTime fecha, int inicio, int fin) {
-    Session s =  HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
-    List<Solicitud> solicitudes = s.createQuery("from Solicitud s where s.fechaRegistro = :fecha order by s.id", Solicitud.class)
-    .setParameter("fecha", fecha)
-    .setFirstResult(inicio)
-    .setMaxResults(fin)
+  public List<SolicitudCrudo> getCrudoByFechaRegistro(Session s, LocalDateTime inicio, LocalDateTime fin) {
+    List<SolicitudCrudo> solicitudes = s.createNativeQuery("select * from solicitud s where s.fecha_registro between :fIni and :fFin",
+    "SolicitudCrudoMapping")
+    .setParameter("fIni", inicio)
+    .setParameter("fFin", fin)
     .list();
 
-    s.getTransaction().commit();
-    s.close();
     return solicitudes;
   }
   

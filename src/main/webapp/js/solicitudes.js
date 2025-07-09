@@ -38,7 +38,7 @@ export function init(datos, appContexto = null) {
       const fila = e.target.closest("tr");
       if (!fila || !confirm("¿Está seguro que quiere elimminar esta solicitud?")) return;
 
-      await fetch("/" + contextPath + `/control/SolicitudServlet?id=${fila.dataset.id}`, {
+      await fetch(`/${contextPath}/control/SolicitudServlet?id=${fila.dataset.id}`, {
         method: "DELETE"
       }).then(response => {
         if (response.ok) {
@@ -57,32 +57,36 @@ export function init(datos, appContexto = null) {
   
   document.getElementById("atras").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag - 1}`)
-    datos = await res.json()
-    if (datos) {
-      solicitudes = datos
+    const data = await res.json()
+    if (data.ok) {
+      solicitudes = data.solicitudes
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      datos.forEach(solicitud => {
+      solicitudes.forEach(solicitud => {
         tbody.appendChild(crearFila(solicitud));
       });
+    } else {
+      alert(data.error)
     }
   })
 
   document.getElementById("adelante").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/SolicitudServlet?numPag=${numPag + 1}`)
-    datos = await res.json()
-    if (datos) {
-      solicitudes = datos
+    const data = await res.json()
+    if (data.ok) {
+      solicitudes = data.solicitudes
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      datos.forEach(solicitud => {
+      solicitudes.forEach(solicitud => {
         tbody.appendChild(crearFila(solicitud));
       });
-    }   
+    } else {
+      alert(data.error)
+    }
   })
   
   if (datos) {

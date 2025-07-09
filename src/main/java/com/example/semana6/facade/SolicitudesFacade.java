@@ -1,5 +1,6 @@
 package com.example.semana6.facade;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,7 @@ import com.example.semana6.dto.cliente.ClienteDTO;
 import com.example.semana6.dto.cliente.ClienteVista;
 import com.example.semana6.dto.colaborador.ColaboradorDTO;
 import com.example.semana6.dto.colaborador.ColaboradorVista;
-import com.example.semana6.dto.solicitud.SolicitudCrear;
+import com.example.semana6.dto.solicitud.SolicitudCrudo;
 import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Asignacion;
 import com.example.semana6.modelo.Colaborador;
@@ -34,14 +35,14 @@ public class SolicitudesFacade {
   private final ClienteDAO clienteDAO = new ClienteDAO();
   private final ColaboradorDAO colaboradorDAO = new ColaboradorDAO();
 
-  public SolicitudVista crearSolicitud(SolicitudCrear solicitudCrear) {
+  public SolicitudVista crearSolicitud(SolicitudCrudo solicitudCrear) {
     Session s =  HibernateUtil.getSession().openSession();
     s.beginTransaction();
     try {
       
       Solicitud solicitud = solicitudCrear.toSolicitud();
       solicitud.setTipoSolicitud(tipoSolicitudDAO.getById(s, solicitudCrear.getTipoSolicitudId()));
-      solicitud.setEstadoSolicitud(estadoSolicitudDAO.getById(s, solicitudCrear.getEstadoSolicitud()));
+      solicitud.setEstadoSolicitud(estadoSolicitudDAO.getById(s, solicitudCrear.getEstadoSolicitudId()));
       
       if (solicitudCrear.getClienteId() != ValorDefecto.VALOR_NULO.getValue()) {
         solicitud.setCliente(clienteDAO.getById(s, solicitudCrear.getClienteId()));
@@ -95,27 +96,6 @@ public class SolicitudesFacade {
     return null;
   }
 
-  public ColaboradorVista s(int solicitudId, int colaboradorId) {
-    Session s = HibernateUtil.getSession().openSession();
-    s.beginTransaction();
-
-    try {
-      Solicitud solicitud = solicitudDAO.getById(s, solicitudId);
-      Colaborador colaborador = colaboradorDAO.getById(s, colaboradorId);
-      Asignacion asignacion = new Asignacion(solicitud, colaborador);
-      asignacionDAO.crearAsignacion(s, asignacion);
-      
-      s.getTransaction().commit();
-      s.close();
-      return new ColaboradorVista(colaborador);
-    } catch (Exception e) {
-      s.getTransaction().rollback();
-      e.printStackTrace();
-    }
-    s.close();
-    return null;
-  }
-
   public List<SolicitudVista> getSolicitudes(Object usuario, int numPag) {
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
@@ -135,14 +115,40 @@ public class SolicitudesFacade {
           }
         }
       }
-      s.close();
       if (solicitudes.size() == 0) return null;
       return solicitudes;
     } catch (Exception e) {
+      throw e;
+    } finally {
       s.close();
-      e.printStackTrace();
     }
-    return null;
+  }
+  public List<SolicitudCrudo> getSolicitudes(Object usuario, LocalDateTime inicio, LocalDateTime fin) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+
+    try {
+      List<SolicitudCrudo> solicitudes = null;
+      if (usuario instanceof ClienteDTO) { 
+        solicitudes = solicitudDAO.getCrudoByClienteId(s, ((ClienteVista) usuario).getId(), inicio, fin);
+      } else if (usuario instanceof ColaboradorDTO) {
+        if (((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+          solicitudes = solicitudDAO.getCrudoByFechaRegistro(s, inicio, fin);
+        } else {
+          List<Asignacion> asignaciones = asignacionDAO.getByIdColaborador(s, ((ColaboradorVista) usuario).getId(), inicio, fin);
+          solicitudes = new LinkedList<>();
+          for (Asignacion asignacion : asignaciones) {
+            solicitudes.add(new SolicitudCrudo(asignacion.getSolicitud()));
+          }
+        }
+      }
+      
+      return solicitudes;
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      s.close();
+    }
   }
 
   public List<SolicitudVista> getSolicitudesByCliente(Object usuario, int clienteId, int numPag) {
@@ -187,6 +193,54 @@ public class SolicitudesFacade {
         solicitudes.add(new SolicitudVista(asignacion.getSolicitud()));
       }
       
+      s.getTransaction().commit();
+      return solicitudes;
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      throw e;
+    } finally {
+      s.close();
+    }
+  }
+
+  public List<SolicitudCrudo> getSolicitudesByCliente(Object usuario, int clienteId, LocalDateTime inicio, LocalDateTime fin) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+      if (usuario instanceof ClienteVista) {
+        return null; //no tiene permisos
+      }
+      if (usuario instanceof ColaboradorVista colaboradorVista) { 
+        if (!colaboradorVista.getRolColaborador().equals("Administrador")) {
+          return null; //no tiene permiso de administrador
+        }
+      }
+      List<SolicitudCrudo> solicitudes = solicitudDAO.getCrudoByClienteId(s, clienteId, inicio, fin);
+      s.getTransaction().commit();
+
+      return solicitudes;
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      throw e;
+    } finally {
+      s.close();
+    }
+  }
+  public List<SolicitudCrudo> getSolicitudesByColaborador(Object usuario, int colaboradorId, LocalDateTime inicio, LocalDateTime fin) {
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+      if (usuario instanceof ClienteVista) {
+        return null; //no tiene permisos
+      }
+      if (usuario instanceof ColaboradorVista colaboradorVista) { 
+        if (!colaboradorVista.getRolColaborador().equals("Administrador")) {
+          return null; //no tiene permiso de administrador
+        }
+      }
+
+      List<SolicitudCrudo> solicitudes = asignacionDAO.getSolicitudCrudoByFechaRegistro(s, colaboradorId, inicio, fin);
+
       s.getTransaction().commit();
       return solicitudes;
     } catch (Exception e) {
