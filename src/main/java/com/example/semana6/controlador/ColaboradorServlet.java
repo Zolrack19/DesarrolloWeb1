@@ -38,7 +38,7 @@ public class ColaboradorServlet extends HttpServlet {
           buscarColaboradoresPorTokens(req, resp, json);
         }
         case "2" -> {
-          colaboradoresDeSolicitud(req, resp);
+          colaboradoresDeSolicitud(req, resp, json);
         }
         default -> {}
       }
@@ -50,18 +50,25 @@ public class ColaboradorServlet extends HttpServlet {
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
-  private void colaboradoresDeSolicitud(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  private void colaboradoresDeSolicitud(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {
     HttpSession session = req.getSession(false);
     Object usuario = session.getAttribute("usuario");
 
-    int solicitudId = Integer.parseInt(req.getParameter("solicitudId"));
-    List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getColaboradores(solicitudId,  usuario);
-    
-    ObjectMapper mapper = new ObjectMapper();
-    String json = mapper.writeValueAsString(colaboradorVistas);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-    resp.getWriter().write(json);
+    do {
+      if (usuario == null) {
+        json.put("error", "No hay sesión activa, no puede ejecutar ninguna operación hasta volver a inicar sesión"); break;
+      }
+      String solId = req.getParameter("solicitudId");
+      if (solId == null || !solId.matches("\\d+")) {
+        json.put("error", "Id de solicitud no es válida: " + solId); break;
+      }
+
+      int solicitudId = Integer.parseInt(solId);
+      List<ColaboradorVista> colaboradorVistas = colaboradorFacade.getColaboradores(solicitudId,  usuario);
+      json.put("ok", true);
+      json.put("colaboradores", colaboradorVistas);
+    } while (false);
+
   }
 
   private void buscarColaboradoresPorTokens(HttpServletRequest req, HttpServletResponse resp, Map<String, Object> json) throws ServletException, IOException {

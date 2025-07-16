@@ -19,21 +19,18 @@
         Reiniciar solicitudes
       </button>
     </nav>
-    <div class="flex items-center gap-4">
-      <button id="btnNuevaSolicitud" class="bg-red-600 text-white px-4 py-2 rounded-full shadow hover:bg-red-700 transition-colors">
-        Nueva solicitud
-      </button>
-    </div>
+    <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
+      <div class="flex items-center gap-4">
+        <button id="btnNuevaSolicitud" class="bg-red-600 text-white px-4 py-2 rounded-full shadow hover:bg-red-700 transition-colors">
+          Nueva solicitud
+        </button>
+      </div>
+    </c:if>
   </header>
   
-  <!-- Filtros por fecha -->
-  <div class="flex justify-end gap-4 px-6 py-4 border-b border-gray-100">
-    <input type="date" class="border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 w-[230px] max-w-[250px] min-w-[150px]">
-    <input type="date" class="border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 w-[230px] max-w-[250px] min-w-[150px]">
-  </div>
+
   
-  <!-- Navegación -->
-  <div class="px-6 w-full overflow-x-auto">
+  <div class="mt-20 px-6 w-full overflow-x-auto">
     <table class="table-auto w-full text-left text-[0.98rem] border-collapse rounded-xl shadow-lg overflow-hidden ring-1 ring-gray-200 bg-white">
       <thead>
         <tr class="bg-gradient-to-r from-gray-200 to-gray-300 text-gray-600 text-sm uppercase tracking-wider border-b border-gray-300">
@@ -267,10 +264,13 @@
           </div>
 
 
-          <button type="button" class="mt-3 md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-300"
-            id="btnComenazarAtencion">
-            Comenzar atención
-          </button>
+          <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
+            <button type="button" class="mt-3 md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-300"
+              id="btnComenazarAtencion">
+              Comenzar atención
+            </button>
+          </c:if>
+
         </div>
       </div>
 

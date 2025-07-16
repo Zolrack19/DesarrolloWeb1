@@ -22,12 +22,15 @@ const btnCerrarSesion = document.getElementById("btn-cerrarSesion")
 
 btnInicio.addEventListener(("click"), () => {cargarContenido("inicio")})
 btnSolicitudes.addEventListener(("click"), () => {cargarContenido("solicitudes")})
-btnClientes.addEventListener(("click"), () => {cargarContenido("clientes")})
-btnColaboradores.addEventListener(("click"), () => {cargarContenido("colaboradores")})
+
+if (btnClientes) {
+  btnClientes.addEventListener(("click"), () => {cargarContenido("clientes")})
+  btnColaboradores.addEventListener(("click"), () => {cargarContenido("colaboradores")})
+}
 btnEstadisticas.addEventListener(("click"), () => {cargarContenido("estadisticas")})
 btnPerfil.addEventListener(("click"), () => {cargarContenido("perfil")})
 
-btnPerfil.addEventListener(("click"), cerrarSesion)
+btnCerrarSesion.addEventListener(("click"), cerrarSesion)
 
 
 const contenido = document.getElementById("contenido");
@@ -125,12 +128,12 @@ function cerrarSesion() {
 }
 
 window.addEventListener("popstate", (e) => {
-  // console.log(sessionStorage.getItem("usuario") == null);
-  // if (sessionStorage.getItem("usuario")) {
-  //   console.log("al fin");
-  //   window.location.href = `/${contextPath}/index.html`
-  //   return;
-  // }
+  console.log(sessionStorage.getItem("usuario") == null);
+  if (!sessionStorage.getItem("usuario")) {
+    console.log("al fin");
+    window.location.href = `/${contextPath}/index.html`
+    return;
+  }
   const nombre = e.state?.nombre || location.pathname.split("/").pop() || "inicio";
   cargarContenido(nombre, false)
 })

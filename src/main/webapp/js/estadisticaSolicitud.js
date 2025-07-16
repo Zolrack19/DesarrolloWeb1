@@ -19,27 +19,36 @@ export class PanelSolicitudes {
     this.#configurarHtml()
   }
 
-  async #configurarHtml() {
+  #configurarHtml() {
+    let nose = ""
+    !JSON.parse(sessionStorage.getItem("usuario")).rolColaborador
+    ? nose = ``
+    : JSON.parse(sessionStorage.getItem("usuario")).rolColaborador === "Administrador"
+    ? nose = `
+      <div class="w-full md:w-40">
+        <select id="tipoBusqueda"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="-1">Todas las solicitudes</option>
+          <option value="1">Por colaborador</option>
+          <option value="2">Por cliente</option>
+        </select>
+      </div>
+      
+      <div class="relative w-full">
+        <input type="text" id="txtBuscar" placeholder="Buscar entidad"
+          class="w-full md:flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <ul id="popupResultados" tabindex="1"
+          class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto hidden">
+        </ul>
+      </div>
+    `
+    : ""
+    
     this.htmlPanel.className = "container mx-auto space-y-6"
     this.htmlPanel.innerHTML = `
       <h2 class="text-base font-medium text-gray-700 text-2xl mb-2">Criterios de búsqueda específica</h2>
       <div class="flex flex-col md:flex-row items-stretch md:items-center gap-7 mt-2 mb-4">
-        <div class="w-full md:w-40">
-          <select id="tipoBusqueda"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="-1">Todas las solicitudes</option>
-            <option value="1">Por colaborador</option>
-            <option value="2">Por cliente</option>
-          </select>
-        </div>
-      
-        <div class="relative w-full">
-          <input type="text" id="txtBuscar" placeholder="Buscar entidad"
-            class="w-full md:flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <ul id="popupResultados" tabindex="1"
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto hidden">
-          </ul>
-        </div>
+        ${nose}
       
         <button type="button"
           class="whitespace-nowrap w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-300"
@@ -74,7 +83,6 @@ export class PanelSolicitudes {
         &times;
       </button>
     </div>`
-    
     this.#configurarBusqueda()
   }
 

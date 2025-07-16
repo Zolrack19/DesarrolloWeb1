@@ -7,12 +7,6 @@
       <p id="pnlSolicitudes" class="text-pink-600 font-semibold border-b-2 border-pink-600 pb-1">
         <span>Solicitudes</span>
       </p>
-      <p id="pnlClientes" class="cursor-pointer hover:text-red-600 border-pink-600 pb-1">
-        <span>Clientes</span>
-      </p>
-      <p id="pnlColaboradores" class="cursor-pointer hover:text-red-600 border-pink-600 pb-1">
-        <span>Colaboradores</span>
-      </p>
     </nav>
   </header>
 
@@ -21,12 +15,11 @@
     <div class="w-[180px]">
       <label class="block text-sm font-medium text-gray-700 mb-1">Mes</label>
       <select id="mesCombo" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500">
-        <option value="-1" selected>-- Solo año --</option>
         <option value="1">Enero</option>
         <option value="2">Febrero</option>
         <option value="3">Marzo</option>
         <option value="4">Abril</option>
-        <option value="5">Mayo</option>
+        <option value="5" selected >Mayo</option>
         <option value="6">Junio</option>
         <option value="7">Julio</option>
         <option value="8">Agosto</option>

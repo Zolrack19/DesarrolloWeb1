@@ -96,13 +96,15 @@ export function init(datos, appContexto = null) {
     tbody.appendChild(crearFila(solicitud));
   });
   
-  document.getElementById("btnNuevaSolicitud").addEventListener("click", () => {
-    if (initModalForm) {
-      rellenarModal = confModalForm()
-      initModalForm = false
-    }
-    abrirModal("modalSolicitud", "contenidoSolicitud")}
-  )
+  if (document.getElementById("btnNuevaSolicitud") !== null) {
+    document.getElementById("btnNuevaSolicitud").addEventListener("click", () => {
+      if (initModalForm) {
+        rellenarModal = confModalForm()
+        initModalForm = false
+      }
+      abrirModal("modalSolicitud", "contenidoSolicitud")}
+    )
+  }
 
   if (confReinicioTabla) {
     const btnReinicarTabla = document.getElementById("btnReinicarTabla")
@@ -361,6 +363,7 @@ function confVistaSolicitud() {
   const miniFormDerecho = document.getElementById("miniFormDerecho")
   const contenedorTarjetas = document.getElementById("contenedorTarjetas")
   const tituloContenedorTarjetas = document.getElementById("tituloContenedorTarjetas")
+  const btnComenazarAtencion = document.getElementById("btnComenazarAtencion")
   const contenedorTarjetas2 = document.createElement("div")
   contenedorTarjetas2.className = "rounded-lg p-4 min-h-[40vh] max-h-[50vh] overflow-y-auto bg-gray-50"
 
@@ -369,6 +372,29 @@ function confVistaSolicitud() {
 
   let solicitudActual = null
   let colaboradorSeleccionadoId = null
+
+  if (btnComenazarAtencion) {
+    btnComenazarAtencion.addEventListener("click", async () => {
+      await fetch(`/${contextPath}/control/SolicitudServlet`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({"action": "2", "solicitudId": solicitudActual.id, "estadoId": `${solicitudActual.estadoSolicitud === "Pendiente" ? "3": "4"}`})
+      }).then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+      }).then(data => {
+        if (data.ok) {
+          
+        } else {
+          alert(data.error)
+        }
+      })
+    })
+  }
+
 
   caraFormActividad.addEventListener("submit", async (e) => {
     e.preventDefault()
@@ -405,7 +431,9 @@ function confVistaSolicitud() {
     vistaAtras.classList.add("hidden")
     caraFormActividad.classList.add("hidden")
     caraInfoSolicitud.classList.remove("hidden")
-    miniFormDerecho.classList.remove("hidden")
+    if (miniFormDerecho) {
+      miniFormDerecho.classList.remove("hidden")
+    }
     txtDescripcionInforme.value = ""
     txtHoraInicio.value = ""
     txtHoraFin.value = ""
@@ -502,7 +530,9 @@ function confVistaSolicitud() {
             });
   
             caraInfoSolicitud.classList.add("hidden")
-            miniFormDerecho.classList.add("hidden")
+            if (miniFormDerecho) {
+              miniFormDerecho.classList.add("hidden")
+            }
             vistaAtras.classList.remove("hidden")
             caraFormActividad.classList.remove("hidden")
             
@@ -516,9 +546,6 @@ function confVistaSolicitud() {
 
         })
       }, 0);
-
-
-
     } else if (e.target.classList.contains("btn-asignar-coordinador")) {
       const tarjeta = e.target.closest("div.tarjetilla")
       if (!tarjeta || !confirm("¿Está seguro que quiere asignar como coordinador de la solicitud a este colaborador?")) return;
@@ -528,7 +555,7 @@ function confVistaSolicitud() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({"solicitudId": solicitudActual.id, "colaboradorId": Number.parseInt(tarjeta.dataset.id)})
+        body: JSON.stringify({"action": "1", "solicitudId": solicitudActual.id, "colaboradorId": Number.parseInt(tarjeta.dataset.id)})
       }).then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -548,8 +575,6 @@ function confVistaSolicitud() {
           tarjeta.className = estiloResaltante
         }
       })
-      
-
     } else if (e.target.classList.contains("btn-eliminar-asignacion")) {
       const tarjeta = e.target.closest("div.tarjetilla")
       if (!tarjeta || !confirm("¿Está seguro que quiere quitar a este colaborador de la solicitud?")) return;
@@ -563,7 +588,6 @@ function confVistaSolicitud() {
           console.error("Error al eliminar asignación");
         }
       })
-
     }
   })
 
@@ -572,6 +596,9 @@ function confVistaSolicitud() {
     contenedorTarjetas.innerHTML = ""
     solicitudActual = null
     colaboradorSeleccionadoId = null
+    if (btnComenazarAtencion) {
+      btnComenazarAtencion.classList.remove("hidden")
+    }
     cerrarModal("modalVerSolicitud", "contenidoVerSolicitud")
   })
 
@@ -579,7 +606,7 @@ function confVistaSolicitud() {
   if (txtBuscarColaborador !== null) {
     const popupColaboradores = document.getElementById("popupColaboradores")
   
-    confTextSearch(txtBuscarColaborador, popupColaboradores, `/${contextPath}/control/ColaboradorServlet?action=1&`, (colaboradores) => {
+    confTextSearch(txtBuscarColaborador, popupColaboradores, `/${contextPath}/control/ColaboradorServlet?action=1&estricto=true&`, (colaboradores) => {
       popupColaboradores.innerHTML = ""
       colaboradores.forEach(colaborador => {
         const li = document.createElement("li");
@@ -636,30 +663,44 @@ function confVistaSolicitud() {
           return resp.json()
         }
       })
-      .then(colaboradores => {
-        solicitudActual = solicitud
-        let tarjetaCoord;
-        if (solicitudActual.coordinador !== null) {
-          const colaborador = colaboradores.splice(0, 1)[0]
-          tarjetaCoord = crearTarjetilla(
-            colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
-            `Código: ${colaborador.codigo}`, true
-          ),
-          tarjetaCoord.className = estiloResaltante
-          tarjetaCoord.dataset.coor = true
-        }
-        colaboradores.forEach(colaborador => {
-          contenedorTarjetas.appendChild(crearTarjetilla(
-            colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
-            `Código: ${colaborador.codigo}`, true
-          ),)
-        });
-
-        if (tarjetaCoord) {
-          contenedorTarjetas.insertBefore(tarjetaCoord, contenedorTarjetas.firstChild)
+      .then(data => {
+        if (data.ok) {
+          solicitudActual = solicitud
+          let tarjetaCoord;
+          if (solicitudActual.coordinador !== null) {
+            const colaborador = data.colaboradores.splice(0, 1)[0]
+            tarjetaCoord = crearTarjetilla(
+              colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
+              `Código: ${colaborador.codigo}`, true
+            ),
+            tarjetaCoord.className = estiloResaltante
+            tarjetaCoord.dataset.coor = true
+          }
+          data.colaboradores.forEach(colaborador => {
+            contenedorTarjetas.appendChild(crearTarjetilla(
+              colaborador.id, `${colaborador.nombre} ${colaborador.apellidoPaterno} ${colaborador.apellidoMaterno}`,
+              `Código: ${colaborador.codigo}`, true
+            ),)
+          });
+  
+          if (tarjetaCoord) {
+            contenedorTarjetas.insertBefore(tarjetaCoord, contenedorTarjetas.firstChild)
+          }
+        } else {
+          alert(data.error);
         }
       })
     }, 0);
+    if (btnComenazarAtencion) {
+      if (solicitud.estadoSolicitud === "Pendiente") {
+        btnComenazarAtencion.innerHTML = "Comenzar atención"
+      } else if (solicitud.estadoSolicitud === "Atendida") {
+        btnComenazarAtencion.classList.add("hidden")
+      } else {
+        btnComenazarAtencion.innerHTML = "Finalizar atención"
+      }
+    }
+
     verTipoSolicitud.innerHTML = solicitud.tipoSolicitud
     verTipoSolicitud.dataset.id = solicitud.id
     verEstadoSolicitud.innerHTML = solicitud.estadoSolicitud
@@ -691,6 +732,18 @@ function cerrarModal(idModal, idContenido) {
   }, 300);
 }
 
+let nose = ""
+!JSON.parse(sessionStorage.getItem("usuario")).rolColaborador
+? nose = `
+  <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
+  <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+`
+: JSON.parse(sessionStorage.getItem("usuario")).rolColaborador === "Administrador"
+? nose = `
+  <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
+  <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+`
+: ""
 function crearFila(solicitud) {
   const tr = document.createElement("tr");
   tr.className = "odd:bg-white even:bg-gray-100 hover:bg-blue-100 transition-colors";
@@ -724,8 +777,7 @@ function crearFila(solicitud) {
       </button>
       <div tabindex="-1" class="popup-menu absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-md hidden z-10">
         <button class="btn-ver-detalles block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Ver detalles</button>
-        <button class="btn-editar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100">Editar</button>
-        <button class="btn-eliminar block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600">Eliminar</button>
+        ${nose}
       </div>
     </td>
   `;

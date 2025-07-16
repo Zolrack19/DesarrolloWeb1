@@ -76,30 +76,37 @@ export function init(datos, appContexto = null) {
 
 
   document.getElementById("atras").addEventListener("click", async function() {
+    if (numPag - 1 === 0) return;
     const res = await fetch(`/${contextPath}/control/ClienteServlet?numPag=${numPag - 1}`)
-    datos = await res.json()
-    if (datos) {
+    const data = await res.json()
+    if (data.ok) {
+      clientes = data.clientes
       numPag--
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      datos.forEach(cliente => {
+      clientes.forEach(cliente => {
         tbody.appendChild(crearFila(cliente))
       });
+    } else {
+      alert(data.error)
     }
   })
 
   document.getElementById("adelante").addEventListener("click", async function() {
     const res = await fetch(`/${contextPath}/control/ClienteServlet?numPag=${numPag + 1}`)
-    datos = await res.json()
-    if (datos) {
+    const data = await res.json()
+    if (data.ok) {
+      clientes = data.clientes
       numPag++
       pagInicio.innerHTML = (numPag - 1)*10 + 1
       pagFin.innerHTML = numPag*10 - (10 - datos.length) 
       tbody.innerHTML = ''
-      datos.forEach(cliente => {
+      clientes.forEach(cliente => {
         tbody.appendChild(crearFila(cliente))
       });
+    } else {
+      alert(data.error)
     }
   })
 

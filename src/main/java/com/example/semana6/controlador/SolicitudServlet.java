@@ -272,11 +272,26 @@ public class SolicitudServlet extends HttpServlet {
   // solo para asignar coordinador a la solicitud
   @SuppressWarnings("unchecked")
   protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+    String action = (String) campos.get("action");
+    switch (action) {
+      case "1" -> {
+        asignarCoordinador(req, resp, campos);
+      }
+      case "2" -> {
+        cambiarEstado(req, resp, campos);
+      }
+      default -> {}
+    }
+  }
+
+  protected void asignarCoordinador(HttpServletRequest req, HttpServletResponse resp, HashMap<String, Object> campos) throws ServletException, IOException {
     HttpSession session = req.getSession(false);
     Object usuario = session.getAttribute("usuario");
     
-    ObjectMapper mapper = new ObjectMapper();
-    HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+    // ObjectMapper mapper = new ObjectMapper();
+    // HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
     
     SolicitudVista solicitudVista = solicitudesFacade.asignarCoordinadorASolicitud(campos, usuario);
 
@@ -290,6 +305,23 @@ public class SolicitudServlet extends HttpServlet {
     new ObjectMapper().writeValue(resp.getWriter(), json);
   }
 
+  protected void cambiarEstado(HttpServletRequest req, HttpServletResponse resp, HashMap<String, Object> campos) throws ServletException, IOException {
+    HttpSession session = req.getSession(false);
+    Object usuario = session.getAttribute("usuario");
+    
+    // ObjectMapper mapper = new ObjectMapper();
+    // HashMap<String, Object> campos = mapper.readValue(req.getInputStream(), HashMap.class);
+    
+    SolicitudVista solicitudVista = solicitudesFacade.cambiarEstadoSolicitud(campos, usuario);
+
+    Map<String, Object> json = new HashMap<>();
+    json.put("ok", solicitudVista != null);
+    json.put("solicitud", solicitudVista);
+
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+    new ObjectMapper().writeValue(resp.getWriter(), json);
+  }
 
   @SuppressWarnings("unchecked")
   @Override

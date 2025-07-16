@@ -30,7 +30,7 @@
         </p>
       </div>
     
-      <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
+      <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
         <div id="btnColaboradores" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
           <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">👥 Colaboradores</h2>
           <p class="text-gray-700">
@@ -39,7 +39,7 @@
         </div>
       </c:if>
 
-      <c:if test="${rol != 'cliente' || (rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador')}">
+      <c:if test="${rol == 'colaborador' && usuario.getRolColaborador() == 'Administrador'}">
         <div id="btnClientes" class="group relative bg-gradient-to-br from-indigo-100 via-white to-blue-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition cursor-pointer">
           <h2 class="text-xl font-bold text-indigo-700 mb-2 group-hover:underline">👥 Clientes</h2>
           <p class="text-gray-700">

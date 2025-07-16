@@ -22,6 +22,7 @@ import com.example.semana6.dto.solicitud.SolicitudCrudo;
 import com.example.semana6.dto.solicitud.SolicitudVista;
 import com.example.semana6.modelo.Asignacion;
 import com.example.semana6.modelo.Colaborador;
+import com.example.semana6.modelo.EstadoSolicitud;
 import com.example.semana6.modelo.Solicitud;
 import com.example.semana6.modelo.TipoSolicitud;
 import com.example.semana6.singleton.HibernateUtil;
@@ -96,6 +97,36 @@ public class SolicitudesFacade {
     return null;
   }
 
+  public SolicitudVista cambiarEstadoSolicitud(HashMap<String, Object> campos, Object usuario) {
+    if (!campos.containsKey("solicitudId") || !campos.containsKey("estadoId")) return null;
+    if (usuario instanceof ClienteDTO || !((ColaboradorVista) usuario).getRolColaborador().equals("Administrador")) {
+      return null;
+    }
+
+    Session s = HibernateUtil.getSession().openSession();
+    s.beginTransaction();
+    try {
+
+      Solicitud solicitud = solicitudDAO.getById(s, (int) campos.get("solicitudId"));
+      EstadoSolicitud estadoSolicitud = estadoSolicitudDAO.getById(s, Short.parseShort((String) campos.get("estadoId")));
+      if (solicitud == null) {
+        System.out.println("solicitud o colaborador no existente");
+        return null;
+      }
+
+      solicitud.setEstadoSolicitud(estadoSolicitud);
+      s.getTransaction().commit();
+      return new SolicitudVista(solicitud);
+    } catch (Exception e) {
+      s.getTransaction().rollback();
+      e.printStackTrace();
+    } finally {
+      s.close();
+    }
+    return null;
+  }
+  
+
   public List<SolicitudVista> getSolicitudes(Object usuario, int numPag) {
     Session s = HibernateUtil.getSession().openSession();
     s.beginTransaction();
@@ -115,7 +146,7 @@ public class SolicitudesFacade {
           }
         }
       }
-      if (solicitudes.size() == 0) return null;
+      // if (solicitudes.size() == 0) return null;
       return solicitudes;
     } catch (Exception e) {
       throw e;
